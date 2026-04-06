@@ -1,0 +1,31 @@
+[package]
+name        = "rustigram-bot"
+description = "High-level bot dispatcher, update listener, and handler framework for rustigram"
+keywords    = ["telegram", "bot", "async", "framework", "dispatcher"]
+categories  = ["api-bindings", "asynchronous"]
+version.workspace     = true
+edition.workspace     = true
+authors.workspace     = true
+license.workspace     = true
+repository.workspace  = true
+rust-version.workspace = true
+
+[dependencies]
+rustigram-types = { workspace = true }
+rustigram-api   = { workspace = true }
+tokio           = { workspace = true }
+serde           = { workspace = true }
+serde_json      = { workspace = true }
+thiserror       = { workspace = true }
+anyhow          = { workspace = true }
+async-trait     = { workspace = true }
+futures         = { workspace = true }
+futures-util    = { workspace = true }
+tracing         = { workspace = true }
+axum            = { workspace = true }
+tower           = { workspace = true }
+dashmap         = { workspace = true }
+
+[dev-dependencies]
+tokio              = { workspace = true }
+tracing-subscriber = { workspace = true }

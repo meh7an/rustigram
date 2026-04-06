@@ -1,0 +1,67 @@
+[workspace]
+resolver = "2"
+members  = [
+    "crates/rustigram-types",
+    "crates/rustigram-api",
+    "crates/rustigram-bot",
+    "crates/rustigram-macros",
+    "crates/rustigram",
+]
+
+[workspace.package]
+version      = "0.9.0"
+edition      = "2021"
+authors      = ["Mehran <hi@mehran.tech>"]
+license      = "MIT"
+repository   = "https://github.com/meh7an/rustigram"
+homepage     = "https://github.com/meh7an/rustigram"
+rust-version = "1.75"
+
+[workspace.dependencies]
+# async runtime
+tokio          = { version = "1.51",  features = ["full"] }
+# http
+reqwest        = { version = "0.13",  default-features = false, features = ["json", "multipart", "rustls", "stream"] }
+# serialization
+serde          = { version = "1.0",   features = ["derive"] }
+serde_json     = "1.0"
+# error handling
+thiserror      = "2.0"
+anyhow         = "1.0"
+# async traits
+async-trait    = "0.1"
+# futures
+futures        = "0.3"
+futures-util   = "0.3"
+# logging
+tracing        = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# web server
+axum           = { version = "0.8", features = ["macros"] }
+tower          = "0.5"
+# concurrency
+dashmap        = "6"
+# bytes
+bytes          = "1"
+# macros
+paste          = "1"
+proc-macro2    = "1"
+quote          = "1"
+syn            = { version = "2", features = ["full"] }
+# internal
+rustigram-types  = { version = "0.9.0", path = "crates/rustigram-types" }
+rustigram-api    = { version = "0.9.0", path = "crates/rustigram-api" }
+rustigram-bot    = { version = "0.9.0", path = "crates/rustigram-bot" }
+rustigram-macros = { version = "0.9.0", path = "crates/rustigram-macros" }
+
+[profile.release]
+lto           = true
+codegen-units = 1
+strip         = "symbols"
+
+[workspace.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[workspace.lints.rust]
+missing_docs = "warn"

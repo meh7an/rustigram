@@ -1,0 +1,15 @@
+[package]
+name        = "rustigram-types"
+description = "Telegram Bot API type definitions for rustigram"
+keywords    = ["telegram", "bot", "types", "api"]
+categories  = ["api-bindings"]
+version.workspace     = true
+edition.workspace     = true
+authors.workspace     = true
+license.workspace     = true
+repository.workspace  = true
+rust-version.workspace = true
+
+[dependencies]
+serde      = { workspace = true }
+serde_json = { workspace = true }

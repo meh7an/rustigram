@@ -1,0 +1,21 @@
+[package]
+name        = "rustigram"
+description = "Comprehensive async Rust framework for the Telegram Bot API"
+keywords    = ["telegram", "bot", "async", "framework"]
+categories  = ["api-bindings", "asynchronous"]
+version.workspace     = true
+edition.workspace     = true
+authors.workspace     = true
+license.workspace     = true
+repository.workspace  = true
+rust-version.workspace = true
+
+[dependencies]
+rustigram-types  = { workspace = true }
+rustigram-api    = { workspace = true }
+rustigram-bot    = { workspace = true }
+rustigram-macros = { workspace = true }
+tokio            = { workspace = true }
+tracing          = { workspace = true }
+anyhow           = { workspace = true }
+tracing-subscriber = { workspace = true }

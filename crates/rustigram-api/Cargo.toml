@@ -1,0 +1,26 @@
+[package]
+name        = "rustigram-api"
+description = "Telegram Bot API method builders and HTTP client for rustigram"
+keywords    = ["telegram", "bot", "api", "http", "async"]
+categories  = ["api-bindings", "web-programming::http-client"]
+version.workspace     = true
+edition.workspace     = true
+authors.workspace     = true
+license.workspace     = true
+repository.workspace  = true
+rust-version.workspace = true
+
+[dependencies]
+rustigram-types = { workspace = true }
+tokio           = { workspace = true }
+reqwest         = { workspace = true }
+serde           = { workspace = true }
+serde_json      = { workspace = true }
+thiserror       = { workspace = true }
+async-trait     = { workspace = true }
+tracing         = { workspace = true }
+bytes           = { workspace = true }
+paste           = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
