@@ -119,7 +119,7 @@ impl EditMessageText {
         self.params.parse_mode = Some(m);
         self
     }
-    /// Sets custom entities instead of using a parse mode.
+    /// Sets custom message entities instead of using a parse mode.
     pub fn entities(mut self, e: Vec<MessageEntity>) -> Self {
         self.params.entities = Some(e);
         self
@@ -172,6 +172,22 @@ impl EditMessageCaption {
                 target: EditTarget::Chat {
                     chat_id: chat_id.into(),
                     message_id,
+                },
+                business_connection_id: None,
+                caption: None,
+                parse_mode: None,
+                caption_entities: None,
+                show_caption_above_media: None,
+                reply_markup: None,
+            },
+        }
+    }
+    pub(crate) fn inline(client: BotClient, inline_message_id: impl Into<String>) -> Self {
+        Self {
+            client,
+            params: EditMessageCaptionParams {
+                target: EditTarget::Inline {
+                    inline_message_id: inline_message_id.into(),
                 },
                 business_connection_id: None,
                 caption: None,
@@ -312,6 +328,18 @@ impl EditMessageReplyMarkup {
                 target: EditTarget::Chat {
                     chat_id: chat_id.into(),
                     message_id,
+                },
+                business_connection_id: None,
+                reply_markup: None,
+            },
+        }
+    }
+    pub(crate) fn inline(client: BotClient, inline_message_id: impl Into<String>) -> Self {
+        Self {
+            client,
+            params: EditMessageReplyMarkupParams {
+                target: EditTarget::Inline {
+                    inline_message_id: inline_message_id.into(),
                 },
                 business_connection_id: None,
                 reply_markup: None,
@@ -512,6 +540,28 @@ impl EditMessageLiveLocation {
             },
         }
     }
+    pub(crate) fn inline(
+        client: BotClient,
+        inline_message_id: impl Into<String>,
+        latitude: f64,
+        longitude: f64,
+    ) -> Self {
+        Self {
+            client,
+            params: EditMessageLiveLocationParams {
+                target: EditTarget::Inline {
+                    inline_message_id: inline_message_id.into(),
+                },
+                latitude,
+                longitude,
+                live_period: None,
+                horizontal_accuracy: None,
+                heading: None,
+                proximity_alert_radius: None,
+                reply_markup: None,
+            },
+        }
+    }
     /// Sets how long the location stays live, in seconds (60–86400).
     pub fn live_period(mut self, v: u32) -> Self {
         self.params.live_period = Some(v);
@@ -555,6 +605,17 @@ impl StopMessageLiveLocation {
                 target: EditTarget::Chat {
                     chat_id: chat_id.into(),
                     message_id,
+                },
+                reply_markup: None,
+            },
+        }
+    }
+    pub(crate) fn inline(client: BotClient, inline_message_id: impl Into<String>) -> Self {
+        Self {
+            client,
+            params: StopMessageLiveLocationParams {
+                target: EditTarget::Inline {
+                    inline_message_id: inline_message_id.into(),
                 },
                 reply_markup: None,
             },

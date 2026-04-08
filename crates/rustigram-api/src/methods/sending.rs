@@ -8,6 +8,7 @@ use rustigram_types::file::InputFile;
 use rustigram_types::keyboard::ReplyMarkup;
 use rustigram_types::message::{LinkPreviewOptions, Message, ParseMode, ReplyParameters};
 use rustigram_types::poll::InputPollOption;
+use rustigram_types::suggested_post::SuggestedPostParameters;
 use rustigram_types::user::ChatId;
 
 use crate::client::BotClient;
@@ -40,6 +41,8 @@ struct SendMessageParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     parse_mode: Option<ParseMode>,
     #[serde(skip_serializing_if = "Option::is_none")]
     entities: Option<Vec<rustigram_types::message::MessageEntity>>,
@@ -57,6 +60,8 @@ struct SendMessageParams {
     reply_parameters: Option<ReplyParameters>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<ReplyMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`sendMessage`](https://core.telegram.org/bots/api#sendmessage) method.
@@ -78,6 +83,7 @@ impl SendMessage {
                 text: text.into(),
                 business_connection_id: None,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 parse_mode: None,
                 entities: None,
                 link_preview_options: None,
@@ -87,6 +93,7 @@ impl SendMessage {
                 message_effect_id: None,
                 reply_parameters: None,
                 reply_markup: None,
+                suggested_post_parameters: None,
             },
         }
     }
@@ -98,6 +105,11 @@ impl SendMessage {
     /// Forum topic thread ID.
     pub fn message_thread_id(mut self, id: i64) -> Self {
         self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
         self
     }
     /// Sets the text parse mode (`MarkdownV2`, `HTML`, or `Markdown`).
@@ -160,6 +172,11 @@ impl SendMessage {
         self.params.reply_markup = Some(markup.into());
         self
     }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(params);
+        self
+    }
 }
 
 impl_into_future!(SendMessage, Message, "sendMessage");
@@ -173,6 +190,8 @@ struct ForwardMessageParams {
     message_id: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     video_start_timestamp: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -201,6 +220,7 @@ impl ForwardMessage {
                 from_chat_id: from_chat_id.into(),
                 message_id,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 video_start_timestamp: None,
                 disable_notification: None,
                 protect_content: None,
@@ -210,6 +230,16 @@ impl ForwardMessage {
     /// Forum topic thread ID.
     pub fn message_thread_id(mut self, id: i64) -> Self {
         self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
+        self
+    }
+    /// New start timestamp for a forwarded video.
+    pub fn video_start_timestamp(mut self, ts: i64) -> Self {
+        self.params.video_start_timestamp = Some(ts);
         self
     }
     /// Sends the message silently — the recipient receives no notification sound.
@@ -235,6 +265,8 @@ struct CopyMessageParams {
     message_id: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     video_start_timestamp: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -275,6 +307,7 @@ impl CopyMessage {
                 from_chat_id: from_chat_id.into(),
                 message_id,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 video_start_timestamp: None,
                 caption: None,
                 parse_mode: None,
@@ -286,6 +319,21 @@ impl CopyMessage {
                 reply_markup: None,
             },
         }
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
+        self
+    }
+    /// New start timestamp for a copied video.
+    pub fn video_start_timestamp(mut self, ts: i64) -> Self {
+        self.params.video_start_timestamp = Some(ts);
+        self
     }
     /// Sets the caption (0–1024 characters) for media messages.
     pub fn caption(mut self, c: impl Into<String>) -> Self {
@@ -397,6 +445,8 @@ struct SendDiceParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     disable_notification: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     protect_content: Option<bool>,
@@ -420,6 +470,7 @@ impl SendDice {
                 chat_id: chat_id.into(),
                 emoji: None,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 disable_notification: None,
                 protect_content: None,
                 reply_parameters: None,
@@ -430,6 +481,16 @@ impl SendDice {
     /// The dice/emoji to animate. One of 🎲 🎯 🏀 ⚽ 🎳 🎰.
     pub fn emoji(mut self, e: impl Into<String>) -> Self {
         self.params.emoji = Some(e.into());
+        self
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
         self
     }
     /// Sends the message silently — the recipient receives no notification sound.
@@ -455,6 +516,8 @@ struct SendLocationParams {
     longitude: f64,
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     horizontal_accuracy: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -493,6 +556,7 @@ impl SendLocation {
                 latitude,
                 longitude,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 horizontal_accuracy: None,
                 live_period: None,
                 heading: None,
@@ -503,6 +567,16 @@ impl SendLocation {
                 reply_markup: None,
             },
         }
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
+        self
     }
     /// Sets the radius of uncertainty for the location, in metres (0–1500).
     pub fn horizontal_accuracy(mut self, v: f64) -> Self {
@@ -552,6 +626,8 @@ struct SendContactParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     disable_notification: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     protect_content: Option<bool>,
@@ -583,12 +659,23 @@ impl SendContact {
                 last_name: None,
                 vcard: None,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 disable_notification: None,
                 protect_content: None,
                 reply_parameters: None,
                 reply_markup: None,
             },
         }
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
+        self
     }
     /// Sets the last name of the contact.
     pub fn last_name(mut self, v: impl Into<String>) -> Self {
@@ -627,6 +714,8 @@ struct SendPollParams {
     question_entities: Option<Vec<rustigram_types::message::MessageEntity>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     poll_type: Option<rustigram_types::poll::PollType>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -642,11 +731,25 @@ struct SendPollParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     explanation_parse_mode: Option<ParseMode>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    explanation_entities: Option<Vec<rustigram_types::message::MessageEntity>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     open_period: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     close_date: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     is_closed: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    shuffle_options: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_adding_options: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    hide_results_until_closes: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description_parse_mode: Option<ParseMode>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description_entities: Option<Vec<rustigram_types::message::MessageEntity>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     disable_notification: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -655,6 +758,8 @@ struct SendPollParams {
     reply_parameters: Option<ReplyParameters>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<ReplyMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`sendPoll`](https://core.telegram.org/bots/api#sendpoll) method.
@@ -679,6 +784,7 @@ impl SendPoll {
                 question_parse_mode: None,
                 question_entities: None,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 poll_type: None,
                 is_anonymous: None,
                 allows_multiple_answers: None,
@@ -686,15 +792,33 @@ impl SendPoll {
                 correct_option_ids: None,
                 explanation: None,
                 explanation_parse_mode: None,
+                explanation_entities: None,
                 open_period: None,
                 close_date: None,
                 is_closed: None,
+                shuffle_options: None,
+                allow_adding_options: None,
+                hide_results_until_closes: None,
+                description: None,
+                description_parse_mode: None,
+                description_entities: None,
                 disable_notification: None,
                 protect_content: None,
                 reply_parameters: None,
                 reply_markup: None,
+                suggested_post_parameters: None,
             },
         }
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
+        self
     }
     /// Sets whether the poll is anonymous.
     pub fn is_anonymous(mut self, v: bool) -> Self {
@@ -711,15 +835,29 @@ impl SendPoll {
         self.params.allows_revoting = Some(v);
         self
     }
-    /// Converts the poll to a quiz with the given correct option index.
-    pub fn quiz(mut self, correct_option_id: u8) -> Self {
+    /// Converts the poll to a quiz with the given correct option indices.
+    pub fn quiz(mut self, ids: Vec<u8>) -> Self {
         self.params.poll_type = Some(rustigram_types::poll::PollType::Quiz);
-        self.params.correct_option_ids = Some(vec![correct_option_id]);
+        self.params.correct_option_ids = Some(ids);
         self
+    }
+    /// Convenience method for a quiz with a single correct option.
+    pub fn quiz_single(self, id: u8) -> Self {
+        self.quiz(vec![id])
     }
     /// Sets the explanation text shown after a quiz answer.
     pub fn explanation(mut self, text: impl Into<String>) -> Self {
         self.params.explanation = Some(text.into());
+        self
+    }
+    /// Sets the parse mode for the explanation.
+    pub fn explanation_parse_mode(mut self, mode: ParseMode) -> Self {
+        self.params.explanation_parse_mode = Some(mode);
+        self
+    }
+    /// Sets entities for the explanation.
+    pub fn explanation_entities(mut self, e: Vec<rustigram_types::message::MessageEntity>) -> Self {
+        self.params.explanation_entities = Some(e);
         self
     }
     /// Sets how long the poll stays open in seconds (5–2628000).
@@ -732,6 +870,46 @@ impl SendPoll {
         self.params.close_date = Some(ts);
         self
     }
+    /// Sets whether the options should be shuffled.
+    pub fn shuffle_options(mut self, v: bool) -> Self {
+        self.params.shuffle_options = Some(v);
+        self
+    }
+    /// Allows users to add their own options to the poll.
+    pub fn allow_adding_options(mut self, v: bool) -> Self {
+        self.params.allow_adding_options = Some(v);
+        self
+    }
+    /// Hides the poll results until it's closed.
+    pub fn hide_results_until_closes(mut self, v: bool) -> Self {
+        self.params.hide_results_until_closes = Some(v);
+        self
+    }
+    /// Sets the poll description (0-1024 chars).
+    pub fn description(mut self, d: impl Into<String>) -> Self {
+        self.params.description = Some(d.into());
+        self
+    }
+    /// Sets description parse mode.
+    pub fn description_parse_mode(mut self, mode: ParseMode) -> Self {
+        self.params.description_parse_mode = Some(mode);
+        self
+    }
+    /// Sets description entities.
+    pub fn description_entities(mut self, e: Vec<rustigram_types::message::MessageEntity>) -> Self {
+        self.params.description_entities = Some(e);
+        self
+    }
+    /// Sets the question parse mode.
+    pub fn question_parse_mode(mut self, mode: ParseMode) -> Self {
+        self.params.question_parse_mode = Some(mode);
+        self
+    }
+    /// Sets question entities.
+    pub fn question_entities(mut self, e: Vec<rustigram_types::message::MessageEntity>) -> Self {
+        self.params.question_entities = Some(e);
+        self
+    }
     /// Sends the message silently — the recipient receives no notification sound.
     pub fn disable_notification(mut self, v: bool) -> Self {
         self.params.disable_notification = Some(v);
@@ -740,6 +918,11 @@ impl SendPoll {
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self {
         self.params.reply_markup = Some(m.into());
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(params);
         self
     }
 }
@@ -815,6 +998,8 @@ pub struct MediaSendOptions {
     pub business_connection_id: Option<String>,
     /// Forum topic thread ID.
     pub message_thread_id: Option<i64>,
+    /// Identifier of a direct messages chat topic.
+    pub direct_messages_topic_id: Option<i64>,
     /// Sets the caption (0–1024 characters) for media messages.
     pub caption: Option<String>,
     /// Parse mode for the caption.
@@ -835,6 +1020,8 @@ pub struct MediaSendOptions {
     pub reply_parameters: Option<ReplyParameters>,
     /// Reply markup attached to the message.
     pub reply_markup: Option<ReplyMarkup>,
+    /// Suggested post parameters for channel direct messages chats.
+    pub suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builds the JSON body for a simple (non-file-upload) part of a media send.
@@ -855,6 +1042,9 @@ fn media_json_body(
     }
     if let Some(v) = &opts.message_thread_id {
         obj.insert("message_thread_id".to_owned(), serde_json::json!(v));
+    }
+    if let Some(v) = &opts.direct_messages_topic_id {
+        obj.insert("direct_messages_topic_id".to_owned(), serde_json::json!(v));
     }
     if let Some(v) = &opts.caption {
         obj.insert("caption".to_owned(), serde_json::json!(v));
@@ -886,6 +1076,9 @@ fn media_json_body(
     if let Some(v) = &opts.reply_markup {
         obj.insert("reply_markup".to_owned(), serde_json::json!(v));
     }
+    if let Some(v) = &opts.suggested_post_parameters {
+        obj.insert("suggested_post_parameters".to_owned(), serde_json::json!(v));
+    }
     if let serde_json::Value::Object(extra_obj) = extra {
         for (k, v) in extra_obj {
             obj.insert(k, v);
@@ -912,6 +1105,21 @@ impl SendPhoto {
             photo,
             opts: MediaSendOptions::default(),
         }
+    }
+    /// Business connection ID for sending on behalf of a business account.
+    pub fn business_connection_id(mut self, id: impl Into<String>) -> Self {
+        self.opts.business_connection_id = Some(id.into());
+        self
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.opts.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.opts.direct_messages_topic_id = Some(id);
+        self
     }
     /// Sets the caption (0–1024 characters) for media messages.
     pub fn caption(mut self, c: impl Into<String>) -> Self {
@@ -958,6 +1166,11 @@ impl SendPhoto {
         self.opts.reply_markup = Some(m.into());
         self
     }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self {
+        self.opts.suggested_post_parameters = Some(params);
+        self
+    }
 }
 
 impl IntoFuture for SendPhoto {
@@ -978,6 +1191,15 @@ impl IntoFuture for SendPhoto {
                         .map_err(|e| crate::error::Error::Decode(e.to_string()))?;
                     let mut form = Form::new().part("photo", part);
                     form = form.text("chat_id", self.chat_id.to_string());
+                    if let Some(id) = &self.opts.business_connection_id {
+                        form = form.text("business_connection_id", id.clone());
+                    }
+                    if let Some(id) = self.opts.message_thread_id {
+                        form = form.text("message_thread_id", id.to_string());
+                    }
+                    if let Some(id) = self.opts.direct_messages_topic_id {
+                        form = form.text("direct_messages_topic_id", id.to_string());
+                    }
                     if let Some(c) = &self.opts.caption {
                         form = form.text("caption", c.clone());
                     }
@@ -992,6 +1214,12 @@ impl IntoFuture for SendPhoto {
                     }
                     if let Some(v) = &self.opts.reply_markup {
                         form = form.text("reply_markup", serde_json::to_string(v).unwrap());
+                    }
+                    if let Some(p) = &self.opts.suggested_post_parameters {
+                        form = form.text(
+                            "suggested_post_parameters",
+                            serde_json::to_string(p).unwrap(),
+                        );
                     }
                     self.client.post_multipart("sendPhoto", form).await
                 }
@@ -1038,6 +1266,12 @@ macro_rules! media_sender {
                     $($extra_field: None,)*
                 }
             }
+            /// Business connection ID for sending on behalf of a business account.
+            pub fn business_connection_id(mut self, id: impl Into<String>) -> Self { self.opts.business_connection_id = Some(id.into()); self }
+            /// Forum topic thread ID.
+            pub fn message_thread_id(mut self, id: i64) -> Self { self.opts.message_thread_id = Some(id); self }
+            /// Identifier of a direct messages chat topic.
+            pub fn direct_messages_topic_id(mut self, id: i64) -> Self { self.opts.direct_messages_topic_id = Some(id); self }
             /// Sets the caption (0–1024 characters) for media messages.
             pub fn caption(mut self, c: impl Into<String>) -> Self { self.opts.caption = Some(c.into()); self }
             /// Sets the caption parse mode (`MarkdownV2`, `HTML`, or `Markdown`).
@@ -1052,6 +1286,16 @@ macro_rules! media_sender {
             pub fn reply_parameters(mut self, rp: ReplyParameters) -> Self { self.opts.reply_parameters = Some(rp); self }
             /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
             pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self { self.opts.reply_markup = Some(m.into()); self }
+            /// Suggested post parameters for channel direct messages chats.
+            pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self { self.opts.suggested_post_parameters = Some(params); self }
+
+            $(
+                #[doc = concat!("Sets the ", stringify!($extra_field), " for the media.")]
+                pub fn $extra_field(mut self, v: $extra_ty) -> Self {
+                    self.$extra_field = Some(v);
+                    self
+                }
+            )*
         }
 
         impl IntoFuture for $name {
@@ -1068,9 +1312,20 @@ macro_rules! media_sender {
                                 .map_err(|e| crate::error::Error::Decode(e.to_string()))?;
                             let mut form = Form::new().part($field, part);
                             form = form.text("chat_id", self.chat_id.to_string());
+                            if let Some(id) = &self.opts.business_connection_id { form = form.text("business_connection_id", id.clone()); }
+                            if let Some(id) = self.opts.message_thread_id { form = form.text("message_thread_id", id.to_string()); }
+                            if let Some(id) = self.opts.direct_messages_topic_id { form = form.text("direct_messages_topic_id", id.to_string()); }
                             if let Some(c) = &self.opts.caption { form = form.text("caption", c.clone()); }
                             if let Some(v) = self.opts.disable_notification { form = form.text("disable_notification", v.to_string()); }
                             if let Some(v) = &self.opts.reply_markup { form = form.text("reply_markup", serde_json::to_string(v).unwrap()); }
+                            if let Some(p) = &self.opts.suggested_post_parameters { form = form.text("suggested_post_parameters", serde_json::to_string(p).unwrap()); }
+
+                            $(
+                                if let Some(ref v) = self.$extra_field {
+                                    form = form.text(stringify!($extra_field), v.to_string());
+                                }
+                            )*
+
                             self.client.post_multipart($method, form).await
                         }
                         _ => {
@@ -1092,25 +1347,25 @@ macro_rules! media_sender {
 
 media_sender!(
     /// Builder for the [`sendAudio`](https://core.telegram.org/bots/api#sendaudio) method.
-    SendAudio,     "audio",      "sendAudio",     Message, [duration: u32, performer: String, title: String]);
+    SendAudio,      "audio",      "sendAudio",      Message, [duration: u32, performer: String, title: String]);
 media_sender!(
     /// Builder for the [`sendDocument`](https://core.telegram.org/bots/api#senddocument) method.
     SendDocument,  "document",   "sendDocument",  Message, [disable_content_type_detection: bool]);
 media_sender!(
     /// Builder for the [`sendVideo`](https://core.telegram.org/bots/api#sendvideo) method.
-    SendVideo,     "video",      "sendVideo",     Message, [duration: u32, width: u32, height: u32, supports_streaming: bool]);
+    SendVideo,      "video",      "sendVideo",      Message, [duration: u32, width: u32, height: u32, supports_streaming: bool, cover: String, start_timestamp: i64]);
 media_sender!(
     /// Builder for the [`sendAnimation`](https://core.telegram.org/bots/api#sendanimation) method.
     SendAnimation, "animation",  "sendAnimation", Message, [duration: u32, width: u32, height: u32]);
 media_sender!(
     /// Builder for the [`sendVoice`](https://core.telegram.org/bots/api#sendvoice) method.
-    SendVoice,     "voice",      "sendVoice",     Message, [duration: u32]);
+    SendVoice,      "voice",      "sendVoice",      Message, [duration: u32]);
 media_sender!(
     /// Builder for the [`sendVideoNote`](https://core.telegram.org/bots/api#sendvideonote) method.
     SendVideoNote, "video_note", "sendVideoNote", Message, [duration: u32, length: u32]);
 media_sender!(
     /// Builder for the [`sendSticker`](https://core.telegram.org/bots/api#sendsticker) method.
-    SendSticker,   "sticker",    "sendSticker",   Message, [emoji: String]);
+    SendSticker,   "sticker",    "sendSticker",    Message, [emoji: String]);
 
 // ─── deleteMessage / deleteMessages ──────────────────────────────────────────
 
@@ -1269,6 +1524,8 @@ struct ForwardMessagesParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     disable_notification: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     protect_content: Option<bool>,
@@ -1297,6 +1554,7 @@ impl ForwardMessages {
                 from_chat_id: from_chat_id.into(),
                 message_ids,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 disable_notification: None,
                 protect_content: None,
             },
@@ -1305,6 +1563,11 @@ impl ForwardMessages {
     /// Forum topic thread ID.
     pub fn message_thread_id(mut self, id: i64) -> Self {
         self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
         self
     }
     /// Sends the messages silently — recipients receive no notification sound.
@@ -1334,6 +1597,8 @@ struct CopyMessagesParams {
     message_ids: Vec<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     disable_notification: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1365,6 +1630,7 @@ impl CopyMessages {
                 from_chat_id: from_chat_id.into(),
                 message_ids,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 disable_notification: None,
                 protect_content: None,
                 remove_caption: None,
@@ -1374,6 +1640,11 @@ impl CopyMessages {
     /// Forum topic thread ID.
     pub fn message_thread_id(mut self, id: i64) -> Self {
         self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
         self
     }
     /// Sends the messages silently — recipients receive no notification sound.
@@ -1410,6 +1681,8 @@ struct SendVenueParams {
     address: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     foursquare_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1452,6 +1725,7 @@ impl SendVenue {
                 title: title.into(),
                 address: address.into(),
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 foursquare_id: None,
                 foursquare_type: None,
                 google_place_id: None,
@@ -1466,6 +1740,11 @@ impl SendVenue {
     /// Forum topic thread ID.
     pub fn message_thread_id(mut self, id: i64) -> Self {
         self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
         self
     }
     /// Sets the Foursquare identifier of the venue.
@@ -1525,6 +1804,8 @@ struct SendMediaGroupParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     business_connection_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     disable_notification: Option<bool>,
@@ -1558,6 +1839,7 @@ impl SendMediaGroup {
                 chat_id: chat_id.into(),
                 media,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 business_connection_id: None,
                 disable_notification: None,
                 protect_content: None,
@@ -1568,6 +1850,11 @@ impl SendMediaGroup {
     /// Forum topic thread ID.
     pub fn message_thread_id(mut self, id: i64) -> Self {
         self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
         self
     }
     /// Business connection ID for sending on behalf of a business account.
@@ -1721,6 +2008,8 @@ struct SendGameParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     disable_notification: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     protect_content: Option<bool>,
@@ -1748,6 +2037,7 @@ impl SendGame {
                 game_short_name: game_short_name.into(),
                 business_connection_id: None,
                 message_thread_id: None,
+                direct_messages_topic_id: None,
                 disable_notification: None,
                 protect_content: None,
                 reply_parameters: None,
@@ -1763,6 +2053,11 @@ impl SendGame {
     /// Forum topic thread ID.
     pub fn message_thread_id(mut self, id: i64) -> Self {
         self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
         self
     }
     /// Sends the message silently — the recipient receives no notification sound.
@@ -1797,6 +2092,8 @@ struct SendChecklistParams {
     chat_id: i64,
     checklist: rustigram_types::checklist::InputChecklist,
     #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     disable_notification: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     protect_content: Option<bool>,
@@ -1806,6 +2103,8 @@ struct SendChecklistParams {
     reply_parameters: Option<ReplyParameters>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<rustigram_types::keyboard::InlineKeyboardMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`sendChecklist`](https://core.telegram.org/bots/api#sendchecklist) method.
@@ -1830,13 +2129,20 @@ impl SendChecklist {
                 business_connection_id: business_connection_id.into(),
                 chat_id,
                 checklist,
+                direct_messages_topic_id: None,
                 disable_notification: None,
                 protect_content: None,
                 message_effect_id: None,
                 reply_parameters: None,
                 reply_markup: None,
+                suggested_post_parameters: None,
             },
         }
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
+        self
     }
     /// Sends the message silently — the recipient receives no notification sound.
     pub fn disable_notification(mut self, v: bool) -> Self {
@@ -1861,6 +2167,11 @@ impl SendChecklist {
     /// Attaches an inline keyboard to the message.
     pub fn reply_markup(mut self, m: rustigram_types::keyboard::InlineKeyboardMarkup) -> Self {
         self.params.reply_markup = Some(m);
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(params);
         self
     }
 }

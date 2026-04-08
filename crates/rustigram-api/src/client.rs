@@ -689,6 +689,13 @@ impl BotClient {
     ) -> EditMessageCaption {
         EditMessageCaption::in_chat(self.clone(), chat_id, message_id)
     }
+    /// Calls `editMessageCaption` for an inline message sent via inline mode.
+    pub fn edit_inline_message_caption(
+        &self,
+        inline_message_id: impl Into<String>,
+    ) -> EditMessageCaption {
+        EditMessageCaption::inline(self.clone(), inline_message_id)
+    }
     /// Calls `editMessageMedia` — replaces the media content of a message.
     ///
     /// The `media` parameter accepts `serde_json::Value` until `InputMedia` is
@@ -716,6 +723,13 @@ impl BotClient {
         message_id: i64,
     ) -> EditMessageReplyMarkup {
         EditMessageReplyMarkup::in_chat(self.clone(), chat_id, message_id)
+    }
+    /// Calls `editMessageReplyMarkup` for an inline message sent via inline mode.
+    pub fn edit_inline_message_reply_markup(
+        &self,
+        inline_message_id: impl Into<String>,
+    ) -> EditMessageReplyMarkup {
+        EditMessageReplyMarkup::inline(self.clone(), inline_message_id)
     }
     /// Calls `editMessageChecklist` — edits a checklist on behalf of a business account.
     pub fn edit_message_checklist(
@@ -751,6 +765,15 @@ impl BotClient {
     ) -> EditMessageLiveLocation {
         EditMessageLiveLocation::in_chat(self.clone(), chat_id, message_id, latitude, longitude)
     }
+    /// Calls `editMessageLiveLocation` for an inline message sent via inline mode.
+    pub fn edit_inline_message_live_location(
+        &self,
+        inline_message_id: impl Into<String>,
+        latitude: f64,
+        longitude: f64,
+    ) -> EditMessageLiveLocation {
+        EditMessageLiveLocation::inline(self.clone(), inline_message_id, latitude, longitude)
+    }
     /// Calls `stopMessageLiveLocation` — stops a live location from updating.
     pub fn stop_message_live_location(
         &self,
@@ -758,6 +781,13 @@ impl BotClient {
         message_id: i64,
     ) -> StopMessageLiveLocation {
         StopMessageLiveLocation::in_chat(self.clone(), chat_id, message_id)
+    }
+    /// Calls `stopMessageLiveLocation` for an inline message sent via inline mode.
+    pub fn stop_inline_message_live_location(
+        &self,
+        inline_message_id: impl Into<String>,
+    ) -> StopMessageLiveLocation {
+        StopMessageLiveLocation::inline(self.clone(), inline_message_id)
     }
 
     // ── Chat management ───────────────────────────────────────────────────────

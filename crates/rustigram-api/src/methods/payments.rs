@@ -1,6 +1,8 @@
 use crate::client::BotClient;
 use crate::error::Result;
+use rustigram_types::message::{Message, ReplyParameters};
 use rustigram_types::payments::{LabeledPrice, ShippingOption, StarAmount, StarTransactions};
+use rustigram_types::suggested_post::SuggestedPostParameters;
 use rustigram_types::user::ChatId;
 use serde::Serialize;
 use std::future::{Future, IntoFuture};
@@ -33,13 +35,27 @@ struct SendInvoiceParams {
     currency: String,
     prices: Vec<LabeledPrice>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     provider_token: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    max_tip_amount: Option<i64>,
+    max_tip_amount: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    suggested_tip_amounts: Option<Vec<i64>>,
+    suggested_tip_amounts: Option<Vec<u32>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    start_parameter: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    provider_data: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     photo_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    photo_size: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    photo_width: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    photo_height: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     need_name: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -49,13 +65,23 @@ struct SendInvoiceParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     need_shipping_address: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    send_phone_number_to_provider: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    send_email_to_provider: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     is_flexible: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     disable_notification: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     protect_content: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_parameters: Option<ReplyParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<rustigram_types::keyboard::InlineKeyboardMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`sendInvoice`](https://core.telegram.org/bots/api#sendinvoice) method.
@@ -83,20 +109,42 @@ impl SendInvoice {
                 payload: payload.into(),
                 currency: currency.into(),
                 prices,
+                message_thread_id: None,
+                direct_messages_topic_id: None,
                 provider_token: None,
                 max_tip_amount: None,
                 suggested_tip_amounts: None,
+                start_parameter: None,
+                provider_data: None,
                 photo_url: None,
+                photo_size: None,
+                photo_width: None,
+                photo_height: None,
                 need_name: None,
                 need_phone_number: None,
                 need_email: None,
                 need_shipping_address: None,
+                send_phone_number_to_provider: None,
+                send_email_to_provider: None,
                 is_flexible: None,
                 disable_notification: None,
                 protect_content: None,
+                allow_paid_broadcast: None,
+                reply_parameters: None,
                 reply_markup: None,
+                suggested_post_parameters: None,
             },
         }
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
+        self
     }
     /// Sets the payment provider token. Not required for Telegram Stars (`XTR`).
     pub fn provider_token(mut self, t: impl Into<String>) -> Self {
@@ -123,13 +171,14 @@ impl SendInvoice {
         self.params.reply_markup = Some(m);
         self
     }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(params);
+        self
+    }
 }
 
-impl_into_future!(
-    SendInvoice,
-    rustigram_types::message::Message,
-    "sendInvoice"
-);
+impl_into_future!(SendInvoice, Message, "sendInvoice");
 
 // ─── createInvoiceLink ────────────────────────────────────────────────────────
 
