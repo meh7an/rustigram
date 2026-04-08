@@ -92,3 +92,48 @@ pub struct StoryArea {
     #[serde(rename = "type")]
     pub kind: StoryAreaType,
 }
+
+// ─── InputStoryContent ────────────────────────────────────────────────────────
+
+/// A photo to post as a story.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InputStoryContentPhoto {
+    /// The photo to post.
+    ///
+    /// Must be 1080×1920 pixels, ≤10 MB.
+    /// Pass a `file_id`, HTTP URL, or `"attach://<name>"` for a multipart upload.
+    pub photo: String,
+}
+
+/// A video to post as a story.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InputStoryContentVideo {
+    /// The video to post.
+    ///
+    /// Must be 720×1280, streamable H.265, with key frames every second, ≤30 MB.
+    /// Pass a `file_id`, HTTP URL, or `"attach://<name>"` for a multipart upload.
+    pub video: String,
+    /// Precise duration of the video in seconds (0–60).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration: Option<f64>,
+    /// Timestamp in seconds of the frame to use as the static cover. Defaults to `0.0`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cover_frame_timestamp: Option<f64>,
+    /// Pass `true` if the video has no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_animation: Option<bool>,
+}
+
+/// The content of a story to post or edit.
+///
+/// Pass to [`postStory`](https://core.telegram.org/bots/api#poststory) and
+/// [`editStory`](https://core.telegram.org/bots/api#editstory) as a
+/// `serde_json::Value` — use `serde_json::to_value(&content)`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum InputStoryContent {
+    /// A photo story.
+    Photo(InputStoryContentPhoto),
+    /// A video story.
+    Video(InputStoryContentVideo),
+}

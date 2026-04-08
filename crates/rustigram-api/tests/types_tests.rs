@@ -64,6 +64,8 @@ mod user {
             can_connect_to_business: None,
             has_main_web_app: None,
             can_manage_bots: None,
+            has_topics_enabled: None,
+            allows_users_to_create_topics: None,
         }
     }
 
@@ -115,6 +117,7 @@ mod message {
                 first_name: None,
                 last_name: None,
                 is_forum: None,
+                is_direct_messages: None,
             },
             forward_origin: None,
             is_topic_message: None,
@@ -176,8 +179,28 @@ mod message {
             forum_topic_reopened: None,
             general_forum_topic_hidden: None,
             general_forum_topic_unhidden: None,
-            direct_messages_topic_id: None,
-            suggested_post: None,
+            direct_messages_topic: None,
+            paid_message_price_changed: None,
+            sender_tag: None,
+            reply_to_checklist_task_id: None,
+            reply_to_poll_option_id: None,
+            is_paid_post: None,
+            paid_star_count: None,
+            suggested_post_info: None,
+            checklist: None,
+            chat_owner_left: None,
+            chat_owner_changed: None,
+            managed_bot_created: None,
+            poll_option_added: None,
+            poll_option_deleted: None,
+            checklist_tasks_done: None,
+            checklist_tasks_added: None,
+            direct_message_price_changed: None,
+            suggested_post_approved: None,
+            suggested_post_approval_failed: None,
+            suggested_post_declined: None,
+            suggested_post_paid: None,
+            suggested_post_refunded: None,
         }
     }
 

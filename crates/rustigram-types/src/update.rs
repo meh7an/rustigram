@@ -244,6 +244,56 @@ pub struct ManagedBotUpdated {
     pub bot: User,
 }
 
+/// Represents the rights of a business bot.
+///
+/// All fields are optional — a missing field means the right is not granted.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct BusinessBotRights {
+    /// `true` if the bot can send and edit messages in private chats that had
+    /// incoming messages in the last 24 hours.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_reply: Option<bool>,
+    /// `true` if the bot can mark incoming private messages as read.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_read_messages: Option<bool>,
+    /// `true` if the bot can delete messages sent by the bot.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_delete_sent_messages: Option<bool>,
+    /// `true` if the bot can delete all private messages in managed chats.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_delete_all_messages: Option<bool>,
+    /// `true` if the bot can edit the first and last name of the business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_edit_name: Option<bool>,
+    /// `true` if the bot can edit the bio of the business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_edit_bio: Option<bool>,
+    /// `true` if the bot can edit the profile photo of the business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_edit_profile_photo: Option<bool>,
+    /// `true` if the bot can edit the username of the business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_edit_username: Option<bool>,
+    /// `true` if the bot can change gift privacy settings for the business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_change_gift_settings: Option<bool>,
+    /// `true` if the bot can view gifts and the Telegram Stars balance of the business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_view_gifts_and_stars: Option<bool>,
+    /// `true` if the bot can convert regular gifts owned by the business account to Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_convert_gifts_to_stars: Option<bool>,
+    /// `true` if the bot can transfer and upgrade gifts owned by the business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_transfer_and_upgrade_gifts: Option<bool>,
+    /// `true` if the bot can transfer Telegram Stars received by the business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_transfer_stars: Option<bool>,
+    /// `true` if the bot can post, edit, and delete stories on behalf of the business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_manage_stories: Option<bool>,
+}
+
 /// A business connection was established or removed.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BusinessConnection {
@@ -255,13 +305,20 @@ pub struct BusinessConnection {
     pub user_chat_id: i64,
     /// Date the connection was established as a Unix timestamp.
     pub date: i64,
-    /// `true` if the bot can act on behalf of the business account.
-    pub can_reply: bool,
     /// `true` if the connection is active.
     pub is_enabled: bool,
-    /// Rights of the bot in the business account.
+    /// Rights granted to the bot within this business connection.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub rights: Option<serde_json::Value>,
+    pub rights: Option<BusinessBotRights>,
+}
+
+/// A list of boosts added to a chat by a user.
+///
+/// Returned by [`getUserChatBoosts`](https://core.telegram.org/bots/api#getuserchatboosts).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserChatBoosts {
+    /// The list of boosts added to the chat by the user.
+    pub boosts: Vec<ChatBoost>,
 }
 
 /// Business messages that were deleted.
@@ -284,8 +341,8 @@ pub struct PaidMediaPurchased {
     pub paid_media_payload: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
 /// A list of updates returned by `getUpdates`. Internal deserialization wrapper.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Updates {
     /// `true` if the request was successful.
     pub ok: bool,

@@ -479,3 +479,187 @@ impl IntoFuture for GetForumTopicIconStickers {
         })
     }
 }
+
+// ─── replaceStickerInSet ──────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct ReplaceStickerInSetParams {
+    user_id: i64,
+    name: String,
+    old_sticker: String,
+    sticker: InputStickerJson,
+}
+
+/// Builder for the [`replaceStickerInSet`](https://core.telegram.org/bots/api#replacestickerinset) method.
+///
+/// Equivalent to calling `deleteStickerFromSet`, `addStickerToSet`, and
+/// `setStickerPositionInSet` in sequence.
+pub struct ReplaceStickerInSet {
+    client: BotClient,
+    params: ReplaceStickerInSetParams,
+}
+
+impl ReplaceStickerInSet {
+    pub(crate) fn new(
+        client: BotClient,
+        user_id: i64,
+        name: impl Into<String>,
+        old_sticker: impl Into<String>,
+        sticker: InputSticker,
+    ) -> Self {
+        Self {
+            client,
+            params: ReplaceStickerInSetParams {
+                user_id,
+                name: name.into(),
+                old_sticker: old_sticker.into(),
+                sticker: InputStickerJson {
+                    sticker: sticker.sticker,
+                    format: sticker.format,
+                    emoji_list: sticker.emoji_list,
+                    mask_position: sticker.mask_position,
+                    keywords: sticker.keywords,
+                },
+            },
+        }
+    }
+}
+
+impl IntoFuture for ReplaceStickerInSet {
+    type Output = Result<bool>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.client
+                .post_json("replaceStickerInSet", &self.params)
+                .await
+        })
+    }
+}
+
+// ─── setStickerSetThumbnail ───────────────────────────────────────────────────
+
+/// Builder for the [`setStickerSetThumbnail`](https://core.telegram.org/bots/api#setstickersetthumbnail) method.
+///
+/// Sets the thumbnail of a regular or mask sticker set.
+/// The thumbnail format must match the sticker format in the set.
+/// Omit `thumbnail` to drop the current thumbnail and use the first sticker instead.
+pub struct SetStickerSetThumbnail {
+    client: BotClient,
+    name: String,
+    user_id: i64,
+    /// The thumbnail format string: `"static"`, `"animated"`, or `"video"`.
+    format: String,
+    thumbnail: Option<rustigram_types::file::InputFile>,
+}
+
+impl SetStickerSetThumbnail {
+    pub(crate) fn new(
+        client: BotClient,
+        name: impl Into<String>,
+        user_id: i64,
+        format: impl Into<String>,
+    ) -> Self {
+        Self {
+            client,
+            name: name.into(),
+            user_id,
+            format: format.into(),
+            thumbnail: None,
+        }
+    }
+    /// Sets the thumbnail file to upload. Omit to remove the current thumbnail.
+    pub fn thumbnail(mut self, f: rustigram_types::file::InputFile) -> Self {
+        self.thumbnail = Some(f);
+        self
+    }
+}
+
+impl IntoFuture for SetStickerSetThumbnail {
+    type Output = Result<bool>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            match self.thumbnail {
+                Some(rustigram_types::file::InputFile::Bytes {
+                    filename,
+                    data,
+                    mime_type,
+                }) => {
+                    let part = Part::bytes(data)
+                        .file_name(filename)
+                        .mime_str(&mime_type)
+                        .map_err(|e| crate::error::Error::Decode(e.to_string()))?;
+                    let form = Form::new()
+                        .text("name", self.name)
+                        .text("user_id", self.user_id.to_string())
+                        .text("format", self.format)
+                        .part("thumbnail", part);
+                    self.client
+                        .post_multipart("setStickerSetThumbnail", form)
+                        .await
+                }
+                other => {
+                    let mut body = serde_json::json!({
+                        "name": self.name,
+                        "user_id": self.user_id,
+                        "format": self.format,
+                    });
+                    if let Some(f) = other {
+                        body["thumbnail"] = serde_json::json!(f.as_str());
+                    }
+                    self.client.post_json("setStickerSetThumbnail", &body).await
+                }
+            }
+        })
+    }
+}
+
+// ─── setCustomEmojiStickerSetThumbnail ────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SetCustomEmojiStickerSetThumbnailParams {
+    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    custom_emoji_id: Option<String>,
+}
+
+/// Builder for the [`setCustomEmojiStickerSetThumbnail`](https://core.telegram.org/bots/api#setcustomemojistickersetthumbnail) method.
+///
+/// Sets the thumbnail of a custom emoji sticker set.
+/// Omit `custom_emoji_id` or pass an empty string to drop the current thumbnail
+/// and use the first sticker instead.
+pub struct SetCustomEmojiStickerSetThumbnail {
+    client: BotClient,
+    params: SetCustomEmojiStickerSetThumbnailParams,
+}
+
+impl SetCustomEmojiStickerSetThumbnail {
+    pub(crate) fn new(client: BotClient, name: impl Into<String>) -> Self {
+        Self {
+            client,
+            params: SetCustomEmojiStickerSetThumbnailParams {
+                name: name.into(),
+                custom_emoji_id: None,
+            },
+        }
+    }
+    /// Sets the custom emoji identifier to use as the thumbnail.
+    /// Pass an empty string to remove the current thumbnail.
+    pub fn custom_emoji_id(mut self, id: impl Into<String>) -> Self {
+        self.params.custom_emoji_id = Some(id.into());
+        self
+    }
+}
+
+impl IntoFuture for SetCustomEmojiStickerSetThumbnail {
+    type Output = Result<bool>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.client
+                .post_json("setCustomEmojiStickerSetThumbnail", &self.params)
+                .await
+        })
+    }
+}

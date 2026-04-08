@@ -1,6 +1,7 @@
+use serde::{Deserialize, Serialize};
+
 use crate::chat::ChatPermissions;
 use crate::user::User;
-use serde::{Deserialize, Serialize};
 
 /// Information about one member of a chat.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -66,17 +67,17 @@ pub struct ChatMemberAdministrator {
     pub can_manage_video_chats: bool,
     /// Allows restricting, banning, or unbanning members.
     pub can_restrict_members: bool,
-    /// Allows the admin to add new administrators with a subset of their own privileges or demote administrators that they have promoted, directly or indirectly (promoted by administrators that were appointed by the user).
+    /// Allows promoting or demoting administrators.
     pub can_promote_members: bool,
     /// Allows changing the chat title, photo, and other settings.
     pub can_change_info: bool,
     /// Allows inviting new users.
     pub can_invite_users: bool,
-    #[serde(default)]
     /// Allows posting messages in channels.
-    pub can_post_messages: bool,
     #[serde(default)]
+    pub can_post_messages: bool,
     /// Allows editing messages in channels.
+    #[serde(default)]
     pub can_edit_messages: bool,
     /// Allows pinning messages.
     #[serde(default)]
@@ -93,10 +94,10 @@ pub struct ChatMemberAdministrator {
     /// Allows deleting stories.
     #[serde(default)]
     pub can_delete_stories: bool,
-    /// Allows managing direct messages.
+    /// Allows managing direct messages and declining suggested posts; channels only.
     #[serde(default)]
     pub can_manage_direct_messages: bool,
-    /// Allows managing tags.
+    /// Allows editing the tags of regular members; groups and supergroups only.
     #[serde(default)]
     pub can_manage_tags: bool,
     /// Custom title shown instead of "Administrator".
@@ -109,7 +110,10 @@ pub struct ChatMemberAdministrator {
 pub struct ChatMemberMember {
     /// The user.
     pub user: User,
-    /// Date when the membership expires, as a Unix timestamp. `0` means permanent.
+    /// Tag or custom title of the member; for supergroups only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tag: Option<String>,
+    /// Date when the user's subscription expires, as a Unix timestamp.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub until_date: Option<i64>,
 }
@@ -119,18 +123,23 @@ pub struct ChatMemberMember {
 pub struct ChatMemberRestricted {
     /// The user.
     pub user: User,
+    /// Tag or custom title of the member; for supergroups only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tag: Option<String>,
     /// `true` if the user is still a member of the chat.
     pub is_member: bool,
     /// The current permissions of the restricted user.
     #[serde(flatten)]
     pub permissions: ChatPermissions,
-    /// Unix timestamp when the restriction ends. `0` means permanent.
+    /// `true` if the user is allowed to edit their own tag.
+    pub can_edit_tag: bool,
+    /// Unix timestamp when the restriction ends; `0` means permanent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub until_date: Option<i64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
 /// A chat member who left or was removed from the chat.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatMemberLeft {
     /// The user.
     pub user: User,
@@ -141,7 +150,7 @@ pub struct ChatMemberLeft {
 pub struct ChatMemberBanned {
     /// The user.
     pub user: User,
-    /// Unix timestamp when the ban ends. `0` means permanent.
+    /// Unix timestamp when the ban ends; `0` means permanent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub until_date: Option<i64>,
 }

@@ -46,6 +46,9 @@ pub struct Chat {
     /// `true` if the supergroup chat is a forum (has topics enabled).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_forum: Option<bool>,
+    /// `true` if the chat is the direct messages chat of a channel.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_direct_messages: Option<bool>,
 }
 
 impl Chat {
@@ -95,7 +98,9 @@ pub struct ChatFullInfo {
     /// `true` if the supergroup chat is a forum (has topics enabled).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_forum: Option<bool>,
-
+    /// `true` if the chat is the direct messages chat of a channel.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_direct_messages: Option<bool>,
     /// Identifier of the accent color for the chat name and backgrounds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub accent_color_id: Option<u32>,

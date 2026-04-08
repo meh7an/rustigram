@@ -1,19 +1,23 @@
-use crate::user::User;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use crate::chat::Chat;
+use crate::message::MessageEntity;
+use crate::user::User;
+
 /// A native Telegram poll or quiz.
 ///
-/// Polls are either `regular` (users vote freely) or `quiz` (one correct
-/// answer). Returned inside [`Message`](crate::message::Message) when a
-/// poll is sent or forwarded.
+/// Polls are either `regular` (users vote freely) or `quiz` (one or more correct
+/// answers). Returned inside [`Message`](crate::message::Message) when a poll is
+/// sent or forwarded.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Poll {
     /// Unique poll identifier.
     pub id: String,
     /// Poll question (1–300 characters).
     pub question: String,
     /// Special entities in the question.
-    pub question_entities: Option<Vec<crate::message::MessageEntity>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub question_entities: Option<Vec<MessageEntity>>,
     /// List of answer options.
     pub options: Vec<PollOption>,
     /// Total number of users who voted.
@@ -27,40 +31,68 @@ pub struct Poll {
     pub kind: PollType,
     /// `true` if the poll allows multiple answers.
     pub allows_multiple_answers: bool,
-    /// `true` if voters can change their vote.
-    pub allows_revoting: Option<bool>,
-    /// Zero-based index of the correct answer (quiz polls only).
-    pub correct_option_id: Option<u8>,
-    /// Explanation shown after the quiz is answered.
+    /// `true` if voters can change their chosen answer options.
+    pub allows_revoting: bool,
+    /// Zero-based indices of the correct answers (quiz polls only).
+    ///
+    /// Bot API 9.6 changed this from a single `u8` to an array to support
+    /// quizzes with multiple correct answers.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub correct_option_ids: Option<Vec<u8>>,
+    /// Explanation shown after a quiz is answered.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation: Option<String>,
     /// Special entities in the explanation.
-    pub explanation_entities: Option<Vec<crate::message::MessageEntity>>,
-    /// Duration in seconds for which the poll will be active after creation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub explanation_entities: Option<Vec<MessageEntity>>,
+    /// Duration in seconds the poll stays active after creation.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub open_period: Option<u32>,
     /// Unix timestamp when the poll closes automatically.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub close_date: Option<i64>,
+    /// Description of the poll; present only inside `Message` objects.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// Special entities in the description.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description_entities: Option<Vec<MessageEntity>>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
 /// One option in a [`Poll`].
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PollOption {
+    /// Persistent identifier of this option, stable across poll edits.
+    pub persistent_id: String,
     /// Option text (1–100 characters).
     pub text: String,
     /// Special entities in the option text.
-    pub text_entities: Option<Vec<crate::message::MessageEntity>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text_entities: Option<Vec<MessageEntity>>,
     /// Number of users who voted for this option.
     pub voter_count: u32,
+    /// The user who added this option, if applicable.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub added_by_user: Option<User>,
+    /// The chat that added this option, if applicable.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub added_by_chat: Option<Chat>,
+    /// Unix timestamp when this option was added; absent if it existed at poll creation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub addition_date: Option<i64>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
 /// An option to include when creating a poll with `sendPoll`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InputPollOption {
     /// Option text (1–100 characters).
     pub text: String,
     /// Parse mode for the option text.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub text_parse_mode: Option<crate::message::ParseMode>,
-    /// Special entities in the option text.
-    pub text_entities: Option<Vec<crate::message::MessageEntity>>,
+    /// Special entities in the option text; alternative to `text_parse_mode`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text_entities: Option<Vec<MessageEntity>>,
 }
 
 impl InputPollOption {
@@ -74,28 +106,65 @@ impl InputPollOption {
     }
 }
 
+/// The type of a poll.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-/// The type of a poll.
 pub enum PollType {
     /// A regular poll where users can vote freely.
     Regular,
-    /// A quiz with one correct answer.
+    /// A quiz with one or more correct answers.
     Quiz,
 }
 
+/// An answer submitted by a user in a non-anonymous poll.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-/// A portion of a price — label and amount in the smallest currency unit.
-///
-/// For Telegram Stars (`XTR`) the amount is in whole Stars.
-/// For fiat currencies (e.g. `USD`) the amount is in cents.
 pub struct PollAnswer {
     /// Unique poll identifier.
     pub poll_id: String,
     /// The chat that changed the answer (for anonymous polls in groups).
-    pub voter_chat: Option<crate::chat::Chat>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub voter_chat: Option<Chat>,
     /// The user who changed the answer (for non-anonymous polls).
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<User>,
-    /// Indices of the chosen options (empty if the vote was retracted).
+    /// Zero-based indices of the chosen options; empty if the vote was retracted.
     pub option_ids: Vec<u8>,
+    /// Persistent identifiers of the chosen options; empty if the vote was retracted.
+    pub option_persistent_ids: Vec<String>,
+}
+
+/// Service message: a new option was added to a poll.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PollOptionAdded {
+    /// Message containing the poll to which the option was added.
+    ///
+    /// Uses `serde_json::Value` because the API returns a `MaybeInaccessibleMessage`
+    /// union type here. Will not contain `reply_to_message`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub poll_message: Option<serde_json::Value>,
+    /// Persistent identifier of the added option.
+    pub option_persistent_id: String,
+    /// Text of the added option.
+    pub option_text: String,
+    /// Special entities in the option text.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub option_text_entities: Option<Vec<MessageEntity>>,
+}
+
+/// Service message: an option was deleted from a poll.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PollOptionDeleted {
+    /// Message containing the poll from which the option was deleted.
+    ///
+    /// Uses `serde_json::Value` because the API returns a `MaybeInaccessibleMessage`
+    /// union type here. Will not contain `reply_to_message`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub poll_message: Option<serde_json::Value>,
+    /// Persistent identifier of the deleted option.
+    pub option_persistent_id: String,
+    /// Text of the deleted option.
+    pub option_text: String,
+    /// Special entities in the option text.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub option_text_entities: Option<Vec<MessageEntity>>,
 }

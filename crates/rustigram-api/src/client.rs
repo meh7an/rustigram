@@ -12,12 +12,17 @@ use crate::methods::business::*;
 use crate::methods::chat_management::*;
 use crate::methods::editing::*;
 use crate::methods::forum::*;
+use crate::methods::games::*;
 use crate::methods::getters::*;
+use crate::methods::gifts::*;
 use crate::methods::inline::*;
+use crate::methods::miniapp::*;
+use crate::methods::passport::*;
 use crate::methods::payments::*;
 use crate::methods::reactions::*;
 use crate::methods::sending::*;
 use crate::methods::stickers::*;
+use crate::methods::stories::*;
 use crate::methods::updates::*;
 use crate::methods::verification::*;
 
@@ -415,6 +420,10 @@ impl BotClient {
     pub fn get_user_profile_photos(&self, user_id: i64) -> GetUserProfilePhotos {
         GetUserProfilePhotos::new(self.clone(), user_id)
     }
+    /// Calls `getUserProfileAudios` — returns audios displayed on a user's profile (Bot API 9.4).
+    pub fn get_user_profile_audios(&self, user_id: i64) -> GetUserProfileAudios {
+        GetUserProfileAudios::new(self.clone(), user_id)
+    }
 
     // ── Sending ───────────────────────────────────────────────────────────────
 
@@ -547,6 +556,71 @@ impl BotClient {
     pub fn send_dice(&self, chat_id: impl Into<rustigram_types::user::ChatId>) -> SendDice {
         SendDice::new(self.clone(), chat_id)
     }
+    /// Calls `sendVenue` — sends information about a venue.
+    pub fn send_venue(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        latitude: f64,
+        longitude: f64,
+        title: impl Into<String>,
+        address: impl Into<String>,
+    ) -> SendVenue {
+        SendVenue::new(self.clone(), chat_id, latitude, longitude, title, address)
+    }
+    /// Calls `forwardMessages` — forwards 1–100 messages at once, preserving album grouping.
+    pub fn forward_messages(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        from_chat_id: impl Into<rustigram_types::user::ChatId>,
+        message_ids: Vec<i64>,
+    ) -> ForwardMessages {
+        ForwardMessages::new(self.clone(), chat_id, from_chat_id, message_ids)
+    }
+    /// Calls `copyMessages` — copies 1–100 messages without a forward link, preserving album grouping.
+    pub fn copy_messages(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        from_chat_id: impl Into<rustigram_types::user::ChatId>,
+        message_ids: Vec<i64>,
+    ) -> CopyMessages {
+        CopyMessages::new(self.clone(), chat_id, from_chat_id, message_ids)
+    }
+    /// Calls `sendMediaGroup` — sends 2–10 photos, videos, documents, or audios as an album.
+    ///
+    /// The `media` parameter accepts `Vec<serde_json::Value>` until the `InputMedia` enum
+    /// is defined in Priority 4.
+    pub fn send_media_group(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        media: Vec<serde_json::Value>,
+    ) -> SendMediaGroup {
+        SendMediaGroup::new(self.clone(), chat_id, media)
+    }
+    /// Calls `sendPaidMedia` — sends paid media requiring Telegram Stars to view.
+    ///
+    /// The `media` parameter accepts `Vec<serde_json::Value>` until the `InputPaidMedia` enum
+    /// is defined in Priority 4.
+    pub fn send_paid_media(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        star_count: u32,
+        media: Vec<serde_json::Value>,
+    ) -> SendPaidMedia {
+        SendPaidMedia::new(self.clone(), chat_id, star_count, media)
+    }
+    /// Calls `sendGame` — sends an HTML5 game.
+    pub fn send_game(&self, chat_id: i64, game_short_name: impl Into<String>) -> SendGame {
+        SendGame::new(self.clone(), chat_id, game_short_name)
+    }
+    /// Calls `sendChecklist` — sends a checklist on behalf of a business account.
+    pub fn send_checklist(
+        &self,
+        business_connection_id: impl Into<String>,
+        chat_id: i64,
+        checklist: rustigram_types::checklist::InputChecklist,
+    ) -> SendChecklist {
+        SendChecklist::new(self.clone(), business_connection_id, chat_id, checklist)
+    }
     /// Calls `sendMessageDraft` — streams a partial message (Bot API 9.5+).
     pub fn send_message_draft(
         &self,
@@ -615,6 +689,26 @@ impl BotClient {
     ) -> EditMessageCaption {
         EditMessageCaption::in_chat(self.clone(), chat_id, message_id)
     }
+    /// Calls `editMessageMedia` — replaces the media content of a message.
+    ///
+    /// The `media` parameter accepts `serde_json::Value` until `InputMedia` is
+    /// defined in Priority 4.
+    pub fn edit_message_media(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        message_id: i64,
+        media: serde_json::Value,
+    ) -> EditMessageMedia {
+        EditMessageMedia::in_chat(self.clone(), chat_id, message_id, media)
+    }
+    /// Calls `editMessageMedia` for an inline message sent via inline mode.
+    pub fn edit_inline_message_media(
+        &self,
+        inline_message_id: impl Into<String>,
+        media: serde_json::Value,
+    ) -> EditMessageMedia {
+        EditMessageMedia::inline(self.clone(), inline_message_id, media)
+    }
     /// Calls `editMessageReplyMarkup` — replaces the inline keyboard of a message.
     pub fn edit_message_reply_markup(
         &self,
@@ -622,6 +716,30 @@ impl BotClient {
         message_id: i64,
     ) -> EditMessageReplyMarkup {
         EditMessageReplyMarkup::in_chat(self.clone(), chat_id, message_id)
+    }
+    /// Calls `editMessageChecklist` — edits a checklist on behalf of a business account.
+    pub fn edit_message_checklist(
+        &self,
+        business_connection_id: impl Into<String>,
+        chat_id: i64,
+        message_id: i64,
+        checklist: rustigram_types::checklist::InputChecklist,
+    ) -> EditMessageChecklist {
+        EditMessageChecklist::new(
+            self.clone(),
+            business_connection_id,
+            chat_id,
+            message_id,
+            checklist,
+        )
+    }
+    /// Calls `approveSuggestedPost` — approves a suggested post in a direct messages chat.
+    pub fn approve_suggested_post(&self, chat_id: i64, message_id: i64) -> ApproveSuggestedPost {
+        ApproveSuggestedPost::new(self.clone(), chat_id, message_id)
+    }
+    /// Calls `declineSuggestedPost` — declines a suggested post in a direct messages chat.
+    pub fn decline_suggested_post(&self, chat_id: i64, message_id: i64) -> DeclineSuggestedPost {
+        DeclineSuggestedPost::new(self.clone(), chat_id, message_id)
     }
     /// Calls `editMessageLiveLocation` — updates the position of a live location.
     pub fn edit_message_live_location(
@@ -677,12 +795,178 @@ impl BotClient {
     ) -> PromoteChatMember {
         PromoteChatMember::new(self.clone(), chat_id, user_id)
     }
-    /// Calls `createChatInviteLink` — generates a new invite link.
+    /// Calls `setChatAdministratorCustomTitle` — sets a custom title for an admin.
+    pub fn set_chat_administrator_custom_title(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        user_id: i64,
+        custom_title: impl Into<String>,
+    ) -> SetChatAdministratorCustomTitle {
+        SetChatAdministratorCustomTitle::new(self.clone(), chat_id, user_id, custom_title)
+    }
+    /// Calls `setChatMemberTag` — sets a tag for a regular member (Bot API 9.5).
+    pub fn set_chat_member_tag(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        user_id: i64,
+    ) -> SetChatMemberTag {
+        SetChatMemberTag::new(self.clone(), chat_id, user_id)
+    }
+    /// Calls `setChatPermissions` — sets default chat permissions for all members.
+    pub fn set_chat_permissions(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        permissions: rustigram_types::chat::ChatPermissions,
+    ) -> SetChatPermissions {
+        SetChatPermissions::new(self.clone(), chat_id, permissions)
+    }
+    /// Calls `exportChatInviteLink` — generates a new primary invite link, revoking the old one.
+    pub fn export_chat_invite_link(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+    ) -> ExportChatInviteLink {
+        ExportChatInviteLink::new(self.clone(), chat_id)
+    }
+    /// Calls `createChatInviteLink` — generates a new additional invite link.
     pub fn create_chat_invite_link(
         &self,
         chat_id: impl Into<rustigram_types::user::ChatId>,
     ) -> CreateChatInviteLink {
         CreateChatInviteLink::new(self.clone(), chat_id)
+    }
+    /// Calls `editChatInviteLink` — edits a non-primary invite link created by the bot.
+    pub fn edit_chat_invite_link(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        invite_link: impl Into<String>,
+    ) -> EditChatInviteLink {
+        EditChatInviteLink::new(self.clone(), chat_id, invite_link)
+    }
+    /// Calls `revokeChatInviteLink` — revokes an invite link created by the bot.
+    pub fn revoke_chat_invite_link(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        invite_link: impl Into<String>,
+    ) -> RevokeChatInviteLink {
+        RevokeChatInviteLink::new(self.clone(), chat_id, invite_link)
+    }
+    /// Calls `createChatSubscriptionInviteLink` — creates a subscription invite link for a channel.
+    pub fn create_chat_subscription_invite_link(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        subscription_period: u32,
+        subscription_price: u32,
+    ) -> CreateChatSubscriptionInviteLink {
+        CreateChatSubscriptionInviteLink::new(
+            self.clone(),
+            chat_id,
+            subscription_period,
+            subscription_price,
+        )
+    }
+    /// Calls `editChatSubscriptionInviteLink` — edits a subscription invite link.
+    pub fn edit_chat_subscription_invite_link(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        invite_link: impl Into<String>,
+    ) -> EditChatSubscriptionInviteLink {
+        EditChatSubscriptionInviteLink::new(self.clone(), chat_id, invite_link)
+    }
+    /// Calls `approveChatJoinRequest` — approves a pending join request.
+    pub fn approve_chat_join_request(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        user_id: i64,
+    ) -> ApproveChatJoinRequest {
+        ApproveChatJoinRequest::new(self.clone(), chat_id, user_id)
+    }
+    /// Calls `declineChatJoinRequest` — declines a pending join request.
+    pub fn decline_chat_join_request(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        user_id: i64,
+    ) -> DeclineChatJoinRequest {
+        DeclineChatJoinRequest::new(self.clone(), chat_id, user_id)
+    }
+    /// Calls `banChatSenderChat` — bans a channel chat from sending in a supergroup or channel.
+    pub fn ban_chat_sender_chat(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        sender_chat_id: i64,
+    ) -> BanChatSenderChat {
+        BanChatSenderChat::new(self.clone(), chat_id, sender_chat_id)
+    }
+    /// Calls `unbanChatSenderChat` — unbans a previously banned channel chat.
+    pub fn unban_chat_sender_chat(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        sender_chat_id: i64,
+    ) -> UnbanChatSenderChat {
+        UnbanChatSenderChat::new(self.clone(), chat_id, sender_chat_id)
+    }
+    /// Calls `unpinAllChatMessages` — clears all pinned messages in a chat.
+    pub fn unpin_all_chat_messages(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+    ) -> UnpinAllChatMessages {
+        UnpinAllChatMessages::new(self.clone(), chat_id)
+    }
+    /// Calls `setChatPhoto` — sets a new profile photo for the chat.
+    pub fn set_chat_photo(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        photo: rustigram_types::file::InputFile,
+    ) -> SetChatPhoto {
+        SetChatPhoto::new(self.clone(), chat_id, photo)
+    }
+    /// Calls `deleteChatPhoto` — deletes the chat photo.
+    pub fn delete_chat_photo(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+    ) -> DeleteChatPhoto {
+        DeleteChatPhoto::new(self.clone(), chat_id)
+    }
+    /// Calls `setChatTitle` — changes the title of a chat.
+    pub fn set_chat_title(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        title: impl Into<String>,
+    ) -> SetChatTitle {
+        SetChatTitle::new(self.clone(), chat_id, title)
+    }
+    /// Calls `setChatDescription` — changes the description of a group, supergroup, or channel.
+    pub fn set_chat_description(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+    ) -> SetChatDescription {
+        SetChatDescription::new(self.clone(), chat_id)
+    }
+    /// Calls `setChatStickerSet` — sets the sticker set for a supergroup.
+    pub fn set_chat_sticker_set(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        sticker_set_name: impl Into<String>,
+    ) -> SetChatStickerSet {
+        SetChatStickerSet::new(self.clone(), chat_id, sticker_set_name)
+    }
+    /// Calls `deleteChatStickerSet` — removes the sticker set from a supergroup.
+    pub fn delete_chat_sticker_set(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+    ) -> DeleteChatStickerSet {
+        DeleteChatStickerSet::new(self.clone(), chat_id)
+    }
+    /// Calls `leaveChat` — makes the bot leave a group, supergroup, or channel.
+    pub fn leave_chat(&self, chat_id: impl Into<rustigram_types::user::ChatId>) -> LeaveChat {
+        LeaveChat::new(self.clone(), chat_id)
+    }
+    /// Calls `getUserChatBoosts` — returns the boosts added to a chat by a user.
+    pub fn get_user_chat_boosts(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        user_id: i64,
+    ) -> GetUserChatBoosts {
+        GetUserChatBoosts::new(self.clone(), chat_id, user_id)
     }
     /// Calls `pinChatMessage` — pins a message in a chat.
     pub fn pin_chat_message(
@@ -702,12 +986,24 @@ impl BotClient {
 
     // ── Bot settings ──────────────────────────────────────────────────────────
 
+    /// Calls `logOut` — logs the bot out of the cloud Bot API server.
+    pub fn log_out(&self) -> LogOut {
+        LogOut::new(self.clone())
+    }
+    /// Calls `close` — closes the bot instance before moving it to another server.
+    pub fn close(&self) -> Close {
+        Close::new(self.clone())
+    }
     /// Calls `setMyCommands` — sets the bot's command list.
     pub fn set_my_commands(
         &self,
         commands: Vec<rustigram_types::user::BotCommand>,
     ) -> SetMyCommands {
         SetMyCommands::new(self.clone(), commands)
+    }
+    /// Calls `deleteMyCommands` — deletes the bot's command list for a given scope and language.
+    pub fn delete_my_commands(&self) -> DeleteMyCommands {
+        DeleteMyCommands::new(self.clone())
     }
     /// Calls `getMyCommands` — returns the bot's current command list.
     pub fn get_my_commands(&self) -> GetMyCommands {
@@ -717,17 +1013,184 @@ impl BotClient {
     pub fn set_my_name(&self) -> SetMyName {
         SetMyName::new(self.clone())
     }
+    /// Calls `getMyName` — returns the bot's current display name.
+    pub fn get_my_name(&self) -> GetMyName {
+        GetMyName::new(self.clone())
+    }
     /// Calls `setMyDescription` — changes the bot's profile description.
     pub fn set_my_description(&self) -> SetMyDescription {
         SetMyDescription::new(self.clone())
+    }
+    /// Calls `getMyDescription` — returns the bot's current profile description.
+    pub fn get_my_description(&self) -> GetMyDescription {
+        GetMyDescription::new(self.clone())
+    }
+    /// Calls `setMyShortDescription` — changes the bot's short description.
+    pub fn set_my_short_description(&self) -> SetMyShortDescription {
+        SetMyShortDescription::new(self.clone())
+    }
+    /// Calls `getMyShortDescription` — returns the bot's current short description.
+    pub fn get_my_short_description(&self) -> GetMyShortDescription {
+        GetMyShortDescription::new(self.clone())
+    }
+    /// Calls `setMyDefaultAdministratorRights` — sets the default admin rights suggested to users.
+    pub fn set_my_default_administrator_rights(&self) -> SetMyDefaultAdministratorRights {
+        SetMyDefaultAdministratorRights::new(self.clone())
+    }
+    /// Calls `getMyDefaultAdministratorRights` — returns the bot's current default admin rights.
+    pub fn get_my_default_administrator_rights(&self) -> GetMyDefaultAdministratorRights {
+        GetMyDefaultAdministratorRights::new(self.clone())
     }
     /// Calls `getChatMenuButton` — returns the current menu button for a private chat.
     pub fn get_chat_menu_button(&self) -> GetChatMenuButton {
         GetChatMenuButton::new(self.clone())
     }
+    /// Calls `setChatMenuButton` — changes the bot's menu button in a private chat or globally.
+    pub fn set_chat_menu_button(&self) -> SetChatMenuButton {
+        SetChatMenuButton::new(self.clone())
+    }
+    /// Calls `setMyProfilePhoto` — changes the bot's profile photo (Bot API 9.4).
+    ///
+    /// Pass a pre-serialised `InputProfilePhoto` JSON string.
+    pub fn set_my_profile_photo(&self, photo_json: impl Into<String>) -> SetMyProfilePhoto {
+        SetMyProfilePhoto::new(self.clone(), photo_json.into())
+    }
+    /// Calls `removeMyProfilePhoto` — removes the bot's current profile photo (Bot API 9.4).
+    pub fn remove_my_profile_photo(&self) -> RemoveMyProfilePhoto {
+        RemoveMyProfilePhoto::new(self.clone())
+    }
     /// Calls `getManagedBotToken` — returns the token of a managed bot (Bot API 9.6).
     pub fn get_managed_bot_token(&self, user_id: i64) -> GetManagedBotToken {
         GetManagedBotToken::new(self.clone(), user_id)
+    }
+    /// Calls `replaceManagedBotToken` — revokes and regenerates a managed bot's token (Bot API 9.6).
+    pub fn replace_managed_bot_token(&self, user_id: i64) -> ReplaceManagedBotToken {
+        ReplaceManagedBotToken::new(self.clone(), user_id)
+    }
+
+    // ── Stories (business bots) ───────────────────────────────────────────────
+
+    /// Calls `postStory` — posts a story on behalf of a managed business account.
+    ///
+    /// `content` is `serde_json::Value` until `InputStoryContent` is defined in Priority 4.
+    /// `active_period` must be one of `21600`, `43200`, `86400`, or `172800` seconds.
+    pub fn post_story(
+        &self,
+        business_connection_id: impl Into<String>,
+        content: serde_json::Value,
+        active_period: u32,
+    ) -> PostStory {
+        PostStory::new(self.clone(), business_connection_id, content, active_period)
+    }
+    /// Calls `repostStory` — reposts a story from one managed business account to another.
+    ///
+    /// `active_period` must be one of `21600`, `43200`, `86400`, or `172800` seconds.
+    pub fn repost_story(
+        &self,
+        business_connection_id: impl Into<String>,
+        from_chat_id: i64,
+        from_story_id: i64,
+        active_period: u32,
+    ) -> RepostStory {
+        RepostStory::new(
+            self.clone(),
+            business_connection_id,
+            from_chat_id,
+            from_story_id,
+            active_period,
+        )
+    }
+    /// Calls `editStory` — edits a story posted by the bot on behalf of a business account.
+    ///
+    /// `content` is `serde_json::Value` until `InputStoryContent` is defined in Priority 4.
+    pub fn edit_story(
+        &self,
+        business_connection_id: impl Into<String>,
+        story_id: i64,
+        content: serde_json::Value,
+    ) -> EditStory {
+        EditStory::new(self.clone(), business_connection_id, story_id, content)
+    }
+    /// Calls `deleteStory` — deletes a story posted by the bot on behalf of a business account.
+    pub fn delete_story(
+        &self,
+        business_connection_id: impl Into<String>,
+        story_id: i64,
+    ) -> DeleteStory {
+        DeleteStory::new(self.clone(), business_connection_id, story_id)
+    }
+
+    // ── Gifts ─────────────────────────────────────────────────────────────────
+
+    /// Calls `getAvailableGifts` — returns all gifts the bot can send.
+    pub fn get_available_gifts(&self) -> GetAvailableGifts {
+        GetAvailableGifts::new(self.clone())
+    }
+    /// Calls `sendGift` — sends a gift to a user or channel chat.
+    ///
+    /// Chain `.user_id(id)` or `.chat_id(id)` to specify the recipient.
+    pub fn send_gift(&self, gift_id: impl Into<String>) -> SendGift {
+        SendGift::new(self.clone(), gift_id)
+    }
+    /// Calls `giftPremiumSubscription` — gifts a Telegram Premium subscription to a user.
+    ///
+    /// `month_count` must be `3`, `6`, or `12`.
+    /// `star_count` must be `1000`, `1500`, or `2500` respectively.
+    pub fn gift_premium_subscription(
+        &self,
+        user_id: i64,
+        month_count: u32,
+        star_count: u32,
+    ) -> GiftPremiumSubscription {
+        GiftPremiumSubscription::new(self.clone(), user_id, month_count, star_count)
+    }
+    /// Calls `getBusinessAccountGifts` — returns gifts received by a managed business account.
+    pub fn get_business_account_gifts(
+        &self,
+        business_connection_id: impl Into<String>,
+    ) -> GetBusinessAccountGifts {
+        GetBusinessAccountGifts::new(self.clone(), business_connection_id)
+    }
+    /// Calls `getUserGifts` — returns gifts owned by a user.
+    pub fn get_user_gifts(&self, user_id: i64) -> GetUserGifts {
+        GetUserGifts::new(self.clone(), user_id)
+    }
+    /// Calls `getChatGifts` — returns gifts owned by a channel chat.
+    pub fn get_chat_gifts(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+    ) -> GetChatGifts {
+        GetChatGifts::new(self.clone(), chat_id)
+    }
+    /// Calls `convertGiftToStars` — converts a business account gift to Telegram Stars.
+    pub fn convert_gift_to_stars(
+        &self,
+        business_connection_id: impl Into<String>,
+        owned_gift_id: impl Into<String>,
+    ) -> ConvertGiftToStars {
+        ConvertGiftToStars::new(self.clone(), business_connection_id, owned_gift_id)
+    }
+    /// Calls `upgradeGift` — upgrades a regular gift to a unique gift.
+    pub fn upgrade_gift(
+        &self,
+        business_connection_id: impl Into<String>,
+        owned_gift_id: impl Into<String>,
+    ) -> UpgradeGift {
+        UpgradeGift::new(self.clone(), business_connection_id, owned_gift_id)
+    }
+    /// Calls `transferGift` — transfers a unique gift to another user.
+    pub fn transfer_gift(
+        &self,
+        business_connection_id: impl Into<String>,
+        owned_gift_id: impl Into<String>,
+        new_owner_chat_id: i64,
+    ) -> TransferGift {
+        TransferGift::new(
+            self.clone(),
+            business_connection_id,
+            owned_gift_id,
+            new_owner_chat_id,
+        )
     }
 
     // ── Reactions ─────────────────────────────────────────────────────────────
@@ -751,6 +1214,68 @@ impl BotClient {
     ) -> AnswerInlineQuery {
         AnswerInlineQuery::new(self.clone(), inline_query_id, results)
     }
+    /// Calls `answerWebAppQuery` — sets the result of a Web App interaction and sends it to the chat.
+    pub fn answer_web_app_query(
+        &self,
+        web_app_query_id: impl Into<String>,
+        result: rustigram_types::inline::InlineQueryResult,
+    ) -> AnswerWebAppQuery {
+        AnswerWebAppQuery::new(self.clone(), web_app_query_id, result)
+    }
+    /// Calls `savePreparedInlineMessage` — stores a message sendable by a Mini App user.
+    pub fn save_prepared_inline_message(
+        &self,
+        user_id: i64,
+        result: rustigram_types::inline::InlineQueryResult,
+    ) -> SavePreparedInlineMessage {
+        SavePreparedInlineMessage::new(self.clone(), user_id, result)
+    }
+
+    // ── Mini App ──────────────────────────────────────────────────────────────
+
+    /// Calls `savePreparedKeyboardButton` — stores a keyboard button for use in a Mini App (Bot API 9.6).
+    ///
+    /// The button must be of type `request_users`, `request_chat`, or `request_managed_bot`.
+    pub fn save_prepared_keyboard_button(
+        &self,
+        user_id: i64,
+        button: rustigram_types::keyboard::KeyboardButton,
+    ) -> SavePreparedKeyboardButton {
+        SavePreparedKeyboardButton::new(self.clone(), user_id, button)
+    }
+    /// Calls `setUserEmojiStatus` — changes a user's emoji status via a Mini App.
+    pub fn set_user_emoji_status(&self, user_id: i64) -> SetUserEmojiStatus {
+        SetUserEmojiStatus::new(self.clone(), user_id)
+    }
+
+    // ── Passport ──────────────────────────────────────────────────────────────
+
+    /// Calls `setPassportDataErrors` — reports errors in Telegram Passport elements.
+    ///
+    /// Each error is a `serde_json::Value` — serialise from
+    /// `rustigram_types::passport::PassportElementError` variants.
+    pub fn set_passport_data_errors(
+        &self,
+        user_id: i64,
+        errors: Vec<serde_json::Value>,
+    ) -> SetPassportDataErrors {
+        SetPassportDataErrors::new(self.clone(), user_id, errors)
+    }
+
+    // ── Games ─────────────────────────────────────────────────────────────────
+
+    /// Calls `setGameScore` — sets a user's score in a game.
+    ///
+    /// Chain `.chat_message(chat_id, message_id)` or `.inline_message_id(id)` to target the message.
+    pub fn set_game_score(&self, user_id: i64, score: u32) -> SetGameScore {
+        SetGameScore::new(self.clone(), user_id, score)
+    }
+    /// Calls `getGameHighScores` — returns high scores for a game.
+    ///
+    /// Chain `.chat_message(chat_id, message_id)` or `.inline_message_id(id)` to target the message.
+    pub fn get_game_high_scores(&self, user_id: i64) -> GetGameHighScores {
+        GetGameHighScores::new(self.clone(), user_id)
+    }
 
     // ── Payments ──────────────────────────────────────────────────────────────
 
@@ -772,6 +1297,59 @@ impl BotClient {
             payload,
             currency,
             prices,
+        )
+    }
+    /// Calls `createInvoiceLink` — creates a shareable payment link.
+    pub fn create_invoice_link(
+        &self,
+        title: impl Into<String>,
+        description: impl Into<String>,
+        payload: impl Into<String>,
+        currency: impl Into<String>,
+        prices: Vec<rustigram_types::payments::LabeledPrice>,
+    ) -> CreateInvoiceLink {
+        CreateInvoiceLink::new(self.clone(), title, description, payload, currency, prices)
+    }
+    /// Calls `answerShippingQuery` — responds to a shipping query from a user.
+    ///
+    /// Pass `ok = true` and provide `shipping_options`; or `ok = false` with an `error_message`.
+    pub fn answer_shipping_query(
+        &self,
+        shipping_query_id: impl Into<String>,
+        ok: bool,
+    ) -> AnswerShippingQuery {
+        AnswerShippingQuery::new(self.clone(), shipping_query_id, ok)
+    }
+    /// Calls `answerPreCheckoutQuery` — confirms or rejects a pre-checkout query.
+    ///
+    /// Must be called within **10 seconds** of receiving the query.
+    pub fn answer_pre_checkout_query(
+        &self,
+        pre_checkout_query_id: impl Into<String>,
+        ok: bool,
+    ) -> AnswerPreCheckoutQuery {
+        AnswerPreCheckoutQuery::new(self.clone(), pre_checkout_query_id, ok)
+    }
+    /// Calls `refundStarPayment` — refunds a successful Telegram Stars payment.
+    pub fn refund_star_payment(
+        &self,
+        user_id: i64,
+        telegram_payment_charge_id: impl Into<String>,
+    ) -> RefundStarPayment {
+        RefundStarPayment::new(self.clone(), user_id, telegram_payment_charge_id)
+    }
+    /// Calls `editUserStarSubscription` — cancels or re-enables a Stars subscription.
+    pub fn edit_user_star_subscription(
+        &self,
+        user_id: i64,
+        telegram_payment_charge_id: impl Into<String>,
+        is_canceled: bool,
+    ) -> EditUserStarSubscription {
+        EditUserStarSubscription::new(
+            self.clone(),
+            user_id,
+            telegram_payment_charge_id,
+            is_canceled,
         )
     }
     /// Calls `getMyStarBalance` — returns the bot's Telegram Star balance.
@@ -861,6 +1439,37 @@ impl BotClient {
     pub fn delete_sticker_set(&self, name: impl Into<String>) -> DeleteStickerSet {
         DeleteStickerSet::new(self.clone(), name)
     }
+    /// Calls `replaceStickerInSet` — replaces an existing sticker in a set with a new one.
+    pub fn replace_sticker_in_set(
+        &self,
+        user_id: i64,
+        name: impl Into<String>,
+        old_sticker: impl Into<String>,
+        sticker: rustigram_types::sticker::InputSticker,
+    ) -> ReplaceStickerInSet {
+        ReplaceStickerInSet::new(self.clone(), user_id, name, old_sticker, sticker)
+    }
+    /// Calls `setStickerSetThumbnail` — sets the thumbnail of a regular or mask sticker set.
+    ///
+    /// `format` must be `"static"`, `"animated"`, or `"video"`.
+    /// Chain `.thumbnail(file)` to set the thumbnail; omit to drop it.
+    pub fn set_sticker_set_thumbnail(
+        &self,
+        name: impl Into<String>,
+        user_id: i64,
+        format: impl Into<String>,
+    ) -> SetStickerSetThumbnail {
+        SetStickerSetThumbnail::new(self.clone(), name, user_id, format)
+    }
+    /// Calls `setCustomEmojiStickerSetThumbnail` — sets the thumbnail of a custom emoji sticker set.
+    ///
+    /// Chain `.custom_emoji_id(id)` to set the thumbnail emoji; omit to use the first sticker.
+    pub fn set_custom_emoji_sticker_set_thumbnail(
+        &self,
+        name: impl Into<String>,
+    ) -> SetCustomEmojiStickerSetThumbnail {
+        SetCustomEmojiStickerSetThumbnail::new(self.clone(), name)
+    }
     /// Calls `getForumTopicIconStickers` — returns all available forum topic icon stickers.
     pub fn get_forum_topic_icon_stickers(&self) -> GetForumTopicIconStickers {
         GetForumTopicIconStickers::new(self.clone())
@@ -943,6 +1552,13 @@ impl BotClient {
         chat_id: impl Into<rustigram_types::user::ChatId>,
     ) -> UnhideGeneralForumTopic {
         UnhideGeneralForumTopic::new(self.clone(), chat_id)
+    }
+    /// Calls `unpinAllGeneralForumTopicMessages` — clears all pinned messages in the General forum topic.
+    pub fn unpin_all_general_forum_topic_messages(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+    ) -> UnpinAllGeneralForumTopicMessages {
+        UnpinAllGeneralForumTopicMessages::new(self.clone(), chat_id)
     }
 
     // ── Verification ──────────────────────────────────────────────────────────
@@ -1034,6 +1650,48 @@ impl BotClient {
         star_count: u64,
     ) -> TransferBusinessAccountStars {
         TransferBusinessAccountStars::new(self.clone(), business_connection_id, star_count)
+    }
+    /// Calls `unpinAllForumTopicMessages` — clears all pinned messages in a forum topic.
+    pub fn unpin_all_forum_topic_messages(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        thread_id: i64,
+    ) -> UnpinAllForumTopicMessages {
+        UnpinAllForumTopicMessages::new(self.clone(), chat_id, thread_id)
+    }
+
+    /// Calls `setBusinessAccountProfilePhoto` — sets the profile photo of a managed business account.
+    ///
+    /// Pass `photo` as `serde_json::to_value(&input_profile_photo)`.
+    pub fn set_business_account_profile_photo(
+        &self,
+        business_connection_id: impl Into<String>,
+        photo: serde_json::Value,
+    ) -> SetBusinessAccountProfilePhoto {
+        SetBusinessAccountProfilePhoto::new(self.clone(), business_connection_id, photo)
+    }
+
+    /// Calls `removeBusinessAccountProfilePhoto` — removes the profile photo of a managed business account.
+    pub fn remove_business_account_profile_photo(
+        &self,
+        business_connection_id: impl Into<String>,
+    ) -> RemoveBusinessAccountProfilePhoto {
+        RemoveBusinessAccountProfilePhoto::new(self.clone(), business_connection_id)
+    }
+
+    /// Calls `setBusinessAccountGiftSettings` — changes gift privacy settings for a managed business account.
+    pub fn set_business_account_gift_settings(
+        &self,
+        business_connection_id: impl Into<String>,
+        show_gift_button: bool,
+        accepted_gift_types: rustigram_types::payments::AcceptedGiftTypes,
+    ) -> SetBusinessAccountGiftSettings {
+        SetBusinessAccountGiftSettings::new(
+            self.clone(),
+            business_connection_id,
+            show_gift_button,
+            accepted_gift_types,
+        )
     }
 }
 

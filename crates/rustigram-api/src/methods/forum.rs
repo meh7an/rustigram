@@ -265,3 +265,10 @@ impl IntoFuture for EditGeneralForumTopic {
         })
     }
 }
+
+chat_only_action!(
+    /// Builder for the [`unpinAllGeneralForumTopicMessages`](https://core.telegram.org/bots/api#unpinallgeneralforumtopicmessages) method.
+    ///
+    /// Clears all pinned messages in the General forum topic.
+    /// Requires the `can_pin_messages` administrator right in the supergroup.
+    UnpinAllGeneralForumTopicMessages, "unpinAllGeneralForumTopicMessages");

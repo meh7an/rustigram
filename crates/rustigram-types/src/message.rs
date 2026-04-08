@@ -1,10 +1,19 @@
 use serde::{Deserialize, Serialize};
 
 use crate::chat::{Chat, Location, Venue};
+use crate::checklist::{Checklist, ChecklistTasksAdded, ChecklistTasksDone};
+use crate::direct_messages::{
+    DirectMessagePriceChanged, DirectMessagesTopic, PaidMessagePriceChanged,
+};
 use crate::file::{Animation, Audio, Document, PhotoSize, Video, VideoNote, Voice};
 use crate::keyboard::InlineKeyboardMarkup;
-use crate::poll::Poll;
+use crate::managed_bot::ManagedBotCreated;
+use crate::poll::{Poll, PollOptionAdded, PollOptionDeleted};
 use crate::sticker::Sticker;
+use crate::suggested_post::{
+    SuggestedPostApprovalFailed, SuggestedPostApproved, SuggestedPostDeclined, SuggestedPostInfo,
+    SuggestedPostPaid, SuggestedPostRefunded,
+};
 use crate::user::User;
 
 /// A Telegram message.
@@ -20,7 +29,11 @@ pub struct Message {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_thread_id: Option<i64>,
 
-    /// Sender of the message, empty for messages sent to channels.
+    /// Information about the direct messages chat topic that contains the message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub direct_messages_topic: Option<DirectMessagesTopic>,
+
+    /// Sender of the message; empty for messages sent to channels.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from: Option<User>,
 
@@ -36,7 +49,11 @@ pub struct Message {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sender_business_bot: Option<User>,
 
-    /// Date the message was sent , as a Unix timestamp.
+    /// Tag or custom title of the sender; for supergroups only (Bot API 9.5).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sender_tag: Option<String>,
+
+    /// Date the message was sent, as a Unix timestamp.
     pub date: i64,
 
     /// Unique identifier of the business connection from which the message was received.
@@ -63,7 +80,7 @@ pub struct Message {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_message: Option<Box<Message>>,
 
-    /// Information about the message that is being replied to by the current message.
+    /// Information about the message that is being replied to from another chat or topic.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub external_reply: Option<ExternalReplyInfo>,
 
@@ -74,6 +91,14 @@ pub struct Message {
     /// For replies to a story, the original story.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_story: Option<serde_json::Value>,
+
+    /// Identifier of the checklist task being replied to.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_checklist_task_id: Option<i64>,
+
+    /// Persistent identifier of the poll option being replied to.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_poll_option_id: Option<String>,
 
     /// Bot through which the message was sent.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -91,6 +116,12 @@ pub struct Message {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_from_offline: Option<bool>,
 
+    /// `true` if the message is a paid post.
+    ///
+    /// Paid posts must not be deleted for 24 hours after sending and cannot be edited.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_paid_post: Option<bool>,
+
     /// The unique identifier of a media message group this message belongs to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub media_group_id: Option<String>,
@@ -98,6 +129,10 @@ pub struct Message {
     /// Signature of the post author for messages in channels.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub author_signature: Option<String>,
+
+    /// Number of Telegram Stars paid by the sender to send this message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub paid_star_count: Option<i64>,
 
     /// Actual UTF-8 text of the message (0–4096 characters).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -110,6 +145,11 @@ pub struct Message {
     /// Options used for link preview generation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link_preview_options: Option<LinkPreviewOptions>,
+
+    /// Information about a suggested post; present when the message is a suggested
+    /// post in a channel direct messages chat.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suggested_post_info: Option<SuggestedPostInfo>,
 
     /// Unique identifier of the message effect added to the message.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -163,6 +203,10 @@ pub struct Message {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_media_spoiler: Option<bool>,
 
+    /// Checklist attached to the message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub checklist: Option<Checklist>,
+
     // Service message types
     /// Contact shared in the message.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -190,6 +234,12 @@ pub struct Message {
     /// A member that left the group.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub left_chat_member: Option<User>,
+    /// Service message: chat owner has left.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chat_owner_left: Option<ChatOwnerLeft>,
+    /// Service message: chat owner has changed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chat_owner_changed: Option<ChatOwnerChanged>,
     /// New chat title (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub new_chat_title: Option<String>,
@@ -261,13 +311,51 @@ pub struct Message {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub general_forum_topic_unhidden: Option<serde_json::Value>,
 
-    // Direct messages
-    /// Direct messages topic identifier.
+    // Managed bot events
+    /// Service message: a new managed bot was created (Bot API 9.6).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub direct_messages_topic_id: Option<i64>,
-    /// Suggested post information.
+    pub managed_bot_created: Option<ManagedBotCreated>,
+
+    // Poll events
+    /// Service message: an option was added to a poll (Bot API 9.6).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub suggested_post: Option<serde_json::Value>,
+    pub poll_option_added: Option<PollOptionAdded>,
+    /// Service message: an option was deleted from a poll (Bot API 9.6).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub poll_option_deleted: Option<PollOptionDeleted>,
+
+    // Checklist events
+    /// Service message: tasks in a checklist were marked done or not done.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub checklist_tasks_done: Option<ChecklistTasksDone>,
+    /// Service message: tasks were added to a checklist.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub checklist_tasks_added: Option<ChecklistTasksAdded>,
+
+    // Direct messages events
+    /// Service message: the price for paid messages in the direct messages chat changed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub direct_message_price_changed: Option<DirectMessagePriceChanged>,
+    /// Service message: the price for paid messages in the chat changed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub paid_message_price_changed: Option<PaidMessagePriceChanged>,
+
+    // Suggested post events
+    /// Service message: a suggested post was approved.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suggested_post_approved: Option<SuggestedPostApproved>,
+    /// Service message: approval of a suggested post has failed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suggested_post_approval_failed: Option<SuggestedPostApprovalFailed>,
+    /// Service message: a suggested post was declined.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suggested_post_declined: Option<SuggestedPostDeclined>,
+    /// Service message: payment for a suggested post was received.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suggested_post_paid: Option<SuggestedPostPaid>,
+    /// Service message: payment for a suggested post was refunded.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suggested_post_refunded: Option<SuggestedPostRefunded>,
 }
 
 impl Message {
@@ -336,17 +424,17 @@ pub enum MessageEntityKind {
     Spoiler,
     /// Block quotation.
     Blockquote,
-    /// Expandable block quotation.
+    /// An "expandable" block quotation that can be expanded to show the full text.
     ExpandableBlockquote,
-    /// Inline `code`.
+    /// Monospaced text.
     Code,
-    /// Pre-formatted code block.
+    /// Monospaced block.
     Pre,
-    /// Clickable text link.
+    /// A text link. The `url` field will contain the destination URL.
     TextLink,
-    /// Mention of a user without a username.
+    /// A text mention of a user. The `user` field will contain the mentioned user.
     TextMention,
-    /// Custom emoji.
+    /// Custom emoji. The `custom_emoji_id` field will contain the identifier of the custom emoji.
     CustomEmoji,
     /// Date/time entity.
     DateTime,
@@ -374,7 +462,7 @@ pub struct MessageEntity {
     /// For `CustomEmoji` — identifier of the custom emoji.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_emoji_id: Option<String>,
-    /// For `DateTime` — Unix time.
+    /// For `DateTime` — Unix timestamp associated with the entity.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unix_time: Option<i64>,
     /// For `DateTime` — format string (`r|w?[dD]?[tT]?`).
@@ -560,6 +648,9 @@ pub struct ExternalReplyInfo {
     /// `true` if the media is covered by a spoiler animation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_media_spoiler: Option<bool>,
+    /// Checklist in the original message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub checklist: Option<Checklist>,
     /// Contact in the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contact: Option<Contact>,
@@ -625,4 +716,19 @@ pub struct WebAppInfo {
 pub struct MessageId {
     /// Identifier of the message.
     pub message_id: i64,
+}
+
+/// Service message: the chat owner left the chat (Bot API 9.4).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChatOwnerLeft {
+    /// The user who will become the new owner if the previous owner does not return.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub new_owner: Option<User>,
+}
+
+/// Service message: ownership of the chat changed (Bot API 9.4).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChatOwnerChanged {
+    /// The new owner of the chat.
+    pub new_owner: User,
 }

@@ -52,14 +52,21 @@ pub struct User {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_main_web_app: Option<bool>,
 
-    /// Bots only — `true` if the bot can manage other bots.
+    /// Bots only — `true` if the bot has forum topic mode enabled in private chats.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub has_topics_enabled: Option<bool>,
+
+    /// Bots only — `true` if the bot allows users to create and delete topics in private chats.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allows_users_to_create_topics: Option<bool>,
+
+    /// Bots only — `true` if other bots can be created to be controlled by this bot.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_bots: Option<bool>,
 }
 
 impl User {
-    /// Returns a human-readable display name, preferring `first_name + last_name`,
-    /// falling back to `username`, then `id`.
+    /// Returns a human-readable display name, preferring `first_name + last_name`.
     #[must_use]
     pub fn full_name(&self) -> String {
         match &self.last_name {
@@ -170,4 +177,79 @@ impl std::fmt::Display for ChatId {
             Self::Username(u) => write!(f, "{u}"),
         }
     }
+}
+
+/// The bot's display name.
+///
+/// Returned by [`getMyName`](https://core.telegram.org/bots/api#getmyname).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BotName {
+    /// The bot's name.
+    pub name: String,
+}
+
+/// The bot's description shown in the chat when the chat is empty.
+///
+/// Returned by [`getMyDescription`](https://core.telegram.org/bots/api#getmydescription).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BotDescription {
+    /// The bot's description.
+    pub description: String,
+}
+
+/// The bot's short description shown on the profile page and in sharing links.
+///
+/// Returned by [`getMyShortDescription`](https://core.telegram.org/bots/api#getmyshortdescription).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BotShortDescription {
+    /// The bot's short description.
+    pub short_description: String,
+}
+
+/// Represents the rights of an administrator in a chat.
+///
+/// Used by [`setMyDefaultAdministratorRights`](https://core.telegram.org/bots/api#setmydefaultadministratorrights)
+/// and [`getMyDefaultAdministratorRights`](https://core.telegram.org/bots/api#getmydefaultadministratorrights).
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ChatAdministratorRights {
+    /// `true` if the user's presence in the chat is hidden.
+    pub is_anonymous: bool,
+    /// `true` if the administrator can access the chat event log, boost list, etc.
+    pub can_manage_chat: bool,
+    /// `true` if the administrator can delete messages of other users.
+    pub can_delete_messages: bool,
+    /// `true` if the administrator can manage video chats.
+    pub can_manage_video_chats: bool,
+    /// `true` if the administrator can restrict, ban, or unban chat members.
+    pub can_restrict_members: bool,
+    /// `true` if the administrator can promote members to administrators.
+    pub can_promote_members: bool,
+    /// `true` if the user is allowed to change the chat title, photo, and other settings.
+    pub can_change_info: bool,
+    /// `true` if the user is allowed to invite new users to the chat.
+    pub can_invite_users: bool,
+    /// `true` if the administrator can post stories to the chat.
+    pub can_post_stories: bool,
+    /// `true` if the administrator can edit stories posted by other users.
+    pub can_edit_stories: bool,
+    /// `true` if the administrator can delete stories posted by other users.
+    pub can_delete_stories: bool,
+    /// `true` if the administrator can post messages in the channel; channels only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_post_messages: Option<bool>,
+    /// `true` if the administrator can edit messages of other users and pin messages; channels only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_edit_messages: Option<bool>,
+    /// `true` if the user is allowed to pin messages; groups and supergroups only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_pin_messages: Option<bool>,
+    /// `true` if the user is allowed to create, rename, close, and reopen forum topics; supergroups only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_manage_topics: Option<bool>,
+    /// `true` if the administrator can manage direct messages and decline suggested posts; channels only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_manage_direct_messages: Option<bool>,
+    /// `true` if the administrator can edit the tags of regular members; groups and supergroups only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_manage_tags: Option<bool>,
 }

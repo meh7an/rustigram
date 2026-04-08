@@ -197,3 +197,57 @@ impl IntoFuture for GetUserProfilePhotos {
         })
     }
 }
+
+// ─── getUserProfileAudios ─────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct GetUserProfileAudiosParams {
+    user_id: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    offset: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    limit: Option<u8>,
+}
+
+/// Builder for the [`getUserProfileAudios`](https://core.telegram.org/bots/api#getuserprofileaudios) method (Bot API 9.4).
+///
+/// Returns the list of audios displayed on a user's profile.
+pub struct GetUserProfileAudios {
+    client: BotClient,
+    params: GetUserProfileAudiosParams,
+}
+
+impl GetUserProfileAudios {
+    pub(crate) fn new(client: BotClient, user_id: i64) -> Self {
+        Self {
+            client,
+            params: GetUserProfileAudiosParams {
+                user_id,
+                offset: None,
+                limit: None,
+            },
+        }
+    }
+    /// Skips the first N profile audios.
+    pub fn offset(mut self, v: u32) -> Self {
+        self.params.offset = Some(v);
+        self
+    }
+    /// Limits the number of audios returned (1–100, default 100).
+    pub fn limit(mut self, v: u8) -> Self {
+        self.params.limit = Some(v);
+        self
+    }
+}
+
+impl IntoFuture for GetUserProfileAudios {
+    type Output = Result<rustigram_types::user::UserProfileAudios>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.client
+                .post_json("getUserProfileAudios", &self.params)
+                .await
+        })
+    }
+}

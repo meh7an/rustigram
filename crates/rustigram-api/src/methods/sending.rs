@@ -1259,3 +1259,610 @@ impl AnswerCallbackQuery {
     }
 }
 impl_into_future!(AnswerCallbackQuery, bool, "answerCallbackQuery");
+// ─── forwardMessages ──────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct ForwardMessagesParams {
+    chat_id: ChatId,
+    from_chat_id: ChatId,
+    message_ids: Vec<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    disable_notification: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    protect_content: Option<bool>,
+}
+
+/// Builder for the [`forwardMessages`](https://core.telegram.org/bots/api#forwardmessages) method.
+///
+/// Forwards 1–100 messages at once, preserving album grouping.
+/// Returns a `Vec<MessageId>` of the sent messages.
+pub struct ForwardMessages {
+    client: BotClient,
+    params: ForwardMessagesParams,
+}
+
+impl ForwardMessages {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        from_chat_id: impl Into<ChatId>,
+        message_ids: Vec<i64>,
+    ) -> Self {
+        Self {
+            client,
+            params: ForwardMessagesParams {
+                chat_id: chat_id.into(),
+                from_chat_id: from_chat_id.into(),
+                message_ids,
+                message_thread_id: None,
+                disable_notification: None,
+                protect_content: None,
+            },
+        }
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Sends the messages silently — recipients receive no notification sound.
+    pub fn disable_notification(mut self, v: bool) -> Self {
+        self.params.disable_notification = Some(v);
+        self
+    }
+    /// Protects the messages from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+}
+
+impl_into_future!(
+    ForwardMessages,
+    Vec<rustigram_types::message::MessageId>,
+    "forwardMessages"
+);
+
+// ─── copyMessages ─────────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct CopyMessagesParams {
+    chat_id: ChatId,
+    from_chat_id: ChatId,
+    message_ids: Vec<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    disable_notification: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    protect_content: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    remove_caption: Option<bool>,
+}
+
+/// Builder for the [`copyMessages`](https://core.telegram.org/bots/api#copymessages) method.
+///
+/// Copies 1–100 messages without a forward link, preserving album grouping.
+/// Returns a `Vec<MessageId>` of the sent messages.
+pub struct CopyMessages {
+    client: BotClient,
+    params: CopyMessagesParams,
+}
+
+impl CopyMessages {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        from_chat_id: impl Into<ChatId>,
+        message_ids: Vec<i64>,
+    ) -> Self {
+        Self {
+            client,
+            params: CopyMessagesParams {
+                chat_id: chat_id.into(),
+                from_chat_id: from_chat_id.into(),
+                message_ids,
+                message_thread_id: None,
+                disable_notification: None,
+                protect_content: None,
+                remove_caption: None,
+            },
+        }
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Sends the messages silently — recipients receive no notification sound.
+    pub fn disable_notification(mut self, v: bool) -> Self {
+        self.params.disable_notification = Some(v);
+        self
+    }
+    /// Protects the messages from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Copies the messages without their captions.
+    pub fn remove_caption(mut self, v: bool) -> Self {
+        self.params.remove_caption = Some(v);
+        self
+    }
+}
+
+impl_into_future!(
+    CopyMessages,
+    Vec<rustigram_types::message::MessageId>,
+    "copyMessages"
+);
+
+// ─── sendVenue ────────────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SendVenueParams {
+    chat_id: ChatId,
+    latitude: f64,
+    longitude: f64,
+    title: String,
+    address: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    foursquare_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    foursquare_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    google_place_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    google_place_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    disable_notification: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    protect_content: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_parameters: Option<ReplyParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<ReplyMarkup>,
+}
+
+/// Builder for the [`sendVenue`](https://core.telegram.org/bots/api#sendvenue) method.
+pub struct SendVenue {
+    client: BotClient,
+    params: SendVenueParams,
+}
+
+impl SendVenue {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        latitude: f64,
+        longitude: f64,
+        title: impl Into<String>,
+        address: impl Into<String>,
+    ) -> Self {
+        Self {
+            client,
+            params: SendVenueParams {
+                chat_id: chat_id.into(),
+                latitude,
+                longitude,
+                title: title.into(),
+                address: address.into(),
+                message_thread_id: None,
+                foursquare_id: None,
+                foursquare_type: None,
+                google_place_id: None,
+                google_place_type: None,
+                disable_notification: None,
+                protect_content: None,
+                reply_parameters: None,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Sets the Foursquare identifier of the venue.
+    pub fn foursquare_id(mut self, id: impl Into<String>) -> Self {
+        self.params.foursquare_id = Some(id.into());
+        self
+    }
+    /// Sets the Foursquare type of the venue (e.g. `"arts_entertainment/aquarium"`).
+    pub fn foursquare_type(mut self, t: impl Into<String>) -> Self {
+        self.params.foursquare_type = Some(t.into());
+        self
+    }
+    /// Sets the Google Places identifier of the venue.
+    pub fn google_place_id(mut self, id: impl Into<String>) -> Self {
+        self.params.google_place_id = Some(id.into());
+        self
+    }
+    /// Sets the Google Places type of the venue.
+    pub fn google_place_type(mut self, t: impl Into<String>) -> Self {
+        self.params.google_place_type = Some(t.into());
+        self
+    }
+    /// Sends the message silently — the recipient receives no notification sound.
+    pub fn disable_notification(mut self, v: bool) -> Self {
+        self.params.disable_notification = Some(v);
+        self
+    }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, rp: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(rp);
+        self
+    }
+    /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
+    pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self {
+        self.params.reply_markup = Some(m.into());
+        self
+    }
+}
+
+impl_into_future!(SendVenue, Message, "sendVenue");
+
+// ─── sendMediaGroup ───────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SendMediaGroupParams {
+    chat_id: ChatId,
+    /// Array of `InputMedia` objects (photo, video, audio, or document).
+    ///
+    /// Uses `serde_json::Value` until the `InputMedia` enum is defined in
+    /// Priority 4. Pass the result of `serde_json::to_value(&your_input_media_vec)`.
+    media: Vec<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    disable_notification: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    protect_content: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_parameters: Option<ReplyParameters>,
+}
+
+/// Builder for the [`sendMediaGroup`](https://core.telegram.org/bots/api#sendmediagroup) method.
+///
+/// Sends a group of photos, videos, documents, or audios as an album (2–10 items).
+///
+/// The `media` parameter accepts `Vec<serde_json::Value>` until the `InputMedia`
+/// enum is defined in Priority 4. Construct items with `serde_json::json!({...})`
+/// or `serde_json::to_value(&input_media)`.
+pub struct SendMediaGroup {
+    client: BotClient,
+    params: SendMediaGroupParams,
+}
+
+impl SendMediaGroup {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        media: Vec<serde_json::Value>,
+    ) -> Self {
+        Self {
+            client,
+            params: SendMediaGroupParams {
+                chat_id: chat_id.into(),
+                media,
+                message_thread_id: None,
+                business_connection_id: None,
+                disable_notification: None,
+                protect_content: None,
+                reply_parameters: None,
+            },
+        }
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Business connection ID for sending on behalf of a business account.
+    pub fn business_connection_id(mut self, id: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(id.into());
+        self
+    }
+    /// Sends the messages silently — recipients receive no notification sound.
+    pub fn disable_notification(mut self, v: bool) -> Self {
+        self.params.disable_notification = Some(v);
+        self
+    }
+    /// Protects the messages from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, rp: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(rp);
+        self
+    }
+}
+
+impl_into_future!(SendMediaGroup, Vec<Message>, "sendMediaGroup");
+
+// ─── sendPaidMedia ────────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SendPaidMediaParams {
+    chat_id: ChatId,
+    star_count: u32,
+    /// Array of `InputPaidMedia` objects (photo or video).
+    ///
+    /// Uses `serde_json::Value` until the `InputPaidMedia` enum is defined in
+    /// Priority 4. Pass the result of `serde_json::to_value(&your_paid_media_vec)`.
+    media: Vec<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    payload: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    caption: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    parse_mode: Option<ParseMode>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    show_caption_above_media: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    disable_notification: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    protect_content: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_parameters: Option<ReplyParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<ReplyMarkup>,
+}
+
+/// Builder for the [`sendPaidMedia`](https://core.telegram.org/bots/api#sendpaidmedia) method.
+///
+/// Sends paid media that users must pay Telegram Stars to view (up to 10 items).
+///
+/// The `media` parameter accepts `Vec<serde_json::Value>` until the `InputPaidMedia`
+/// enum is defined in Priority 4.
+pub struct SendPaidMedia {
+    client: BotClient,
+    params: SendPaidMediaParams,
+}
+
+impl SendPaidMedia {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        star_count: u32,
+        media: Vec<serde_json::Value>,
+    ) -> Self {
+        Self {
+            client,
+            params: SendPaidMediaParams {
+                chat_id: chat_id.into(),
+                star_count,
+                media,
+                business_connection_id: None,
+                payload: None,
+                caption: None,
+                parse_mode: None,
+                show_caption_above_media: None,
+                disable_notification: None,
+                protect_content: None,
+                reply_parameters: None,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Business connection ID for sending on behalf of a business account.
+    pub fn business_connection_id(mut self, id: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(id.into());
+        self
+    }
+    /// Bot-defined paid media payload (0–128 bytes); not shown to the user.
+    pub fn payload(mut self, p: impl Into<String>) -> Self {
+        self.params.payload = Some(p.into());
+        self
+    }
+    /// Sets the caption (0–1024 characters).
+    pub fn caption(mut self, c: impl Into<String>) -> Self {
+        self.params.caption = Some(c.into());
+        self
+    }
+    /// Sets the caption parse mode (`MarkdownV2`, `HTML`, or `Markdown`).
+    pub fn parse_mode(mut self, m: ParseMode) -> Self {
+        self.params.parse_mode = Some(m);
+        self
+    }
+    /// Shows the caption above the media instead of below it.
+    pub fn show_caption_above_media(mut self, v: bool) -> Self {
+        self.params.show_caption_above_media = Some(v);
+        self
+    }
+    /// Sends the message silently — the recipient receives no notification sound.
+    pub fn disable_notification(mut self, v: bool) -> Self {
+        self.params.disable_notification = Some(v);
+        self
+    }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, rp: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(rp);
+        self
+    }
+    /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
+    pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self {
+        self.params.reply_markup = Some(m.into());
+        self
+    }
+}
+
+impl_into_future!(SendPaidMedia, Message, "sendPaidMedia");
+
+// ─── sendGame ─────────────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SendGameParams {
+    chat_id: i64,
+    game_short_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    disable_notification: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    protect_content: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_parameters: Option<ReplyParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<rustigram_types::keyboard::InlineKeyboardMarkup>,
+}
+
+/// Builder for the [`sendGame`](https://core.telegram.org/bots/api#sendgame) method.
+///
+/// Note: `chat_id` is an integer — games can't be sent to channel direct messages
+/// chats or channel chats.
+pub struct SendGame {
+    client: BotClient,
+    params: SendGameParams,
+}
+
+impl SendGame {
+    pub(crate) fn new(client: BotClient, chat_id: i64, game_short_name: impl Into<String>) -> Self {
+        Self {
+            client,
+            params: SendGameParams {
+                chat_id,
+                game_short_name: game_short_name.into(),
+                business_connection_id: None,
+                message_thread_id: None,
+                disable_notification: None,
+                protect_content: None,
+                reply_parameters: None,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Business connection ID for sending on behalf of a business account.
+    pub fn business_connection_id(mut self, id: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(id.into());
+        self
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Sends the message silently — the recipient receives no notification sound.
+    pub fn disable_notification(mut self, v: bool) -> Self {
+        self.params.disable_notification = Some(v);
+        self
+    }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, rp: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(rp);
+        self
+    }
+    /// Attaches an inline keyboard. The first button must launch the game.
+    pub fn reply_markup(mut self, m: rustigram_types::keyboard::InlineKeyboardMarkup) -> Self {
+        self.params.reply_markup = Some(m);
+        self
+    }
+}
+
+impl_into_future!(SendGame, Message, "sendGame");
+
+// ─── sendChecklist ────────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SendChecklistParams {
+    business_connection_id: String,
+    chat_id: i64,
+    checklist: rustigram_types::checklist::InputChecklist,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    disable_notification: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    protect_content: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_parameters: Option<ReplyParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<rustigram_types::keyboard::InlineKeyboardMarkup>,
+}
+
+/// Builder for the [`sendChecklist`](https://core.telegram.org/bots/api#sendchecklist) method.
+///
+/// Business bots only — sends a checklist on behalf of a connected business account.
+/// Requires the `can_reply` business bot right.
+pub struct SendChecklist {
+    client: BotClient,
+    params: SendChecklistParams,
+}
+
+impl SendChecklist {
+    pub(crate) fn new(
+        client: BotClient,
+        business_connection_id: impl Into<String>,
+        chat_id: i64,
+        checklist: rustigram_types::checklist::InputChecklist,
+    ) -> Self {
+        Self {
+            client,
+            params: SendChecklistParams {
+                business_connection_id: business_connection_id.into(),
+                chat_id,
+                checklist,
+                disable_notification: None,
+                protect_content: None,
+                message_effect_id: None,
+                reply_parameters: None,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Sends the message silently — the recipient receives no notification sound.
+    pub fn disable_notification(mut self, v: bool) -> Self {
+        self.params.disable_notification = Some(v);
+        self
+    }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Unique identifier of the message effect to add to the message.
+    pub fn message_effect_id(mut self, id: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(id.into());
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, rp: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(rp);
+        self
+    }
+    /// Attaches an inline keyboard to the message.
+    pub fn reply_markup(mut self, m: rustigram_types::keyboard::InlineKeyboardMarkup) -> Self {
+        self.params.reply_markup = Some(m);
+        self
+    }
+}
+
+impl_into_future!(SendChecklist, Message, "sendChecklist");

@@ -339,3 +339,158 @@ impl IntoFuture for TransferBusinessAccountStars {
         })
     }
 }
+
+// ─── setBusinessAccountProfilePhoto ──────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SetBusinessAccountProfilePhotoParams {
+    business_connection_id: String,
+    /// The new profile photo.
+    ///
+    /// Uses `serde_json::Value` — serialise from
+    /// `rustigram_types::file::InputProfilePhoto` with `serde_json::to_value`.
+    photo: serde_json::Value,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    is_public: Option<bool>,
+}
+
+/// Builder for the [`setBusinessAccountProfilePhoto`](https://core.telegram.org/bots/api#setbusinessaccountprofilephoto) method.
+///
+/// Changes the profile photo of a managed business account.
+/// Requires the `can_edit_profile_photo` business bot right.
+///
+/// Pass the `photo` as `serde_json::to_value(&input_profile_photo)`.
+pub struct SetBusinessAccountProfilePhoto {
+    client: BotClient,
+    params: SetBusinessAccountProfilePhotoParams,
+}
+
+impl SetBusinessAccountProfilePhoto {
+    pub(crate) fn new(
+        client: BotClient,
+        business_connection_id: impl Into<String>,
+        photo: serde_json::Value,
+    ) -> Self {
+        Self {
+            client,
+            params: SetBusinessAccountProfilePhotoParams {
+                business_connection_id: business_connection_id.into(),
+                photo,
+                is_public: None,
+            },
+        }
+    }
+    /// Pass `true` to set the public photo, visible even if the main photo is
+    /// hidden by the account's privacy settings. An account can have only one public photo.
+    pub fn is_public(mut self, v: bool) -> Self {
+        self.params.is_public = Some(v);
+        self
+    }
+}
+
+impl IntoFuture for SetBusinessAccountProfilePhoto {
+    type Output = Result<bool>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.client
+                .post_json("setBusinessAccountProfilePhoto", &self.params)
+                .await
+        })
+    }
+}
+
+// ─── removeBusinessAccountProfilePhoto ───────────────────────────────────────
+
+#[derive(Serialize)]
+struct RemoveBusinessAccountProfilePhotoParams {
+    business_connection_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    is_public: Option<bool>,
+}
+
+/// Builder for the [`removeBusinessAccountProfilePhoto`](https://core.telegram.org/bots/api#removebusinessaccountprofilephoto) method.
+///
+/// Removes the current profile photo of a managed business account.
+/// Requires the `can_edit_profile_photo` business bot right.
+pub struct RemoveBusinessAccountProfilePhoto {
+    client: BotClient,
+    params: RemoveBusinessAccountProfilePhotoParams,
+}
+
+impl RemoveBusinessAccountProfilePhoto {
+    pub(crate) fn new(client: BotClient, business_connection_id: impl Into<String>) -> Self {
+        Self {
+            client,
+            params: RemoveBusinessAccountProfilePhotoParams {
+                business_connection_id: business_connection_id.into(),
+                is_public: None,
+            },
+        }
+    }
+    /// Pass `true` to remove the public photo instead of the main photo.
+    pub fn is_public(mut self, v: bool) -> Self {
+        self.params.is_public = Some(v);
+        self
+    }
+}
+
+impl IntoFuture for RemoveBusinessAccountProfilePhoto {
+    type Output = Result<bool>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.client
+                .post_json("removeBusinessAccountProfilePhoto", &self.params)
+                .await
+        })
+    }
+}
+
+// ─── setBusinessAccountGiftSettings ──────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SetBusinessAccountGiftSettingsParams {
+    business_connection_id: String,
+    show_gift_button: bool,
+    accepted_gift_types: rustigram_types::payments::AcceptedGiftTypes,
+}
+
+/// Builder for the [`setBusinessAccountGiftSettings`](https://core.telegram.org/bots/api#setbusinessaccountgiftsettings) method.
+///
+/// Changes the gift privacy settings of a managed business account.
+/// Requires the `can_change_gift_settings` business bot right.
+pub struct SetBusinessAccountGiftSettings {
+    client: BotClient,
+    params: SetBusinessAccountGiftSettingsParams,
+}
+
+impl SetBusinessAccountGiftSettings {
+    pub(crate) fn new(
+        client: BotClient,
+        business_connection_id: impl Into<String>,
+        show_gift_button: bool,
+        accepted_gift_types: rustigram_types::payments::AcceptedGiftTypes,
+    ) -> Self {
+        Self {
+            client,
+            params: SetBusinessAccountGiftSettingsParams {
+                business_connection_id: business_connection_id.into(),
+                show_gift_button,
+                accepted_gift_types,
+            },
+        }
+    }
+}
+
+impl IntoFuture for SetBusinessAccountGiftSettings {
+    type Output = Result<bool>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.client
+                .post_json("setBusinessAccountGiftSettings", &self.params)
+                .await
+        })
+    }
+}

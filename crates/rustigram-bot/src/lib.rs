@@ -1,4 +1,4 @@
-//! High-level bot framework built on top of [`rustigram-api`].
+//! High-level bot framework built on top of \[`rustigram-api`\].
 //!
 //! This crate provides everything needed to receive and route Telegram updates:
 //!

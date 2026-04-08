@@ -3,12 +3,29 @@ use std::pin::Pin;
 
 use serde::Serialize;
 
+use rustigram_types::checklist::InputChecklist;
 use rustigram_types::keyboard::InlineKeyboardMarkup;
 use rustigram_types::message::{LinkPreviewOptions, Message, MessageEntity, ParseMode};
 use rustigram_types::user::ChatId;
 
 use crate::client::BotClient;
 use crate::error::Result;
+
+// ─── Helper macro ─────────────────────────────────────────────────────────────
+
+/// Generates an `IntoFuture` impl that calls `BotClient::post_json`.
+macro_rules! impl_into_future {
+    ($builder:ident, $return_ty:ty, $method:literal) => {
+        impl IntoFuture for $builder {
+            type Output = Result<$return_ty>;
+            type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+
+            fn into_future(self) -> Self::IntoFuture {
+                Box::pin(async move { self.client.post_json($method, &self.params).await })
+            }
+        }
+    };
+}
 
 /// Target identifier for inline message edits.
 #[derive(Serialize)]
@@ -119,13 +136,7 @@ impl EditMessageText {
     }
 }
 
-impl IntoFuture for EditMessageText {
-    type Output = Result<Message>;
-    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
-    fn into_future(self) -> Self::IntoFuture {
-        Box::pin(async move { self.client.post_json("editMessageText", &self.params).await })
-    }
-}
+impl_into_future!(EditMessageText, Message, "editMessageText");
 
 // ─── editMessageCaption ───────────────────────────────────────────────────────
 
@@ -181,6 +192,11 @@ impl EditMessageCaption {
         self.params.parse_mode = Some(m);
         self
     }
+    /// Shows the caption above the media instead of below it.
+    pub fn show_caption_above_media(mut self, v: bool) -> Self {
+        self.params.show_caption_above_media = Some(v);
+        self
+    }
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: InlineKeyboardMarkup) -> Self {
         self.params.reply_markup = Some(m);
@@ -188,17 +204,87 @@ impl EditMessageCaption {
     }
 }
 
-impl IntoFuture for EditMessageCaption {
-    type Output = Result<Message>;
-    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
-    fn into_future(self) -> Self::IntoFuture {
-        Box::pin(async move {
-            self.client
-                .post_json("editMessageCaption", &self.params)
-                .await
-        })
+impl_into_future!(EditMessageCaption, Message, "editMessageCaption");
+
+// ─── editMessageMedia ─────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct EditMessageMediaParams {
+    #[serde(flatten)]
+    target: EditTarget,
+    /// The new media content.
+    ///
+    /// Uses `serde_json::Value` until the `InputMedia` enum is defined in
+    /// Priority 4. Pass the result of `serde_json::to_value(&your_input_media)`.
+    media: serde_json::Value,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+/// Builder for the [`editMessageMedia`](https://core.telegram.org/bots/api#editmessagemedia) method.
+///
+/// Edits the media content of a message (animation, audio, document, photo, or video).
+///
+/// The `media` parameter accepts `serde_json::Value` until the `InputMedia` enum is
+/// defined in Priority 4. Construct it with `serde_json::json!({...})` or
+/// `serde_json::to_value(&input_media)`.
+pub struct EditMessageMedia {
+    client: BotClient,
+    params: EditMessageMediaParams,
+}
+
+impl EditMessageMedia {
+    pub(crate) fn in_chat(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        message_id: i64,
+        media: serde_json::Value,
+    ) -> Self {
+        Self {
+            client,
+            params: EditMessageMediaParams {
+                target: EditTarget::Chat {
+                    chat_id: chat_id.into(),
+                    message_id,
+                },
+                media,
+                business_connection_id: None,
+                reply_markup: None,
+            },
+        }
+    }
+    pub(crate) fn inline(
+        client: BotClient,
+        inline_message_id: impl Into<String>,
+        media: serde_json::Value,
+    ) -> Self {
+        Self {
+            client,
+            params: EditMessageMediaParams {
+                target: EditTarget::Inline {
+                    inline_message_id: inline_message_id.into(),
+                },
+                media,
+                business_connection_id: None,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Business connection ID for editing a message sent on behalf of a business account.
+    pub fn business_connection_id(mut self, id: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(id.into());
+        self
+    }
+    /// Attaches a new inline keyboard to the message.
+    pub fn reply_markup(mut self, m: InlineKeyboardMarkup) -> Self {
+        self.params.reply_markup = Some(m);
+        self
     }
 }
+
+impl_into_future!(EditMessageMedia, Message, "editMessageMedia");
 
 // ─── editMessageReplyMarkup ───────────────────────────────────────────────────
 
@@ -244,17 +330,136 @@ impl EditMessageReplyMarkup {
     }
 }
 
-impl IntoFuture for EditMessageReplyMarkup {
-    type Output = Result<Message>;
-    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
-    fn into_future(self) -> Self::IntoFuture {
-        Box::pin(async move {
-            self.client
-                .post_json("editMessageReplyMarkup", &self.params)
-                .await
-        })
+impl_into_future!(EditMessageReplyMarkup, Message, "editMessageReplyMarkup");
+
+// ─── editMessageChecklist ─────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct EditMessageChecklistParams {
+    business_connection_id: String,
+    chat_id: i64,
+    message_id: i64,
+    checklist: InputChecklist,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+/// Builder for the [`editMessageChecklist`](https://core.telegram.org/bots/api#editmessagechecklist) method.
+///
+/// Business bots only — edits a checklist message sent on behalf of a connected
+/// business account. Requires the `can_reply` business bot right.
+pub struct EditMessageChecklist {
+    client: BotClient,
+    params: EditMessageChecklistParams,
+}
+
+impl EditMessageChecklist {
+    pub(crate) fn new(
+        client: BotClient,
+        business_connection_id: impl Into<String>,
+        chat_id: i64,
+        message_id: i64,
+        checklist: InputChecklist,
+    ) -> Self {
+        Self {
+            client,
+            params: EditMessageChecklistParams {
+                business_connection_id: business_connection_id.into(),
+                chat_id,
+                message_id,
+                checklist,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Attaches a new inline keyboard to the message.
+    pub fn reply_markup(mut self, m: InlineKeyboardMarkup) -> Self {
+        self.params.reply_markup = Some(m);
+        self
     }
 }
+
+impl_into_future!(EditMessageChecklist, Message, "editMessageChecklist");
+
+// ─── approveSuggestedPost ─────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct ApproveSuggestedPostParams {
+    chat_id: i64,
+    message_id: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    send_date: Option<i64>,
+}
+
+/// Builder for the [`approveSuggestedPost`](https://core.telegram.org/bots/api#approvesuggestedpost) method.
+///
+/// Approves a suggested post in a direct messages chat.
+/// Requires the `can_post_messages` administrator right in the corresponding channel.
+pub struct ApproveSuggestedPost {
+    client: BotClient,
+    params: ApproveSuggestedPostParams,
+}
+
+impl ApproveSuggestedPost {
+    pub(crate) fn new(client: BotClient, chat_id: i64, message_id: i64) -> Self {
+        Self {
+            client,
+            params: ApproveSuggestedPostParams {
+                chat_id,
+                message_id,
+                send_date: None,
+            },
+        }
+    }
+    /// Unix timestamp when the post will be published (not more than 30 days in the future).
+    ///
+    /// Omit if the send date was already specified when the post was suggested.
+    pub fn send_date(mut self, ts: i64) -> Self {
+        self.params.send_date = Some(ts);
+        self
+    }
+}
+
+impl_into_future!(ApproveSuggestedPost, bool, "approveSuggestedPost");
+
+// ─── declineSuggestedPost ─────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct DeclineSuggestedPostParams {
+    chat_id: i64,
+    message_id: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    comment: Option<String>,
+}
+
+/// Builder for the [`declineSuggestedPost`](https://core.telegram.org/bots/api#declinesuggestedpost) method.
+///
+/// Declines a suggested post in a direct messages chat.
+/// Requires the `can_manage_direct_messages` administrator right in the corresponding channel.
+pub struct DeclineSuggestedPost {
+    client: BotClient,
+    params: DeclineSuggestedPostParams,
+}
+
+impl DeclineSuggestedPost {
+    pub(crate) fn new(client: BotClient, chat_id: i64, message_id: i64) -> Self {
+        Self {
+            client,
+            params: DeclineSuggestedPostParams {
+                chat_id,
+                message_id,
+                comment: None,
+            },
+        }
+    }
+    /// Optional comment for the creator of the suggested post (0–128 characters).
+    pub fn comment(mut self, c: impl Into<String>) -> Self {
+        self.params.comment = Some(c.into());
+        self
+    }
+}
+
+impl_into_future!(DeclineSuggestedPost, bool, "declineSuggestedPost");
 
 // ─── editMessageLiveLocation ──────────────────────────────────────────────────
 
@@ -324,17 +529,7 @@ impl EditMessageLiveLocation {
     }
 }
 
-impl IntoFuture for EditMessageLiveLocation {
-    type Output = Result<Message>;
-    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
-    fn into_future(self) -> Self::IntoFuture {
-        Box::pin(async move {
-            self.client
-                .post_json("editMessageLiveLocation", &self.params)
-                .await
-        })
-    }
-}
+impl_into_future!(EditMessageLiveLocation, Message, "editMessageLiveLocation");
 
 // ─── stopMessageLiveLocation ──────────────────────────────────────────────────
 
@@ -372,14 +567,4 @@ impl StopMessageLiveLocation {
     }
 }
 
-impl IntoFuture for StopMessageLiveLocation {
-    type Output = Result<Message>;
-    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
-    fn into_future(self) -> Self::IntoFuture {
-        Box::pin(async move {
-            self.client
-                .post_json("stopMessageLiveLocation", &self.params)
-                .await
-        })
-    }
-}
+impl_into_future!(StopMessageLiveLocation, Message, "stopMessageLiveLocation");

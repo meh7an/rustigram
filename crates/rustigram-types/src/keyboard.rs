@@ -30,54 +30,42 @@ impl InlineKeyboardMarkup {
 pub struct InlineKeyboardButton {
     /// Label text on the button.
     pub text: String,
-
+    /// Custom emoji identifier shown before the button text.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub icon_custom_emoji_id: Option<String>,
+    /// Visual style of the button (`"danger"`, `"success"`, or `"primary"`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub style: Option<ButtonStyle>,
     /// URL to open when the button is pressed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
-
     /// Data to be sent in a callback query (1–64 bytes).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub callback_data: Option<String>,
-
     /// Web App to launch when the button is pressed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub web_app: Option<WebAppInfo>,
-
     /// Defines an authentication button.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub login_url: Option<LoginUrl>,
-
     /// Pressing the button prompts the user to select a chat and opens an inline query.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub switch_inline_query: Option<String>,
-
     /// Pressing the button opens an inline query in the current chat.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub switch_inline_query_current_chat: Option<String>,
-
     /// Prompts the user to select a specific type of chat for an inline query.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub switch_inline_query_chosen_chat: Option<SwitchInlineQueryChosenChat>,
-
     /// Describes a button that copies specified text to the clipboard.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub copy_text: Option<CopyTextButton>,
-
     /// Description of the game that will be launched when the user presses the button.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub callback_game: Option<serde_json::Value>,
-
     /// Specify `true` to send a Pay button (invoices only).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pay: Option<bool>,
-
-    /// Custom emoji identifier to display on the button.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub icon_custom_emoji_id: Option<String>,
-
-    /// Visual style: `"danger"`, `"success"`, or `"primary"`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub style: Option<ButtonStyle>,
 }
 
 impl InlineKeyboardButton {
@@ -87,6 +75,8 @@ impl InlineKeyboardButton {
         Self {
             text: text.into(),
             callback_data: Some(data.into()),
+            icon_custom_emoji_id: None,
+            style: None,
             url: None,
             web_app: None,
             login_url: None,
@@ -96,8 +86,6 @@ impl InlineKeyboardButton {
             copy_text: None,
             callback_game: None,
             pay: None,
-            icon_custom_emoji_id: None,
-            style: None,
         }
     }
 
@@ -107,6 +95,8 @@ impl InlineKeyboardButton {
         Self {
             text: text.into(),
             url: Some(url.into()),
+            icon_custom_emoji_id: None,
+            style: None,
             callback_data: None,
             web_app: None,
             login_url: None,
@@ -116,8 +106,6 @@ impl InlineKeyboardButton {
             copy_text: None,
             callback_game: None,
             pay: None,
-            icon_custom_emoji_id: None,
-            style: None,
         }
     }
 
@@ -127,6 +115,8 @@ impl InlineKeyboardButton {
         Self {
             text: text.into(),
             web_app: Some(WebAppInfo { url: url.into() }),
+            icon_custom_emoji_id: None,
+            style: None,
             url: None,
             callback_data: None,
             login_url: None,
@@ -136,14 +126,12 @@ impl InlineKeyboardButton {
             copy_text: None,
             callback_game: None,
             pay: None,
-            icon_custom_emoji_id: None,
-            style: None,
         }
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 /// The visual style applied to an inline or reply keyboard button.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ButtonStyle {
     /// Red destructive button style.
@@ -202,23 +190,18 @@ pub struct CopyTextButton {
 pub struct ReplyKeyboardMarkup {
     /// Array of button rows.
     pub keyboard: Vec<Vec<KeyboardButton>>,
-
     /// Whether the keyboard is persistent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_persistent: Option<bool>,
-
     /// Requests clients to resize the keyboard vertically.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resize_keyboard: Option<bool>,
-
     /// Requests clients to hide the keyboard after a button is used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub one_time_keyboard: Option<bool>,
-
     /// Placeholder text shown in the input field when the keyboard is active.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub input_field_placeholder: Option<String>,
-
     /// Show keyboard to specific users only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub selective: Option<bool>,
@@ -229,42 +212,33 @@ pub struct ReplyKeyboardMarkup {
 pub struct KeyboardButton {
     /// Label text on the button.
     pub text: String,
-
-    /// Request to select and share one or more users.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub request_users: Option<KeyboardButtonRequestUsers>,
-
-    /// Request to select and share a chat.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub request_chat: Option<KeyboardButtonRequestChat>,
-
-    /// Requests the user's phone number.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub request_contact: Option<bool>,
-
-    /// Requests the user's current location.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub request_location: Option<bool>,
-
-    /// Requests the user to create a poll.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub request_poll: Option<KeyboardButtonPollType>,
-
-    /// Web App to launch when the button is pressed.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub web_app: Option<WebAppInfo>,
-
-    /// Request a managed bot from the user.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub request_managed_bot: Option<KeyboardButtonRequestManagedBot>,
-
-    /// Custom emoji identifier to display on the button.
+    /// Custom emoji identifier shown before the button text.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_custom_emoji_id: Option<String>,
-
     /// Visual style of the button.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub style: Option<ButtonStyle>,
+    /// Request to select and share one or more users.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_users: Option<KeyboardButtonRequestUsers>,
+    /// Request to select and share a chat.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_chat: Option<KeyboardButtonRequestChat>,
+    /// Request a managed bot from the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_managed_bot: Option<KeyboardButtonRequestManagedBot>,
+    /// Requests the user's phone number.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_contact: Option<bool>,
+    /// Requests the user's current location.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_location: Option<bool>,
+    /// Requests the user to create a poll.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub request_poll: Option<KeyboardButtonPollType>,
+    /// Web App to launch when the button is pressed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub web_app: Option<WebAppInfo>,
 }
 
 impl KeyboardButton {
@@ -273,15 +247,15 @@ impl KeyboardButton {
     pub fn text(label: impl Into<String>) -> Self {
         Self {
             text: label.into(),
+            icon_custom_emoji_id: None,
+            style: None,
             request_users: None,
             request_chat: None,
+            request_managed_bot: None,
             request_contact: None,
             request_location: None,
             request_poll: None,
             web_app: None,
-            request_managed_bot: None,
-            icon_custom_emoji_id: None,
-            style: None,
         }
     }
 
@@ -334,7 +308,7 @@ pub struct KeyboardButtonRequestUsers {
 pub struct KeyboardButtonRequestChat {
     /// Signed 32-bit identifier of the request.
     pub request_id: i32,
-    /// `true` to request a channel chat; `false` to request a group or supergroup.
+    /// `true` to request a channel chat; `false` for group or supergroup.
     pub chat_is_channel: bool,
     /// `true` to request a forum supergroup.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -365,26 +339,33 @@ pub struct KeyboardButtonRequestChat {
     pub request_photo: Option<bool>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-/// The type of poll requested via a keyboard button.
-pub struct KeyboardButtonPollType {
-    /// Type of the poll — `"quiz"` or `"regular"`. Empty means any.
-    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
-    pub kind: Option<String>,
-}
-
-/// Request a managed bot from the user.
+/// Defines parameters for requesting the creation of a managed bot.
+///
+/// Bot API 9.6 — available for bots that have enabled managed bot creation in @BotFather.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct KeyboardButtonRequestManagedBot {
-    /// `true` to request only active managed bots.
+    /// Signed 32-bit identifier of the request; must be unique within the message.
+    pub request_id: i32,
+    /// Suggested name for the new bot.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub bot_is_active: Option<bool>,
+    pub suggested_name: Option<String>,
+    /// Suggested username for the new bot.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suggested_username: Option<String>,
+}
+
+/// The type of poll requested via a keyboard button.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KeyboardButtonPollType {
+    /// `"quiz"`, `"regular"`, or absent (any type).
+    #[serde(rename = "type", skip_serializing_if = "Option::is_none")]
+    pub kind: Option<String>,
 }
 
 /// Instructs clients to remove the reply keyboard.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReplyKeyboardRemove {
-    /// Must be `true`. Requests clients to remove the reply keyboard.
+    /// Must be `true`.
     pub remove_keyboard: bool,
     /// Show the remove keyboard to specific users only.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -394,7 +375,7 @@ pub struct ReplyKeyboardRemove {
 /// Forces a reply from the user.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ForceReply {
-    /// Must be `true`. Shows a reply interface to the user.
+    /// Must be `true`.
     pub force_reply: bool,
     /// Placeholder text in the input field when the reply is active (1–64 characters).
     #[serde(skip_serializing_if = "Option::is_none")]
