@@ -31,16 +31,26 @@ async fn main() -> anyhow::Result<()> {
     let addr: std::net::SocketAddr = "0.0.0.0:8443".parse()?;
 
     bot.dispatcher()
-        .on(filters::command("start"), handler_fn(|ctx: Context| async move {
-            if let Some(r) = ctx.reply("Hello via webhook!") { r.await?; }
-            Ok(())
-        }))
-        .on(filters::message(), handler_fn(|ctx: Context| async move {
-            if let (Some(text), Some(chat_id)) = (ctx.text(), ctx.chat_id()) {
-                ctx.bot.send_message(chat_id, format!("Echo: {text}")).await?;
-            }
-            Ok(())
-        }))
+        .on(
+            filters::command("start"),
+            handler_fn(|ctx: Context| async move {
+                if let Some(r) = ctx.reply("Hello via webhook!") {
+                    r.await?;
+                }
+                Ok(())
+            }),
+        )
+        .on(
+            filters::message(),
+            handler_fn(|ctx: Context| async move {
+                if let (Some(text), Some(chat_id)) = (ctx.text(), ctx.chat_id()) {
+                    ctx.bot
+                        .send_message(chat_id, format!("Echo: {text}"))
+                        .await?;
+                }
+                Ok(())
+            }),
+        )
         .build()
         .webhook(addr)
         .await?;

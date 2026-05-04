@@ -73,7 +73,11 @@ async fn handle_text(ctx: Context, storage: Arc<DialogueStorage>) -> BotResult<(
 
     match state {
         Some(RegistrationState::AwaitingName) => {
-            storage.set(chat_id, user_id, RegistrationState::AwaitingEmail { name: text.clone() });
+            storage.set(
+                chat_id,
+                user_id,
+                RegistrationState::AwaitingEmail { name: text.clone() },
+            );
             if let Some(r) = ctx.reply(format!("Nice to meet you, {text}! What is your email?")) {
                 r.await?;
             }

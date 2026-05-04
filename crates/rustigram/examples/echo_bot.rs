@@ -14,12 +14,15 @@ async fn main() -> anyhow::Result<()> {
     let token = std::env::var("BOT_TOKEN").expect("BOT_TOKEN env var not set");
     let bot = Bot::new(token)?;
 
-    tracing::info!("Bot started: @{}", bot.client.get_me().await?.username.unwrap_or_default());
+    tracing::info!(
+        "Bot started: @{}",
+        bot.client.get_me().await?.username.unwrap_or_default()
+    );
 
     bot.dispatcher()
         .on(filters::command("start"), handler_fn(start_handler))
-        .on(filters::command("help"),  handler_fn(help_handler))
-        .on(filters::message(),        handler_fn(echo_handler))
+        .on(filters::command("help"), handler_fn(help_handler))
+        .on(filters::message(), handler_fn(echo_handler))
         .build()
         .polling()
         .await?;
