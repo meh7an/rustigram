@@ -67,6 +67,8 @@ impl GetChat {
 #[derive(Serialize)]
 struct GetChatAdministratorsParams {
     chat_id: ChatId,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    return_bots: Option<bool>,
 }
 simple_getter!(
     /// Builder for the [`getChatAdministrators`](https://core.telegram.org/bots/api#getchatadministrators) method.
@@ -81,8 +83,16 @@ impl GetChatAdministrators {
             client,
             params: GetChatAdministratorsParams {
                 chat_id: chat_id.into(),
+                return_bots: None,
             },
         }
+    }
+
+    /// Pass `true` to additionally receive all bots that are administrators of the chat.
+    /// By default, bots other than the current bot are omitted.
+    pub fn return_bots(mut self, v: bool) -> Self {
+        self.params.return_bots = Some(v);
+        self
     }
 }
 
@@ -247,6 +257,43 @@ impl IntoFuture for GetUserProfileAudios {
         Box::pin(async move {
             self.client
                 .post_json("getUserProfileAudios", &self.params)
+                .await
+        })
+    }
+}
+
+// ─── getUserPersonalChatMessages ──────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct GetUserPersonalChatMessagesParams {
+    user_id: i64,
+    limit: u32,
+}
+
+/// Builder for the [`getUserPersonalChatMessages`](https://core.telegram.org/bots/api#getuserpersonalchatmessages) method (Bot API 9.7).
+///
+/// Returns the last messages from the personal chat of a given user. Limit must be 1–20.
+pub struct GetUserPersonalChatMessages {
+    client: BotClient,
+    params: GetUserPersonalChatMessagesParams,
+}
+
+impl GetUserPersonalChatMessages {
+    pub(crate) fn new(client: BotClient, user_id: i64, limit: u32) -> Self {
+        Self {
+            client,
+            params: GetUserPersonalChatMessagesParams { user_id, limit },
+        }
+    }
+}
+
+impl IntoFuture for GetUserPersonalChatMessages {
+    type Output = Result<Vec<rustigram_types::message::Message>>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.client
+                .post_json("getUserPersonalChatMessages", &self.params)
                 .await
         })
     }

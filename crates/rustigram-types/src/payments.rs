@@ -214,17 +214,17 @@ pub struct AffiliateInfo {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum TransactionPartner {
     /// A transaction with a user.
-    User(TransactionPartnerUser),
+    User(Box<TransactionPartnerUser>),
     /// A transaction with a chat.
-    Chat(TransactionPartnerChat),
+    Chat(Box<TransactionPartnerChat>),
     /// The affiliate program that issued the commission.
-    AffiliateProgram(TransactionPartnerAffiliateProgram),
+    AffiliateProgram(Box<TransactionPartnerAffiliateProgram>),
     /// A withdrawal transaction with Fragment.
-    Fragment(TransactionPartnerFragment),
+    Fragment(Box<TransactionPartnerFragment>),
     /// A withdrawal transaction to the Telegram Ads platform.
     TelegramAds,
     /// A transaction for paid broadcasting.
-    TelegramApi(TransactionPartnerTelegramApi),
+    TelegramApi(Box<TransactionPartnerTelegramApi>),
     /// A transaction with an unknown source or recipient.
     Other,
 }
@@ -419,9 +419,9 @@ pub struct OwnedGiftUnique {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum OwnedGift {
     /// A regular owned gift.
-    Regular(OwnedGiftRegular),
+    Regular(Box<OwnedGiftUnique>),
     /// A unique owned gift.
-    Unique(OwnedGiftUnique),
+    Unique(Box<OwnedGiftUnique>),
 }
 
 /// A paginated list of gifts owned by a user or chat.

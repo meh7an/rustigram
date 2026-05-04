@@ -98,7 +98,7 @@ pub use file::{
     InputMediaVideo, InputPaidMedia, InputPaidMediaPhoto, InputPaidMediaVideo, InputProfilePhoto,
     InputProfilePhotoAnimated, InputProfilePhotoStatic, PhotoSize, VideoQuality,
 };
-pub use inline::{ChosenInlineResult, InlineQuery, InlineQueryResult};
+pub use inline::{ChosenInlineResult, InlineQuery, InlineQueryResult, SentGuestMessage};
 pub use keyboard::{
     ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
@@ -125,7 +125,7 @@ pub use suggested_post::{
 };
 pub use update::{BusinessBotRights, CallbackQuery, Update, UpdateKind, UserChatBoosts};
 pub use user::{
-    BotCommand, BotDescription, BotName, BotShortDescription, ChatAdministratorRights, ChatId,
-    User, UserProfileAudios, UserProfilePhotos,
+    BotAccessSettings, BotCommand, BotDescription, BotName, BotShortDescription,
+    ChatAdministratorRights, ChatId, User, UserProfileAudios, UserProfilePhotos,
 };
 pub use webhook::WebhookInfo;

@@ -760,6 +760,10 @@ struct SendPollParams {
     reply_markup: Option<ReplyMarkup>,
     #[serde(skip_serializing_if = "Option::is_none")]
     suggested_post_parameters: Option<SuggestedPostParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    members_only: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    country_codes: Option<Vec<String>>,
 }
 
 /// Builder for the [`sendPoll`](https://core.telegram.org/bots/api#sendpoll) method.
@@ -807,6 +811,8 @@ impl SendPoll {
                 reply_parameters: None,
                 reply_markup: None,
                 suggested_post_parameters: None,
+                members_only: None,
+                country_codes: None,
             },
         }
     }
@@ -923,6 +929,18 @@ impl SendPoll {
     /// Suggested post parameters for channel direct messages chats.
     pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self {
         self.params.suggested_post_parameters = Some(params);
+        self
+    }
+    /// Pass `true` to limit voting to users who have been members of the chat for more than
+    /// 24 hours; for channel chats only.
+    pub fn members_only(mut self, v: bool) -> Self {
+        self.params.members_only = Some(v);
+        self
+    }
+    /// Two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users
+    /// can vote; for channel chats only. Pass an empty list to allow any country.
+    pub fn country_codes(mut self, codes: Vec<impl Into<String>>) -> Self {
+        self.params.country_codes = Some(codes.into_iter().map(Into::into).collect());
         self
     }
 }

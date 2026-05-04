@@ -133,6 +133,8 @@ pub struct ChatMemberRestricted {
     pub permissions: ChatPermissions,
     /// `true` if the user is allowed to edit their own tag.
     pub can_edit_tag: bool,
+    /// `true` if the user is allowed to react to messages.
+    pub can_react_to_messages: bool,
     /// Unix timestamp when the restriction ends; `0` means permanent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub until_date: Option<i64>,

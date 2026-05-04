@@ -190,3 +190,48 @@ impl IntoFuture for SavePreparedInlineMessage {
         })
     }
 }
+
+// ─── answerGuestQuery ─────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct AnswerGuestQueryParams {
+    guest_query_id: String,
+    result: rustigram_types::inline::InlineQueryResult,
+}
+
+/// Builder for the [`answerGuestQuery`](https://core.telegram.org/bots/api#answerguestquery) method.
+///
+/// Replies to a received guest message. Returns a [`SentGuestMessage`](rustigram_types::inline::SentGuestMessage)
+/// on success.
+pub struct AnswerGuestQuery {
+    client: crate::client::BotClient,
+    params: AnswerGuestQueryParams,
+}
+
+impl AnswerGuestQuery {
+    pub(crate) fn new(
+        client: crate::client::BotClient,
+        guest_query_id: impl Into<String>,
+        result: rustigram_types::inline::InlineQueryResult,
+    ) -> Self {
+        Self {
+            client,
+            params: AnswerGuestQueryParams {
+                guest_query_id: guest_query_id.into(),
+                result,
+            },
+        }
+    }
+}
+
+impl std::future::IntoFuture for AnswerGuestQuery {
+    type Output = crate::error::Result<rustigram_types::inline::SentGuestMessage>;
+    type IntoFuture = std::pin::Pin<Box<dyn std::future::Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.client
+                .post_json("answerGuestQuery", &self.params)
+                .await
+        })
+    }
+}

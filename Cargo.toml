@@ -9,7 +9,7 @@ members  = [
 ]
 
 [workspace.package]
-version      = "0.9.5"
+version      = "0.9.6"
 edition      = "2021"
 authors      = ["Mehran <hi@mehran.tech>"]
 license      = "MIT"
@@ -52,10 +52,10 @@ syn            = { version = "2", features = ["full"] }
 version-sync = "0.9.5"
 
 # internal
-rustigram-types  = { version = "0.9.5", path = "crates/rustigram-types" }
-rustigram-api    = { version = "0.9.5", path = "crates/rustigram-api" }
-rustigram-bot    = { version = "0.9.5", path = "crates/rustigram-bot" }
-rustigram-macros = { version = "0.9.5", path = "crates/rustigram-macros" }
+rustigram-types  = { version = "0.9.6", path = "crates/rustigram-types" }
+rustigram-api    = { version = "0.9.6", path = "crates/rustigram-api" }
+rustigram-bot    = { version = "0.9.6", path = "crates/rustigram-bot" }
+rustigram-macros = { version = "0.9.6", path = "crates/rustigram-macros" }
 
 [profile.release]
 lto           = true

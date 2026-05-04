@@ -676,3 +676,12 @@ pub struct SentWebAppMessage {
     /// Identifier of the sent inline message.
     pub inline_message_id: Option<String>,
 }
+
+/// Describes an inline message sent by a guest bot.
+///
+/// Returned by [`answerGuestQuery`](https://core.telegram.org/bots/api#answerguestquery).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SentGuestMessage {
+    /// Identifier of the sent inline message.
+    pub inline_message_id: String,
+}

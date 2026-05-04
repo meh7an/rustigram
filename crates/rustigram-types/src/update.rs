@@ -40,7 +40,7 @@ pub enum UpdateKind {
     /// The result of an inline query that was chosen.
     ChosenInlineResult(ChosenInlineResult),
     /// New incoming callback query.
-    CallbackQuery(CallbackQuery),
+    CallbackQuery(Box<CallbackQuery>),
     /// New incoming shipping query (only for invoices with flexible price).
     ShippingQuery(ShippingQuery),
     /// New incoming pre-checkout query.
@@ -71,6 +71,8 @@ pub enum UpdateKind {
     DeletedBusinessMessages(BusinessMessagesDeleted),
     /// Purchased paid media.
     PurchasedPaidMedia(PaidMediaPurchased),
+    /// New guest message — the bot can reply using [`answerGuestQuery`](https://core.telegram.org/bots/api#answerguestquery).
+    GuestMessage(Message),
 }
 
 impl Update {
@@ -83,7 +85,8 @@ impl Update {
             | UpdateKind::ChannelPost(m)
             | UpdateKind::EditedChannelPost(m)
             | UpdateKind::BusinessMessage(m)
-            | UpdateKind::EditedBusinessMessage(m) => Some(m.chat.id),
+            | UpdateKind::EditedBusinessMessage(m)
+            | UpdateKind::GuestMessage(m) => Some(m.chat.id),
             UpdateKind::CallbackQuery(q) => q.message.as_ref().map(|m| m.chat.id),
             _ => None,
         }
@@ -98,7 +101,8 @@ impl Update {
             | UpdateKind::ChannelPost(m)
             | UpdateKind::EditedChannelPost(m)
             | UpdateKind::BusinessMessage(m)
-            | UpdateKind::EditedBusinessMessage(m) => m.from.as_ref(),
+            | UpdateKind::EditedBusinessMessage(m)
+            | UpdateKind::GuestMessage(m) => m.from.as_ref(),
             UpdateKind::CallbackQuery(q) => Some(&q.from),
             UpdateKind::InlineQuery(q) => Some(&q.from),
             UpdateKind::ShippingQuery(q) => Some(&q.from),

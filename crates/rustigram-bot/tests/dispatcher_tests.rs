@@ -25,6 +25,7 @@ fn make_user(id: i64) -> User {
         can_manage_bots: None,
         has_topics_enabled: None,
         allows_users_to_create_topics: None,
+        supports_guest_queries: None,
     }
 }
 
@@ -136,6 +137,9 @@ fn make_text_update(text: &str, chat_type: ChatType) -> Update {
             suggested_post_declined: None,
             suggested_post_paid: None,
             suggested_post_refunded: None,
+            guest_bot_caller_chat: None,
+            guest_bot_caller_user: None,
+            guest_query_id: None,
         }),
     }
 }

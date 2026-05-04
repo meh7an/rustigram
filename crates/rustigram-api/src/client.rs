@@ -424,6 +424,16 @@ impl BotClient {
     pub fn get_user_profile_audios(&self, user_id: i64) -> GetUserProfileAudios {
         GetUserProfileAudios::new(self.clone(), user_id)
     }
+    /// Calls `getUserPersonalChatMessages` — returns the last messages from a user's personal chat (Bot API 9.7).
+    ///
+    /// `limit` must be between 1 and 20.
+    pub fn get_user_personal_chat_messages(
+        &self,
+        user_id: i64,
+        limit: u32,
+    ) -> GetUserPersonalChatMessages {
+        GetUserPersonalChatMessages::new(self.clone(), user_id, limit)
+    }
 
     // ── Sending ───────────────────────────────────────────────────────────────
 
@@ -1097,6 +1107,18 @@ impl BotClient {
     pub fn replace_managed_bot_token(&self, user_id: i64) -> ReplaceManagedBotToken {
         ReplaceManagedBotToken::new(self.clone(), user_id)
     }
+    /// Calls `getManagedBotAccessSettings` — returns the access settings of a managed bot (Bot API 9.7).
+    pub fn get_managed_bot_access_settings(&self, user_id: i64) -> GetManagedBotAccessSettings {
+        GetManagedBotAccessSettings::new(self.clone(), user_id)
+    }
+    /// Calls `setManagedBotAccessSettings` — changes the access settings of a managed bot (Bot API 9.7).
+    pub fn set_managed_bot_access_settings(
+        &self,
+        user_id: i64,
+        is_access_restricted: bool,
+    ) -> SetManagedBotAccessSettings {
+        SetManagedBotAccessSettings::new(self.clone(), user_id, is_access_restricted)
+    }
 
     // ── Stories (business bots) ───────────────────────────────────────────────
 
@@ -1233,6 +1255,21 @@ impl BotClient {
     ) -> SetMessageReaction {
         SetMessageReaction::new(self.clone(), chat_id, message_id)
     }
+    /// Calls `deleteMessageReaction` — removes a specific reaction from a message (Bot API 9.7).
+    pub fn delete_message_reaction(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        message_id: i64,
+    ) -> DeleteMessageReaction {
+        DeleteMessageReaction::new(self.clone(), chat_id, message_id)
+    }
+    /// Calls `deleteAllMessageReactions` — removes all recent reactions by a given user or chat (Bot API 9.7).
+    pub fn delete_all_message_reactions(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+    ) -> DeleteAllMessageReactions {
+        DeleteAllMessageReactions::new(self.clone(), chat_id)
+    }
 
     // ── Inline mode ───────────────────────────────────────────────────────────
 
@@ -1251,6 +1288,14 @@ impl BotClient {
         result: rustigram_types::inline::InlineQueryResult,
     ) -> AnswerWebAppQuery {
         AnswerWebAppQuery::new(self.clone(), web_app_query_id, result)
+    }
+    /// Calls `answerGuestQuery` — replies to a received guest message (Bot API 9.7).
+    pub fn answer_guest_query(
+        &self,
+        guest_query_id: impl Into<String>,
+        result: rustigram_types::inline::InlineQueryResult,
+    ) -> AnswerGuestQuery {
+        AnswerGuestQuery::new(self.clone(), guest_query_id, result)
     }
     /// Calls `savePreparedInlineMessage` — stores a message sendable by a Mini App user.
     pub fn save_prepared_inline_message(

@@ -63,6 +63,11 @@ pub struct User {
     /// Bots only — `true` if other bots can be created to be controlled by this bot.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_bots: Option<bool>,
+
+    /// Bots only — `true` if the bot supports guest queries from chats it is not a member of.
+    /// Returned only in `getMe`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_guest_queries: Option<bool>,
 }
 
 impl User {
@@ -252,4 +257,17 @@ pub struct ChatAdministratorRights {
     /// `true` if the administrator can edit the tags of regular members; groups and supergroups only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_tags: Option<bool>,
+}
+
+/// Describes the access settings of a bot.
+///
+/// Returned by [`getManagedBotAccessSettings`](https://core.telegram.org/bots/api#getmanagedbotaccesssettings).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BotAccessSettings {
+    /// `true` if only selected users can access the bot. The bot's owner can always access it.
+    pub is_access_restricted: bool,
+
+    /// The list of other users who have access to the bot if the access is restricted.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub added_users: Option<Vec<User>>,
 }

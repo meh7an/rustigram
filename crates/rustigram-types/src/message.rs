@@ -356,6 +356,23 @@ pub struct Message {
     /// Service message: payment for a suggested post was refunded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub suggested_post_refunded: Option<SuggestedPostRefunded>,
+
+    // Guest mode fields
+    /// For a message sent by a guest bot, the user whose original message triggered the bot's response.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guest_bot_caller_user: Option<User>,
+
+    /// For a message sent by a guest bot, the chat whose original message triggered the bot's response.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guest_bot_caller_chat: Option<crate::chat::Chat>,
+
+    /// The unique identifier for the guest query.
+    ///
+    /// Use with [`answerGuestQuery`](https://core.telegram.org/bots/api#answerguestquery) to send a
+    /// response. If non-empty, the message belongs to a chat of the corresponding business account
+    /// independent from any potential bot chat sharing the same identifier.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guest_query_id: Option<String>,
 }
 
 impl Message {

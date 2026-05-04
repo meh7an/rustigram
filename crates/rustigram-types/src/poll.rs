@@ -57,6 +57,13 @@ pub struct Poll {
     /// Special entities in the description.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description_entities: Option<Vec<MessageEntity>>,
+    /// `true` if voting is limited to users who have been members of the chat for more than 24 hours.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub members_only: Option<bool>,
+    /// Two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote.
+    /// If absent, users from any country can participate.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub country_codes: Option<Vec<String>>,
 }
 
 /// One option in a [`Poll`].

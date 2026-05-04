@@ -268,6 +268,11 @@ pub struct ChatPermissions {
     /// Allows editing the chat tag (supergroups only).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_edit_tag: Option<bool>,
+    /// Allows reacting to messages.
+    ///
+    /// If omitted, defaults to the value of `can_send_messages`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_react_to_messages: Option<bool>,
 }
 
 /// Location to which the supergroup is connected.

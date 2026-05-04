@@ -175,7 +175,7 @@ impl CommandFilter {
 impl Filter for CommandFilter {
     fn check(&self, ctx: &Context) -> bool {
         ctx.command()
-            .map_or(false, |cmd| cmd.eq_ignore_ascii_case(&self.command))
+            .is_some_and(|cmd| cmd.eq_ignore_ascii_case(&self.command))
     }
 }
 
@@ -194,7 +194,7 @@ impl TextFilter {
 
 impl Filter for TextFilter {
     fn check(&self, ctx: &Context) -> bool {
-        ctx.text().map_or(false, |t| t == self.text)
+        ctx.text().is_some_and(|t| t == self.text)
     }
 }
 
@@ -215,8 +215,7 @@ impl TextContainsFilter {
 
 impl Filter for TextContainsFilter {
     fn check(&self, ctx: &Context) -> bool {
-        ctx.text()
-            .map_or(false, |t| t.contains(self.needle.as_str()))
+        ctx.text().is_some_and(|t| t.contains(self.needle.as_str()))
     }
 }
 
@@ -237,7 +236,7 @@ impl Filter for CallbackDataFilter {
     fn check(&self, ctx: &Context) -> bool {
         ctx.callback_query()
             .and_then(|q| q.data.as_deref())
-            .map_or(false, |d| d == self.data)
+            .is_some_and(|d| d == self.data)
     }
 }
 
@@ -260,7 +259,7 @@ impl Filter for CallbackDataPrefixFilter {
     fn check(&self, ctx: &Context) -> bool {
         ctx.callback_query()
             .and_then(|q| q.data.as_deref())
-            .map_or(false, |d| d.starts_with(self.prefix.as_str()))
+            .is_some_and(|d| d.starts_with(self.prefix.as_str()))
     }
 }
 
@@ -269,9 +268,8 @@ impl Filter for CallbackDataPrefixFilter {
 pub struct PrivateChatFilter;
 impl Filter for PrivateChatFilter {
     fn check(&self, ctx: &Context) -> bool {
-        ctx.message().map_or(false, |m| {
-            matches!(m.chat.kind, rustigram_types::chat::ChatType::Private)
-        })
+        ctx.message()
+            .is_some_and(|m| matches!(m.chat.kind, rustigram_types::chat::ChatType::Private))
     }
 }
 
@@ -280,7 +278,7 @@ impl Filter for PrivateChatFilter {
 pub struct GroupFilter;
 impl Filter for GroupFilter {
     fn check(&self, ctx: &Context) -> bool {
-        ctx.message().map_or(false, |m| {
+        ctx.message().is_some_and(|m| {
             matches!(
                 m.chat.kind,
                 rustigram_types::chat::ChatType::Group

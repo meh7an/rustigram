@@ -672,3 +672,89 @@ impl GetManagedBotToken {
 }
 
 impl_into_future!(GetManagedBotToken, String, "getManagedBotToken");
+
+// ─── getManagedBotAccessSettings ─────────────────────────────────────────────
+
+#[derive(serde::Serialize)]
+struct GetManagedBotAccessSettingsParams {
+    user_id: i64,
+}
+
+/// Builder for the [`getManagedBotAccessSettings`](https://core.telegram.org/bots/api#getmanagedbotaccesssettings) method (Bot API 9.7).
+///
+/// Returns the access settings of a managed bot.
+pub struct GetManagedBotAccessSettings {
+    client: BotClient,
+    params: GetManagedBotAccessSettingsParams,
+}
+
+impl GetManagedBotAccessSettings {
+    pub(crate) fn new(client: BotClient, user_id: i64) -> Self {
+        Self {
+            client,
+            params: GetManagedBotAccessSettingsParams { user_id },
+        }
+    }
+}
+
+impl IntoFuture for GetManagedBotAccessSettings {
+    type Output = crate::error::Result<rustigram_types::user::BotAccessSettings>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.client
+                .post_json("getManagedBotAccessSettings", &self.params)
+                .await
+        })
+    }
+}
+
+// ─── setManagedBotAccessSettings ─────────────────────────────────────────────
+
+#[derive(serde::Serialize)]
+struct SetManagedBotAccessSettingsParams {
+    user_id: i64,
+    is_access_restricted: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    added_user_ids: Option<Vec<i64>>,
+}
+
+/// Builder for the [`setManagedBotAccessSettings`](https://core.telegram.org/bots/api#setmanagedbotaccesssettings) method (Bot API 9.7).
+///
+/// Changes the access settings of a managed bot.
+pub struct SetManagedBotAccessSettings {
+    client: BotClient,
+    params: SetManagedBotAccessSettingsParams,
+}
+
+impl SetManagedBotAccessSettings {
+    pub(crate) fn new(client: BotClient, user_id: i64, is_access_restricted: bool) -> Self {
+        Self {
+            client,
+            params: SetManagedBotAccessSettingsParams {
+                user_id,
+                is_access_restricted,
+                added_user_ids: None,
+            },
+        }
+    }
+
+    /// Up to 10 user IDs who will have access to the bot in addition to its owner.
+    /// Ignored if `is_access_restricted` is `false`.
+    pub fn added_user_ids(mut self, ids: Vec<i64>) -> Self {
+        self.params.added_user_ids = Some(ids);
+        self
+    }
+}
+
+impl IntoFuture for SetManagedBotAccessSettings {
+    type Output = crate::error::Result<bool>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            self.client
+                .post_json("setManagedBotAccessSettings", &self.params)
+                .await
+        })
+    }
+}
