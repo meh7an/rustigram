@@ -21,7 +21,7 @@ thiserror       = { workspace = true }
 async-trait     = { workspace = true }
 tracing         = { workspace = true }
 bytes           = { workspace = true }
-paste           = { workspace = true }
+pastey           = { workspace = true }
 
 [dev-dependencies]
 tracing-subscriber = { workspace = true }

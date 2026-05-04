@@ -1,0 +1,9 @@
+[workspace]
+# Changelog generated from conventional commits.
+# Commit prefixes: feat:, fix:, chore:, docs:, refactor:, perf:, test:, break!:
+changelog_update = true
+git_release_enable = true
+publish_allow_dirty = false
+
+# Prevent release-plz from releasing if CI is still running.
+release_always = false
