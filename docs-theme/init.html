@@ -1,0 +1,60 @@
+<!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        var corrected = sysDark ? "tg-dark" : "tg-light";
+        localStorage.setItem("rustdoc-theme", corrected);
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        var fix = sysDark ? "tg-dark" : "tg-light";
+        document.documentElement.setAttribute("data-theme", fix);
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+  })();
+</script>
