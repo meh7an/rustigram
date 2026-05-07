@@ -1,0 +1,16 @@
+/*
+ * hide-defaults.css
+ * Used via --extend-css so it applies regardless of which theme is active.
+ * This removes light / dark / ayu from the Settings theme picker,
+ * leaving only tg-dark and tg-light visible.
+ *
+ * :has() is supported in all modern browsers (Chrome 105+, Firefox 121+, Safari 15.4+).
+ */
+
+/* Hide the radio buttons AND their parent labels */
+.setting-radio:has(> input[value="light"]),
+.setting-radio:has(> input[value="dark"]),
+.setting-radio:has(> input[value="ayu"]) {
+  display: none !important;
+  pointer-events: none !important;
+}

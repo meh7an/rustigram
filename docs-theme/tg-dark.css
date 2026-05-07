@@ -1,0 +1,282 @@
+/*
+ * tg-dark.css — Rustdoc theme for rustigram
+ * Colors extracted directly from Telegram's production CSS:
+ *   --body-bg: #000  --box-bg: #1e1e1e  --tme-table-bg: #212429
+ *   --tme-table-head: #262a2e  --tme-table-border: #33373d
+ *   --accent-btn: #1c93e3  --tme-table-accent: #30aafd
+ *   --tme-table-accent-bg: #23313e  --accent-link: #3ca1eb
+ *   --tme-desc: #84888C
+ *
+ * Usage:
+ *   RUSTDOCFLAGS="--theme $(pwd)/docs/tg-dark.css \
+ *                 --theme $(pwd)/docs/tg-light.css \
+ *                 --default-theme tg-dark \
+ *                 --extend-css $(pwd)/docs/hide-defaults.css" cargo doc --open
+ *
+ * Cargo.toml:
+ *   [package.metadata.docs.rs]
+ *   rustdoc-args = [
+ *     "--theme",         "docs/tg-dark.css",
+ *     "--theme",         "docs/tg-light.css",
+ *     "--default-theme", "tg-dark",
+ *     "--extend-css",    "docs/hide-defaults.css",
+ *   ]
+ */
+
+/* ============================================================
+   CORE VARIABLES  (Telegram dark palette, exact values)
+   ============================================================ */
+
+:root[data-theme="tg-dark"] {
+  /* Fonts */
+  --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+
+  /* Backgrounds — #1e1e1e box-bg / #212429 table-bg / #262a2e table-head */
+  --main-background-color: #1e1e1e;
+  --sidebar-background-color: #212429;
+  --sidebar-background-color-hover: #23313e;
+  --code-block-background-color: #262a2e;
+  --button-background-color: #212429;
+
+  /* Text — #fff text / #84888C tme-desc */
+  --main-color: #e8ecef;
+  --right-side-color: #84888c;
+  --code-attribute-color: #84888c;
+  --toggles-color: #84888c;
+
+  /* Borders — #33373d tme-table-border */
+  --sidebar-border-color: #33373d;
+  --border-color: #33373d;
+  --headings-border-bottom-color: #33373d;
+
+  /* Links — #30aafd tme-table-accent / #3ca1eb accent-link / #1c93e3 btn */
+  --link-color: #30aafd;
+  --sidebar-link-color: #3ca1eb;
+  --sidebar-current-link-background-color: #23313e;
+  --type-link-color: #5cc8ff;
+  --trait-link-color: #c792ea;
+  --assoc-item-link-color: #30aafd;
+  --function-link-color: #3ca1eb;
+  --macro-link-color: #89ddff;
+  --keyword-link-color: #c792ea;
+  --mod-link-color: #30aafd;
+
+  /* Search */
+  --search-input-focused-border-color: #1c93e3;
+  --search-result-link-focus-background-color: #23313e;
+  --search-result-border-color: #33373d44;
+  --search-color: #e8ecef;
+  --search-error-code-background-color: #23313e;
+  --search-results-alias-color: #ffffff;
+  --search-results-grey-color: #84888c;
+  --search-tab-title-count-color: #84888c;
+  --search-tab-button-not-selected-border-top-color: #212429;
+  --search-tab-button-not-selected-background: #212429;
+  --search-tab-button-selected-border-top-color: #1c93e3;
+  --search-tab-button-selected-background: #1e1e1e;
+
+  /* Settings / buttons / icons */
+  --settings-input-color: #1c93e3;
+  --settings-input-border-color: #33373d;
+  --settings-button-color: #fff;
+  --settings-button-border-focus: #1c93e3;
+  --settings-menu-filter: invert(50%);
+  --settings-menu-hover-filter: invert(65%) sepia(80%) saturate(600%)
+    hue-rotate(163deg);
+  --copy-path-button-color: #84888c;
+  --copy-path-img-filter: invert(50%);
+  --copy-path-img-hover-filter: invert(80%) sepia(80%) saturate(500%)
+    hue-rotate(163deg);
+  --code-example-button-color: #84888c;
+  --code-example-button-hover-color: #e8ecef;
+  --toggle-filter: invert(100%);
+  --mobile-sidebar-menu-filter: invert(100%);
+
+  /* Code block annotations */
+  --codeblock-error-hover-color: rgb(255, 80, 80);
+  --codeblock-error-color: rgba(255, 80, 80, 0.45);
+  --codeblock-ignore-hover-color: rgb(255, 162, 0);
+  --codeblock-ignore-color: rgba(255, 162, 0, 0.5);
+  --warning-border-color: #f0a500;
+  --codeblock-link-background: #23313e;
+
+  /* Target / anchors */
+  --target-background-color: #23313e;
+  --target-border-color: #1c93e3;
+
+  /* Stabs (deprecated, must_use, etc.) */
+  --stab-background-color: #23313e;
+  --stab-code-color: #e8ecef;
+
+  /* ============================================================
+       SYNTAX HIGHLIGHTING
+       ============================================================ */
+
+  --code-highlight-kw-color: #c792ea; /* let fn pub async */
+  --code-highlight-kw-2-color: #89ddff; /* use mod crate */
+  --code-highlight-lifetime-color: #f0a500; /* 'a 'static */
+  --code-highlight-prelude-color: #5cc8ff; /* Option Result Vec */
+  --code-highlight-prelude-val-color: #f07178; /* Some None Ok Err */
+  --code-highlight-number-color: #f78c6c; /* 42 3.14 0xff */
+  --code-highlight-string-color: #a5c261; /* "hello" */
+  --code-highlight-literal-color: #f07178; /* true false */
+  --code-highlight-attribute-color: #f0a500; /* #[derive(...)] */
+  --code-highlight-self-color: #f07178; /* self Self */
+  --code-highlight-macro-color: #89ddff; /* println! vec! */
+  --code-highlight-question-mark-color: #ff9cac; /* ? */
+  --code-highlight-comment-color: #546e7a; /* // comments */
+  --code-highlight-doc-comment-color: #5a7080; /* /// doc comments */
+
+  /* Source view */
+  --src-line-numbers-span-color: #30aafd;
+  --src-line-number-highlighted-background-color: rgba(28, 147, 227, 0.12);
+  --src-sidebar-background-selected: #23313e;
+  --src-sidebar-background-hover: #2b343d;
+
+  /* Scrollbar */
+  --scrollbar-track-background-color: #212429;
+  --scrollbar-thumb-background-color: #33373d;
+  --scrollbar-color: #33373d #212429;
+
+  /* KBD */
+  --kbd-color: #e8ecef;
+  --kbd-background: #212429;
+  --kbd-box-shadow-color: #33373d;
+
+  /* Rust logo — Telegram blue glow */
+  --rust-logo-filter: drop-shadow(0 0 4px rgba(28, 147, 227, 0.55))
+    drop-shadow(1px 0 0 #1c93e3) drop-shadow(-1px 0 0 #1c93e3)
+    drop-shadow(0 1px 0 #1c93e3) drop-shadow(0 -1px 0 #1c93e3);
+
+  /* Crate search chevron */
+  --crate-search-div-filter: invert(55%) sepia(70%) saturate(700%)
+    hue-rotate(163deg) brightness(100%) contrast(95%);
+  --crate-search-div-hover-filter: invert(70%) sepia(90%) saturate(800%)
+    hue-rotate(163deg) brightness(105%);
+  --crate-search-hover-border: #1c93e3;
+
+  /* Table */
+  --table-alt-row-background-color: #212429;
+
+  /* Scrape examples */
+  --scrape-example-toggle-line-background: #33373d;
+  --scrape-example-toggle-line-hover-background: #1c93e3;
+  --scrape-example-code-line-highlight: rgba(28, 147, 227, 0.1);
+  --scrape-example-code-line-highlight-focus: rgba(28, 147, 227, 0.22);
+  --scrape-example-help-border-color: #84888c;
+  --scrape-example-help-color: #e8ecef;
+  --scrape-example-help-hover-border-color: #1c93e3;
+  --scrape-example-help-hover-color: #fff;
+  --scrape-example-code-wrapper-background-start: rgba(30, 30, 30, 1);
+  --scrape-example-code-wrapper-background-end: rgba(30, 30, 30, 0);
+
+  /* Sidebar resizer */
+  --sidebar-resizer-hover: #1c93e3;
+  --sidebar-resizer-active: #30aafd;
+}
+
+/* ============================================================
+   EXTRA RULES — beyond CSS variables
+   ============================================================ */
+
+:root[data-theme="tg-dark"] h1,
+:root[data-theme="tg-dark"] h2,
+:root[data-theme="tg-dark"] h3,
+:root[data-theme="tg-dark"] h4,
+:root[data-theme="tg-dark"] .sidebar h2 a,
+:root[data-theme="tg-dark"] .sidebar h3 a {
+  color: #ffffff;
+}
+
+:root[data-theme="tg-dark"] .docblock code {
+  color: #89ddff;
+}
+
+:root[data-theme="tg-dark"] .docblock a > code {
+  color: #30aafd !important;
+}
+
+:root[data-theme="tg-dark"] .code-header,
+:root[data-theme="tg-dark"] .docblock pre > code,
+:root[data-theme="tg-dark"] pre,
+:root[data-theme="tg-dark"] pre > code,
+:root[data-theme="tg-dark"] .item-info code,
+:root[data-theme="tg-dark"] .rustdoc.source .example-wrap {
+  color: #e8ecef;
+}
+
+/* Sidebar active / hover: Telegram blue */
+:root[data-theme="tg-dark"] .sidebar .current,
+:root[data-theme="tg-dark"] .sidebar .current a,
+:root[data-theme="tg-dark"] .sidebar a:hover,
+:root[data-theme="tg-dark"] #src-sidebar div.files > a:hover,
+:root[data-theme="tg-dark"] details.dir-entry summary:hover,
+:root[data-theme="tg-dark"] #src-sidebar div.files > a:focus,
+:root[data-theme="tg-dark"] details.dir-entry summary:focus,
+:root[data-theme="tg-dark"] #src-sidebar div.files > a.selected {
+  color: #30aafd;
+}
+
+/* Active sidebar item: blue left-border accent */
+:root[data-theme="tg-dark"] .sidebar .current > a,
+:root[data-theme="tg-dark"] .sidebar-elems a:hover {
+  border-left-color: #1c93e3 !important;
+}
+
+:root[data-theme="tg-dark"] .sidebar {
+  border-right-color: #33373d;
+}
+
+/* Search results */
+:root[data-theme="tg-dark"] .search-results a:hover,
+:root[data-theme="tg-dark"] .search-results a:focus {
+  color: #fff !important;
+  background-color: #23313e;
+}
+:root[data-theme="tg-dark"] .search-results a {
+  color: #30aafd;
+}
+:root[data-theme="tg-dark"] .search-results a div.desc {
+  color: #84888c;
+}
+
+/* Search tabs */
+:root[data-theme="tg-dark"] #search-tabs > button.selected {
+  border-bottom: 1px solid #30aafd !important;
+  border-top: none;
+}
+:root[data-theme="tg-dark"] #search-tabs > button:not(.selected) {
+  border: none;
+  background-color: transparent !important;
+}
+:root[data-theme="tg-dark"] #search-tabs > button:hover {
+  border-bottom: 1px solid rgba(48, 170, 253, 0.35);
+}
+
+/* Settings/help icon tint */
+:root[data-theme="tg-dark"] #settings-menu > a img,
+:root[data-theme="tg-dark"] #sidebar-button > a::before {
+  filter: invert(60%) sepia(80%) saturate(600%) hue-rotate(163deg);
+}
+
+/* Breadcrumb / location label */
+:root[data-theme="tg-dark"] .sidebar-elems .location {
+  color: #1c93e3;
+}
+
+/* Source highlighted line number */
+:root[data-theme="tg-dark"] a[data-nosnippet].line-highlighted {
+  color: #84888c;
+  padding-right: 7px;
+  border-right: 1px solid #30aafd;
+}
+
+/* Scrape-help button */
+:root[data-theme="tg-dark"] .scraped-example-list .scrape-help {
+  border-color: #33373d;
+  color: #84888c;
+}
+:root[data-theme="tg-dark"] .scraped-example-list .scrape-help:hover {
+  border-color: #1c93e3;
+  color: #30aafd;
+}
