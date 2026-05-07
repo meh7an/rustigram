@@ -210,6 +210,30 @@ pub struct VideoNote {
     pub file_size: Option<u64>,
 }
 
+/// A photo with a short video (live photo).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LivePhoto {
+    /// Available sizes of the corresponding static photo.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub photo: Option<Vec<PhotoSize>>,
+    /// Identifier for the video file.
+    pub file_id: String,
+    /// Unique identifier for the video file, stable across bots and time.
+    pub file_unique_id: String,
+    /// Video width as defined by the sender.
+    pub width: u32,
+    /// Video height as defined by the sender.
+    pub height: u32,
+    /// Duration of the video in seconds.
+    pub duration: u32,
+    /// MIME type of the file as defined by the sender.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mime_type: Option<String>,
+    /// File size in bytes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub file_size: Option<u64>,
+}
+
 /// Represents a file to be sent.
 #[derive(Debug, Clone)]
 pub enum InputFile {
@@ -416,6 +440,79 @@ pub struct InputMediaDocument {
     pub disable_content_type_detection: Option<bool>,
 }
 
+/// A live photo to be sent as part of a media group or to replace an existing media message.
+///
+/// Sending live photos by URL is currently unsupported — use `file_id` or `attach://<n>`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InputMediaLivePhoto {
+    /// Video of the live photo: `file_id` or `"attach://<n>"`.
+    pub media: String,
+    /// The static photo: `file_id` or `"attach://<n>"`.
+    pub photo: String,
+    /// Caption (0–1024 characters after entities parsing).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption: Option<String>,
+    /// Parse mode for the caption.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<crate::message::ParseMode>,
+    /// Special entities in the caption.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption_entities: Option<Vec<crate::message::MessageEntity>>,
+    /// `true` if the caption must be shown above the media.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub show_caption_above_media: Option<bool>,
+    /// `true` if the live photo needs a spoiler animation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub has_spoiler: Option<bool>,
+}
+
+/// A location to be sent as poll media.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InputMediaLocation {
+    /// Latitude of the location.
+    pub latitude: f64,
+    /// Longitude of the location.
+    pub longitude: f64,
+    /// Radius of uncertainty in metres (0–1500).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub horizontal_accuracy: Option<f64>,
+}
+
+/// A venue to be sent as poll media.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InputMediaVenue {
+    /// Latitude of the venue.
+    pub latitude: f64,
+    /// Longitude of the venue.
+    pub longitude: f64,
+    /// Name of the venue.
+    pub title: String,
+    /// Address of the venue.
+    pub address: String,
+    /// Foursquare identifier of the venue.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub foursquare_id: Option<String>,
+    /// Foursquare type of the venue.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub foursquare_type: Option<String>,
+    /// Google Places identifier of the venue.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub google_place_id: Option<String>,
+    /// Google Places type of the venue.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub google_place_type: Option<String>,
+}
+
+/// A sticker file to be sent as poll option media.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InputMediaSticker {
+    /// File to send: `file_id`, HTTP URL, or `"attach://<n>"`.
+    pub media: String,
+    /// Emoji associated with the sticker; only for just-uploaded stickers.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub emoji: Option<String>,
+}
+
 /// The media content of a message to be sent or edited.
 ///
 /// Serialise with `serde_json::to_value(&media)` to pass to `sendMediaGroup`
@@ -434,6 +531,8 @@ pub enum InputMedia {
     Audio(InputMediaAudio),
     /// A general document.
     Document(InputMediaDocument),
+    /// A live photo.
+    LivePhoto(InputMediaLivePhoto),
 }
 
 // ─── InputPaidMedia ───────────────────────────────────────────────────────────
@@ -473,6 +572,18 @@ pub struct InputPaidMediaVideo {
     pub supports_streaming: Option<bool>,
 }
 
+/// A live photo to send as paid media.
+///
+/// Both video and static photo must be `file_id` or `attach://<n>`.
+/// Sending live photos by URL is currently unsupported.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InputPaidMediaLivePhoto {
+    /// Video of the live photo: `file_id` or `"attach://<n>"`.
+    pub media: String,
+    /// The static photo: `file_id` or `"attach://<n>"`.
+    pub photo: String,
+}
+
 /// Paid media to send via `sendPaidMedia`.
 ///
 /// Serialise with `serde_json::to_value(&media)` to pass to `sendPaidMedia`
@@ -484,6 +595,8 @@ pub enum InputPaidMedia {
     Photo(InputPaidMediaPhoto),
     /// A video.
     Video(InputPaidMediaVideo),
+    /// A live photo.
+    LivePhoto(InputPaidMediaLivePhoto),
 }
 
 // ─── InputProfilePhoto ────────────────────────────────────────────────────────

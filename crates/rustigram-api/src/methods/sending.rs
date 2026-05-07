@@ -764,6 +764,10 @@ struct SendPollParams {
     members_only: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     country_codes: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    media: Option<rustigram_types::poll::InputPollMedia>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    explanation_media: Option<rustigram_types::poll::InputPollMedia>,
 }
 
 /// Builder for the [`sendPoll`](https://core.telegram.org/bots/api#sendpoll) method.
@@ -813,6 +817,8 @@ impl SendPoll {
                 suggested_post_parameters: None,
                 members_only: None,
                 country_codes: None,
+                media: None,
+                explanation_media: None,
             },
         }
     }
@@ -937,10 +943,21 @@ impl SendPoll {
         self.params.members_only = Some(v);
         self
     }
-    /// Two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users
-    /// can vote; for channel chats only. Pass an empty list to allow any country.
+    /// Two-letter ISO 3166-1 alpha-2 country codes for countries from which users can vote; channels only.
     pub fn country_codes(mut self, codes: Vec<impl Into<String>>) -> Self {
         self.params.country_codes = Some(codes.into_iter().map(Into::into).collect());
+        self
+    }
+
+    /// Media added to the poll description.
+    pub fn media(mut self, m: rustigram_types::poll::InputPollMedia) -> Self {
+        self.params.media = Some(m);
+        self
+    }
+
+    /// Media added to the quiz explanation.
+    pub fn explanation_media(mut self, m: rustigram_types::poll::InputPollMedia) -> Self {
+        self.params.explanation_media = Some(m);
         self
     }
 }
@@ -1251,6 +1268,225 @@ impl IntoFuture for SendPhoto {
                     );
                     self.client.post_json("sendPhoto", &body).await
                 }
+            }
+        })
+    }
+}
+
+// ─── sendLivePhoto ────────────────────────────────────────────────────────────
+
+/// Builder for the [`sendLivePhoto`](https://core.telegram.org/bots/api#sendlivephoto) method.
+pub struct SendLivePhoto {
+    client: BotClient,
+    chat_id: ChatId,
+    live_photo: InputFile,
+    photo: InputFile,
+    opts: MediaSendOptions,
+    has_spoiler: Option<bool>,
+    message_effect_id: Option<String>,
+}
+
+impl SendLivePhoto {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        live_photo: InputFile,
+        photo: InputFile,
+    ) -> Self {
+        Self {
+            client,
+            chat_id: chat_id.into(),
+            live_photo,
+            photo,
+            opts: MediaSendOptions::default(),
+            has_spoiler: None,
+            message_effect_id: None,
+        }
+    }
+    /// Business connection ID for sending on behalf of a business account.
+    pub fn business_connection_id(mut self, id: impl Into<String>) -> Self {
+        self.opts.business_connection_id = Some(id.into());
+        self
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.opts.message_thread_id = Some(id);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.opts.direct_messages_topic_id = Some(id);
+        self
+    }
+    /// Sets the caption (0–1024 characters).
+    pub fn caption(mut self, c: impl Into<String>) -> Self {
+        self.opts.caption = Some(c.into());
+        self
+    }
+    /// Sets the caption parse mode.
+    pub fn parse_mode(mut self, m: ParseMode) -> Self {
+        self.opts.parse_mode = Some(m);
+        self
+    }
+    /// Shows the caption above the media instead of below it.
+    pub fn show_caption_above_media(mut self, v: bool) -> Self {
+        self.opts.show_caption_above_media = Some(v);
+        self
+    }
+    /// Covers the live photo with a spoiler animation.
+    pub fn has_spoiler(mut self, v: bool) -> Self {
+        self.has_spoiler = Some(v);
+        self
+    }
+    /// Sends the message silently.
+    pub fn disable_notification(mut self, v: bool) -> Self {
+        self.opts.disable_notification = Some(v);
+        self
+    }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.opts.protect_content = Some(v);
+        self
+    }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.opts.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Attaches a message effect (private chats only).
+    pub fn message_effect_id(mut self, id: impl Into<String>) -> Self {
+        self.message_effect_id = Some(id.into());
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, rp: ReplyParameters) -> Self {
+        self.opts.reply_parameters = Some(rp);
+        self
+    }
+    /// Attaches a reply markup.
+    pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self {
+        self.opts.reply_markup = Some(m.into());
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self {
+        self.opts.suggested_post_parameters = Some(params);
+        self
+    }
+}
+
+impl IntoFuture for SendLivePhoto {
+    type Output = Result<Message>;
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
+
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(async move {
+            let lp_bytes = self.live_photo.requires_multipart();
+            let ph_bytes = self.photo.requires_multipart();
+
+            if lp_bytes || ph_bytes {
+                let mut form = Form::new();
+                form = form.text("chat_id", self.chat_id.to_string());
+
+                if let InputFile::Bytes {
+                    filename,
+                    data,
+                    mime_type,
+                } = self.live_photo
+                {
+                    let part = Part::bytes(data)
+                        .file_name(filename)
+                        .mime_str(&mime_type)
+                        .map_err(|e| crate::error::Error::Decode(e.to_string()))?;
+                    form = form.part("live_photo", part);
+                } else {
+                    form = form.text("live_photo", self.live_photo.as_str().to_owned());
+                }
+
+                if let InputFile::Bytes {
+                    filename,
+                    data,
+                    mime_type,
+                } = self.photo
+                {
+                    let part = Part::bytes(data)
+                        .file_name(filename)
+                        .mime_str(&mime_type)
+                        .map_err(|e| crate::error::Error::Decode(e.to_string()))?;
+                    form = form.part("photo", part);
+                } else {
+                    form = form.text("photo", self.photo.as_str().to_owned());
+                }
+
+                if let Some(id) = &self.opts.business_connection_id {
+                    form = form.text("business_connection_id", id.clone());
+                }
+                if let Some(id) = self.opts.message_thread_id {
+                    form = form.text("message_thread_id", id.to_string());
+                }
+                if let Some(id) = self.opts.direct_messages_topic_id {
+                    form = form.text("direct_messages_topic_id", id.to_string());
+                }
+                if let Some(c) = &self.opts.caption {
+                    form = form.text("caption", c.clone());
+                }
+                if let Some(m) = &self.opts.parse_mode {
+                    form = form.text("parse_mode", format!("{m:?}"));
+                }
+                if let Some(v) = self.opts.show_caption_above_media {
+                    form = form.text("show_caption_above_media", v.to_string());
+                }
+                if let Some(v) = self.has_spoiler {
+                    form = form.text("has_spoiler", v.to_string());
+                }
+                if let Some(v) = self.opts.disable_notification {
+                    form = form.text("disable_notification", v.to_string());
+                }
+                if let Some(v) = self.opts.protect_content {
+                    form = form.text("protect_content", v.to_string());
+                }
+                if let Some(v) = self.opts.allow_paid_broadcast {
+                    form = form.text("allow_paid_broadcast", v.to_string());
+                }
+                if let Some(id) = &self.message_effect_id {
+                    form = form.text("message_effect_id", id.clone());
+                }
+                if let Some(v) = &self.opts.reply_parameters {
+                    form = form.text("reply_parameters", serde_json::to_string(v).unwrap());
+                }
+                if let Some(v) = &self.opts.reply_markup {
+                    form = form.text("reply_markup", serde_json::to_string(v).unwrap());
+                }
+                if let Some(p) = &self.opts.suggested_post_parameters {
+                    form = form.text(
+                        "suggested_post_parameters",
+                        serde_json::to_string(p).unwrap(),
+                    );
+                }
+
+                self.client.post_multipart("sendLivePhoto", form).await
+            } else {
+                let extra = {
+                    let mut m = serde_json::json!({});
+                    if let Some(v) = self.has_spoiler {
+                        m["has_spoiler"] = serde_json::json!(v);
+                    }
+                    if let Some(id) = &self.message_effect_id {
+                        m["message_effect_id"] = serde_json::json!(id);
+                    }
+                    m
+                };
+                let mut body = media_json_body(
+                    &self.chat_id,
+                    "live_photo",
+                    self.live_photo.as_str(),
+                    &self.opts,
+                    extra,
+                );
+                body.as_object_mut()
+                    .unwrap()
+                    .insert("photo".to_owned(), serde_json::json!(self.photo.as_str()));
+                self.client.post_json("sendLivePhoto", &body).await
             }
         })
     }

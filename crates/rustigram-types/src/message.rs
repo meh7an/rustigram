@@ -5,7 +5,7 @@ use crate::checklist::{Checklist, ChecklistTasksAdded, ChecklistTasksDone};
 use crate::direct_messages::{
     DirectMessagePriceChanged, DirectMessagesTopic, PaidMessagePriceChanged,
 };
-use crate::file::{Animation, Audio, Document, PhotoSize, Video, VideoNote, Voice};
+use crate::file::{Animation, Audio, Document, LivePhoto, PhotoSize, Video, VideoNote, Voice};
 use crate::keyboard::InlineKeyboardMarkup;
 use crate::managed_bot::ManagedBotCreated;
 use crate::poll::{Poll, PollOptionAdded, PollOptionDeleted};
@@ -171,6 +171,9 @@ pub struct Message {
     /// Photo attached to the message (array of sizes).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub photo: Option<Vec<PhotoSize>>,
+    /// Live photo attached to the message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub live_photo: Option<LivePhoto>,
     /// Sticker attached to the message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sticker: Option<Sticker>,
@@ -650,6 +653,9 @@ pub struct ExternalReplyInfo {
     /// Photo in the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub photo: Option<Vec<PhotoSize>>,
+    /// Live photo in the original message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub live_photo: Option<LivePhoto>,
     /// Sticker in the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sticker: Option<Sticker>,

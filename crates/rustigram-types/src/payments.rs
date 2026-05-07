@@ -458,3 +458,10 @@ pub struct PaidMediaPreview {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration: Option<i64>,
 }
+
+/// A live photo available as paid media.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PaidMediaLivePhoto {
+    /// The live photo.
+    pub live_photo: crate::file::LivePhoto,
+}

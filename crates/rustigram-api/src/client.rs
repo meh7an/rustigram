@@ -479,6 +479,19 @@ impl BotClient {
     ) -> SendPhoto {
         SendPhoto::new(self.clone(), chat_id, photo)
     }
+    /// Calls `sendLivePhoto` — sends a live photo (Bot API 9.7).
+    ///
+    /// `live_photo` is the video component; `photo` is the static preview.
+    /// Sending by URL is currently unsupported — use `InputFile::FileId` or `InputFile::Bytes`.
+    pub fn send_live_photo(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        live_photo: rustigram_types::file::InputFile,
+        photo: rustigram_types::file::InputFile,
+    ) -> SendLivePhoto {
+        SendLivePhoto::new(self.clone(), chat_id, live_photo, photo)
+    }
+
     /// Calls `sendAudio` — sends an audio file treated as music.
     pub fn send_audio(
         &self,

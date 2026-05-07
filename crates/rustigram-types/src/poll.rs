@@ -1,8 +1,86 @@
 use serde::{Deserialize, Serialize};
 
-use crate::chat::Chat;
+use crate::chat::{Chat, Location, Venue};
+use crate::file::{Animation, Audio, Document, LivePhoto, PhotoSize, Video};
 use crate::message::MessageEntity;
+use crate::sticker::Sticker;
 use crate::user::User;
+
+/// Media attached to a poll description, quiz explanation, or poll option.
+///
+/// At most one of the optional fields will be `Some`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PollMedia {
+    /// Animation media.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub animation: Option<Animation>,
+    /// Audio file; currently not receivable in poll options.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub audio: Option<Audio>,
+    /// General file; currently not receivable in poll options.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub document: Option<Document>,
+    /// Live photo media.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub live_photo: Option<LivePhoto>,
+    /// Location media.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub location: Option<Location>,
+    /// Photo media (available sizes).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub photo: Option<Vec<PhotoSize>>,
+    /// Sticker media; only for poll options.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sticker: Option<Sticker>,
+    /// Venue media.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub venue: Option<Venue>,
+    /// Video media.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub video: Option<Video>,
+}
+
+/// Media content for a poll description or quiz explanation to be sent.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum InputPollMedia {
+    /// An animation.
+    Animation(crate::file::InputMediaAnimation),
+    /// An audio file.
+    Audio(crate::file::InputMediaAudio),
+    /// A document.
+    Document(crate::file::InputMediaDocument),
+    /// A live photo.
+    LivePhoto(crate::file::InputMediaLivePhoto),
+    /// A location.
+    Location(crate::file::InputMediaLocation),
+    /// A photo.
+    Photo(crate::file::InputMediaPhoto),
+    /// A venue.
+    Venue(crate::file::InputMediaVenue),
+    /// A video.
+    Video(crate::file::InputMediaVideo),
+}
+
+/// Media content for a poll option to be sent.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum InputPollOptionMedia {
+    /// An animation.
+    Animation(crate::file::InputMediaAnimation),
+    /// A live photo.
+    LivePhoto(crate::file::InputMediaLivePhoto),
+    /// A location.
+    Location(crate::file::InputMediaLocation),
+    /// A photo.
+    Photo(crate::file::InputMediaPhoto),
+    /// A sticker.
+    Sticker(crate::file::InputMediaSticker),
+    /// A venue.
+    Venue(crate::file::InputMediaVenue),
+    /// A video.
+    Video(crate::file::InputMediaVideo),
+}
 
 /// A native Telegram poll or quiz.
 ///
@@ -57,6 +135,12 @@ pub struct Poll {
     /// Special entities in the description.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description_entities: Option<Vec<MessageEntity>>,
+    /// Media added to the poll description; present only inside `Message` objects.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media: Option<PollMedia>,
+    /// Media added to the quiz explanation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub explanation_media: Option<PollMedia>,
     /// `true` if voting is limited to users who have been members of the chat for more than 24 hours.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub members_only: Option<bool>,
@@ -87,6 +171,9 @@ pub struct PollOption {
     /// Unix timestamp when this option was added; absent if it existed at poll creation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub addition_date: Option<i64>,
+    /// Media added to this poll option.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media: Option<PollMedia>,
 }
 
 /// An option to include when creating a poll with `sendPoll`.
@@ -100,6 +187,9 @@ pub struct InputPollOption {
     /// Special entities in the option text; alternative to `text_parse_mode`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_entities: Option<Vec<MessageEntity>>,
+    /// Media added to this poll option.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub media: Option<InputPollOptionMedia>,
 }
 
 impl InputPollOption {
@@ -109,6 +199,7 @@ impl InputPollOption {
             text: text.into(),
             text_parse_mode: None,
             text_entities: None,
+            media: None,
         }
     }
 }

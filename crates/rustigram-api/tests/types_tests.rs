@@ -205,6 +205,7 @@ mod message {
             guest_bot_caller_chat: None,
             guest_bot_caller_user: None,
             guest_query_id: None,
+            live_photo: None,
         }
     }
 

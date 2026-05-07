@@ -94,9 +94,11 @@ pub use direct_messages::{
     DirectMessagePriceChanged, DirectMessagesTopic, PaidMessagePriceChanged,
 };
 pub use file::{
-    File, InputMedia, InputMediaAnimation, InputMediaAudio, InputMediaDocument, InputMediaPhoto,
-    InputMediaVideo, InputPaidMedia, InputPaidMediaPhoto, InputPaidMediaVideo, InputProfilePhoto,
-    InputProfilePhotoAnimated, InputProfilePhotoStatic, PhotoSize, VideoQuality,
+    File, InputMedia, InputMediaAnimation, InputMediaAudio, InputMediaDocument,
+    InputMediaLivePhoto, InputMediaLocation, InputMediaPhoto, InputMediaSticker, InputMediaVenue,
+    InputMediaVideo, InputPaidMedia, InputPaidMediaLivePhoto, InputPaidMediaPhoto,
+    InputPaidMediaVideo, InputProfilePhoto, InputProfilePhotoAnimated, InputProfilePhotoStatic,
+    LivePhoto, PhotoSize, VideoQuality,
 };
 pub use inline::{ChosenInlineResult, InlineQuery, InlineQueryResult, SentGuestMessage};
 pub use keyboard::{
@@ -110,10 +112,14 @@ pub use message::{
 };
 pub use payments::{
     AcceptedGiftTypes, AffiliateInfo, LabeledPrice, OrderInfo, OwnedGift, OwnedGiftRegular,
-    OwnedGiftUnique, OwnedGifts, PreCheckoutQuery, ShippingAddress, ShippingOption, ShippingQuery,
-    StarTransaction, StarTransactions, TransactionPartner,
+    OwnedGiftUnique, OwnedGifts, PaidMediaLivePhoto, PaidMediaPhoto, PaidMediaPreview,
+    PreCheckoutQuery, ShippingAddress, ShippingOption, ShippingQuery, StarTransaction,
+    StarTransactions, TransactionPartner,
 };
-pub use poll::{InputPollOption, Poll, PollAnswer, PollOption, PollOptionAdded, PollOptionDeleted};
+pub use poll::{
+    InputPollMedia, InputPollOption, InputPollOptionMedia, Poll, PollAnswer, PollMedia, PollOption,
+    PollOptionAdded, PollOptionDeleted,
+};
 pub use sticker::{MaskPosition, Sticker, StickerSet, StickerType};
 pub use story::{
     InputStoryContent, InputStoryContentPhoto, InputStoryContentVideo, LocationAddress, Story,
