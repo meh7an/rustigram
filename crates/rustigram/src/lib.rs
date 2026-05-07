@@ -13,7 +13,7 @@
 //! tokio     = { version = "1", features = ["full"] }
 //! ```
 //!
-//! ```rust,ignore
+//! ```rust
 //! use rustigram::prelude::*;
 //!
 //! #[tokio::main]
