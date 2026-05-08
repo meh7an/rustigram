@@ -1,7 +1,10 @@
-# rustigram
+<div align="center">
+  <img src="site/logo.svg" width="128" height="128"/>
+  <h1>rustigram</h1>
+</div>
 
 [![Crates.io](https://img.shields.io/crates/v/rustigram.svg)](https://crates.io/crates/rustigram)
-[![Docs.rs](https://docs.rs/rustigram/badge.svg)](https://docs.rs/rustigram)
+[![Docs.rs](https://img.shields.io/badge/docs-rustigram.io-blue.svg)](https://rustigram.io/docs/rustigram/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Telegram Bot API](https://img.shields.io/badge/Bot%20API-9.7-blue.svg)](https://core.telegram.org/bots/api)
 
