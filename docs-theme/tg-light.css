@@ -1,0 +1,250 @@
+/*
+ * tg-light.css — Rustdoc theme for rustigram
+ * Colors extracted directly from Telegram's production CSS:
+ *   --body-bg: #fff  --box-bg: #fff  --tme-table-bg: #fff
+ *   --tme-table-head: #f7f7f7  --tme-table-border: #e6e6e6
+ *   --accent-btn: #2481cc  --tme-table-accent: #1482d1
+ *   --tme-table-accent-bg: #e5f1fa  --accent-link: #2481cc
+ *   --second-text: #7d7f81  pre-bg: #ecf3f8  pre-text: #546172
+ *   nav-active: #179cde
+ */
+
+/* ============================================================
+   CORE VARIABLES  (Telegram light palette, exact values)
+   ============================================================ */
+
+:root[data-theme="tg-light"] {
+  /* Fonts */
+  --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+
+  /* Backgrounds */
+  --main-background-color: #ffffff;
+  --sidebar-background-color: #f7f7f7; /* tme-table-head-color */
+  --sidebar-background-color-hover: #e5f1fa; /* tme-table-accent-bg */
+  --code-block-background-color: #ecf3f8; /* Telegram's pre block bg */
+  --button-background-color: #ffffff;
+
+  /* Text */
+  --main-color: #000000;
+  --right-side-color: #7d7f81; /* second-text-color */
+  --code-attribute-color: #7d7f81;
+  --toggles-color: #7d7f81;
+
+  /* Borders — #e6e6e6 tme-table-border */
+  --sidebar-border-color: #e6e6e6;
+  --border-color: #e6e6e6;
+  --headings-border-bottom-color: #e6e6e6;
+
+  /* Links — #2481cc accent-btn / #1482d1 tme-table-accent / #179cde nav */
+  --link-color: #2481cc;
+  --sidebar-link-color: #1482d1;
+  --sidebar-current-link-background-color: #e5f1fa;
+  --type-link-color: #ad378a;
+  --trait-link-color: #6e4fc9;
+  --assoc-item-link-color: #2481cc;
+  --function-link-color: #1a6db5;
+  --macro-link-color: #0d7a8a;
+  --keyword-link-color: #2481cc;
+  --mod-link-color: #2481cc;
+
+  /* Search */
+  --search-input-focused-border-color: #179cde;
+  --search-result-link-focus-background-color: #e5f1fa;
+  --search-result-border-color: #e6e6e644;
+  --search-color: #000000;
+  --search-error-code-background-color: #e5f1fa;
+  --search-results-alias-color: #000000;
+  --search-results-grey-color: #7d7f81;
+  --search-tab-title-count-color: #7d7f81;
+  --search-tab-button-not-selected-border-top-color: #e0e0e0;
+  --search-tab-button-not-selected-background: #e0e0e0;
+  --search-tab-button-selected-border-top-color: #179cde;
+  --search-tab-button-selected-background: #ffffff;
+
+  /* Settings / buttons / icons */
+  --settings-input-color: #179cde;
+  --settings-input-border-color: #7d7f81;
+  --settings-button-color: #000;
+  --settings-button-border-focus: #179cde;
+  --settings-menu-filter: invert(50%);
+  --settings-menu-hover-filter: invert(30%) sepia(100%) saturate(400%)
+    hue-rotate(168deg);
+  --copy-path-button-color: #7d7f81;
+  --copy-path-img-filter: invert(50%);
+  --copy-path-img-hover-filter: invert(30%) sepia(100%) saturate(400%)
+    hue-rotate(168deg);
+  --code-example-button-color: #7d7f81;
+  --code-example-button-hover-color: #333333;
+  --toggle-filter: none;
+  --mobile-sidebar-menu-filter: none;
+
+  /* Code block annotations */
+  --codeblock-error-hover-color: rgb(255, 0, 0);
+  --codeblock-error-color: rgba(255, 0, 0, 0.5);
+  --codeblock-ignore-hover-color: rgb(255, 142, 0);
+  --codeblock-ignore-color: rgba(255, 142, 0, 0.6);
+  --warning-border-color: #ff8e00;
+  --codeblock-link-background: #e5f1fa;
+
+  /* Target / anchors */
+  --target-background-color: #e5f1fa;
+  --target-border-color: #179cde;
+
+  /* Stabs */
+  --stab-background-color: #e5f1fa;
+  --stab-code-color: #000000;
+
+  /* ============================================================
+       SYNTAX HIGHLIGHTING — GitHub-style but Telegram-accented
+       ============================================================ */
+
+  --code-highlight-kw-color: #7c3aed; /* let fn pub async  — purple */
+  --code-highlight-kw-2-color: #0d7a8a; /* use mod crate     — teal */
+  --code-highlight-lifetime-color: #9a3412; /* 'a 'static        — brown */
+  --code-highlight-prelude-color: #1482d1; /* Option Result Vec — Telegram blue */
+  --code-highlight-prelude-val-color: #b91c1c; /* Some None Ok Err  — red */
+  --code-highlight-number-color: #166534; /* 42 3.14           — green */
+  --code-highlight-string-color: #166534; /* "hello"           — green */
+  --code-highlight-literal-color: #b91c1c; /* true false        — red */
+  --code-highlight-attribute-color: #b91c1c; /* #[derive(...)]    — red */
+  --code-highlight-self-color: #b91c1c; /* self Self         — red */
+  --code-highlight-macro-color: #0d7a8a; /* println! vec!     — teal */
+  --code-highlight-question-mark-color: #c2410c; /* ?                 — orange */
+  --code-highlight-comment-color: #8e9aa6; /* // comments       — gray */
+  --code-highlight-doc-comment-color: #4b6070; /* /// doc comments  — blue-gray */
+
+  /* Source view */
+  --src-line-numbers-span-color: #1482d1;
+  --src-line-number-highlighted-background-color: #e5f1fa;
+  --src-sidebar-background-selected: #ffffff;
+  --src-sidebar-background-hover: #e5f1fa;
+
+  /* Scrollbar */
+  --scrollbar-track-background-color: #eeeeee;
+  --scrollbar-thumb-background-color: rgba(36, 37, 39, 0.35);
+  --scrollbar-color: rgba(36, 37, 39, 0.35) #ddd;
+
+  /* KBD */
+  --kbd-color: #000000;
+  --kbd-background: #f7f7f7;
+  --kbd-box-shadow-color: #c6cbd1;
+
+  /* Rust logo */
+  --rust-logo-filter: initial;
+
+  /* Crate search chevron */
+  --crate-search-div-filter: invert(100%) sepia(0%) saturate(4223%)
+    hue-rotate(289deg) brightness(114%) contrast(76%);
+  --crate-search-div-hover-filter: invert(44%) sepia(18%) saturate(23%)
+    hue-rotate(317deg) brightness(96%) contrast(93%);
+  --crate-search-hover-border: #7d7f81;
+
+  /* Table */
+  --table-alt-row-background-color: #f7f7f7;
+
+  /* Scrape examples */
+  --scrape-example-toggle-line-background: #cccccc;
+  --scrape-example-toggle-line-hover-background: #179cde;
+  --scrape-example-code-line-highlight: #e5f1fa;
+  --scrape-example-code-line-highlight-focus: #cce3f5;
+  --scrape-example-help-border-color: #7d7f81;
+  --scrape-example-help-color: #333333;
+  --scrape-example-help-hover-border-color: #179cde;
+  --scrape-example-help-hover-color: #000000;
+  --scrape-example-code-wrapper-background-start: rgba(255, 255, 255, 1);
+  --scrape-example-code-wrapper-background-end: rgba(255, 255, 255, 0);
+
+  /* Sidebar resizer */
+  --sidebar-resizer-hover: #179cde;
+  --sidebar-resizer-active: #2481cc;
+}
+
+/* ============================================================
+   EXTRA RULES — beyond CSS variables
+   ============================================================ */
+
+:root[data-theme="tg-light"] .docblock code {
+  color: #0d7a8a;
+}
+
+:root[data-theme="tg-light"] .docblock a > code {
+  color: #2481cc !important;
+}
+
+:root[data-theme="tg-light"] .code-header,
+:root[data-theme="tg-light"] .docblock pre > code,
+:root[data-theme="tg-light"] pre,
+:root[data-theme="tg-light"] pre > code,
+:root[data-theme="tg-light"] .item-info code,
+:root[data-theme="tg-light"] .rustdoc.source .example-wrap {
+  color: #546172; /* Telegram's exact pre-block text color */
+}
+
+/* Sidebar active / hover: Telegram blue */
+:root[data-theme="tg-light"] .sidebar .current,
+:root[data-theme="tg-light"] .sidebar .current a,
+:root[data-theme="tg-light"] .sidebar a:hover,
+:root[data-theme="tg-light"] #src-sidebar div.files > a:hover,
+:root[data-theme="tg-light"] details.dir-entry summary:hover,
+:root[data-theme="tg-light"] #src-sidebar div.files > a:focus,
+:root[data-theme="tg-light"] details.dir-entry summary:focus,
+:root[data-theme="tg-light"] #src-sidebar div.files > a.selected {
+  color: #179cde;
+}
+
+/* Active sidebar item: Telegram blue left border */
+:root[data-theme="tg-light"] .sidebar .current > a,
+:root[data-theme="tg-light"] .sidebar-elems a:hover {
+  border-left-color: #179cde !important;
+}
+
+:root[data-theme="tg-light"] .sidebar {
+  border-right-color: #e6e6e6;
+}
+
+/* Search results */
+:root[data-theme="tg-light"] .search-results a:hover,
+:root[data-theme="tg-light"] .search-results a:focus {
+  color: #fff !important;
+  background-color: #1e98d4;
+}
+:root[data-theme="tg-light"] .search-results a {
+  color: #2481cc;
+}
+:root[data-theme="tg-light"] .search-results a div.desc {
+  color: #7d7f81;
+}
+
+/* Search tabs */
+:root[data-theme="tg-light"] #search-tabs > button.selected {
+  border-bottom: 1px solid #179cde !important;
+  border-top: none;
+}
+:root[data-theme="tg-light"] #search-tabs > button:not(.selected) {
+  border: none;
+}
+:root[data-theme="tg-light"] #search-tabs > button:hover {
+  border-bottom: 1px solid rgba(23, 156, 222, 0.4);
+}
+
+/* Breadcrumb / location label */
+:root[data-theme="tg-light"] .sidebar-elems .location {
+  color: #179cde;
+}
+
+/* Source highlighted line number */
+:root[data-theme="tg-light"] a[data-nosnippet].line-highlighted {
+  color: #7d7f81;
+  padding-right: 7px;
+  border-right: 1px solid #179cde;
+}
+
+/* Scrape-help button */
+:root[data-theme="tg-light"] .scraped-example-list .scrape-help {
+  border-color: #7d7f81;
+  color: #7d7f81;
+}
+:root[data-theme="tg-light"] .scraped-example-list .scrape-help:hover {
+  border-color: #179cde;
+  color: #179cde;
+}

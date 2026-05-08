@@ -15,7 +15,8 @@ authors      = ["Mehran <hi@mehran.tech>"]
 license      = "MIT"
 readme       = "README.md"
 repository   = "https://github.com/meh7an/rustigram"
-homepage     = "https://github.com/meh7an/rustigram"
+homepage      = "https://rustigram.io"
+documentation = "https://rustigram.io/docs/rustigram/"
 rust-version = "1.75"
 
 [workspace.dependencies]
