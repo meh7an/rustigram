@@ -12,7 +12,7 @@ A comprehensive, async-first Rust framework for the [Telegram Bot API](https://c
 
 ```toml
 [dependencies]
-rustigram = "0.9.7"
+rustigram = "0.9.8"
 tokio     = { version = "1", features = ["full"] }
 ```
 
@@ -39,37 +39,36 @@ The framework is split into focused crates so you can depend on only what you ne
 
 ## Table of Contents
 
-- [rustigram](#rustigram)
-  - [Overview](#overview)
-  - [Table of Contents](#table-of-contents)
-  - [Quick start](#quick-start)
-  - [Architecture](#architecture)
-  - [Receiving updates](#receiving-updates)
-    - [Long polling](#long-polling)
-    - [Webhook](#webhook)
-  - [Sending messages](#sending-messages)
-    - [Available send methods](#available-send-methods)
-  - [Filters](#filters)
-    - [Built-in filters](#built-in-filters)
-    - [Combinators](#combinators)
-    - [Custom filters](#custom-filters)
-  - [Handlers](#handlers)
-  - [Callback queries and inline keyboards](#callback-queries-and-inline-keyboards)
-  - [Conversation state (FSM)](#conversation-state-fsm)
-  - [Shared state](#shared-state)
-  - [File uploads](#file-uploads)
-  - [Payments and Stars](#payments-and-stars)
-    - [Telegram Stars (XTR)](#telegram-stars-xtr)
-    - [Handling purchases](#handling-purchases)
-    - [Star balance](#star-balance)
-  - [Webhook setup](#webhook-setup)
-  - [Local Bot API server](#local-bot-api-server)
-  - [Error handling](#error-handling)
-    - [Useful error predicates](#useful-error-predicates)
-  - [Examples](#examples)
-  - [Running the tests](#running-the-tests)
-  - [Contributing](#contributing)
-  - [License](#license)
+- [Overview](#overview)
+- [Table of Contents](#table-of-contents)
+- [Quick start](#quick-start)
+- [Architecture](#architecture)
+- [Receiving updates](#receiving-updates)
+  - [Long polling](#long-polling)
+  - [Webhook](#webhook)
+- [Sending messages](#sending-messages)
+  - [Available send methods](#available-send-methods)
+- [Filters](#filters)
+  - [Built-in filters](#built-in-filters)
+  - [Combinators](#combinators)
+  - [Custom filters](#custom-filters)
+- [Handlers](#handlers)
+- [Callback queries and inline keyboards](#callback-queries-and-inline-keyboards)
+- [Conversation state (FSM)](#conversation-state-fsm)
+- [Shared state](#shared-state)
+- [File uploads](#file-uploads)
+- [Payments and Stars](#payments-and-stars)
+  - [Telegram Stars (XTR)](#telegram-stars-xtr)
+  - [Handling purchases](#handling-purchases)
+  - [Star balance](#star-balance)
+- [Webhook setup](#webhook-setup)
+- [Local Bot API server](#local-bot-api-server)
+- [Error handling](#error-handling)
+  - [Useful error predicates](#useful-error-predicates)
+- [Examples](#examples)
+- [Running the tests](#running-the-tests)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 

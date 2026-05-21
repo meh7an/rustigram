@@ -16,20 +16,28 @@ pub struct EncryptedPassportElement {
     #[serde(rename = "type")]
     pub kind: String,
     /// Base64-encoded encrypted Telegram Passport element data.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<String>,
     /// User's verified phone number.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub phone_number: Option<String>,
     /// User's verified email address.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
     /// Array of encrypted files with documents.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub files: Option<Vec<crate::file::PassportFile>>,
     /// Encrypted file with the front side of the document.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub front_side: Option<crate::file::PassportFile>,
     /// Encrypted file with the reverse side of the document.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub reverse_side: Option<crate::file::PassportFile>,
     /// Encrypted file with a selfie of the user holding the document.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub selfie: Option<crate::file::PassportFile>,
     /// Array of encrypted files with translated versions of the document.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub translation: Option<Vec<crate::file::PassportFile>>,
     /// Base64-encoded element hash for error validation.
     pub hash: String,

@@ -20,20 +20,28 @@ pub struct Sticker {
     /// `true` if the sticker is a video sticker (WEBM format).
     pub is_video: bool,
     /// Sticker thumbnail.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub thumbnail: Option<PhotoSize>,
     /// Emoji associated with the sticker.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub emoji: Option<String>,
     /// Name of the sticker set this sticker belongs to.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub set_name: Option<String>,
     /// Premium animation for the sticker.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub premium_animation: Option<crate::file::File>,
     /// Mask position for mask stickers.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub mask_position: Option<MaskPosition>,
     /// Custom emoji identifier for custom emoji stickers.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_emoji_id: Option<String>,
     /// `true` if the sticker must be repainted to a text color in messages.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub needs_repainting: Option<bool>,
     /// File size in bytes.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub file_size: Option<u64>,
 }
 
@@ -88,6 +96,7 @@ pub struct StickerSet {
     /// List of stickers in the set.
     pub stickers: Vec<Sticker>,
     /// Sticker set thumbnail.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub thumbnail: Option<PhotoSize>,
 }
 

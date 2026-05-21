@@ -35,6 +35,7 @@ pub enum StoryAreaType {
         /// The geographic location.
         location: crate::chat::Location,
         /// Optional human-readable address.
+        #[serde(skip_serializing_if = "Option::is_none")]
         address: Option<LocationAddress>,
     },
     /// An area for a suggested emoji reaction.
@@ -42,8 +43,10 @@ pub enum StoryAreaType {
         /// The reaction type.
         reaction_type: crate::message::ReactionType,
         /// `true` to display a dark background for the reaction.
+        #[serde(skip_serializing_if = "Option::is_none")]
         is_dark: Option<bool>,
         /// `true` to mirror the reaction emoji.
+        #[serde(skip_serializing_if = "Option::is_none")]
         is_flipped: Option<bool>,
     },
     /// An area that links to a URL.
@@ -73,10 +76,13 @@ pub struct LocationAddress {
     /// Two-letter ISO 3166-1 alpha-2 country code.
     pub country_code: String,
     /// State or region name.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
     /// City name.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
     /// Street name and number.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub street: Option<String>,
 }
 

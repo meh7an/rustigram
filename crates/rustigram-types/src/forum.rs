@@ -13,5 +13,6 @@ pub struct ForumTopic {
     /// Color of the topic icon as an RGB integer.
     pub icon_color: u32,
     /// Custom emoji identifier used as the topic icon.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_custom_emoji_id: Option<String>,
 }

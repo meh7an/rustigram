@@ -53,12 +53,16 @@ pub struct ShippingAddress {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OrderInfo {
     /// User's name.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// User's phone number.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub phone_number: Option<String>,
     /// User's email address.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
     /// User's shipping address.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_address: Option<ShippingAddress>,
 }
 
@@ -86,18 +90,23 @@ pub struct SuccessfulPayment {
     /// Bot-specified invoice payload.
     pub invoice_payload: String,
     /// Identifier of the shipping option chosen by the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_option_id: Option<String>,
     /// Order info provided by the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub order_info: Option<OrderInfo>,
     /// Telegram payment charge identifier.
     pub telegram_payment_charge_id: String,
     /// Provider payment identifier.
     pub provider_payment_charge_id: String,
     /// Expiration date of the subscription, as a Unix timestamp.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub subscription_expiration_date: Option<i64>,
     /// `true` if the payment is recurring.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_recurring: Option<bool>,
     /// `true` if this is the first payment for a subscription.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_first_recurring: Option<bool>,
 }
 
@@ -113,6 +122,7 @@ pub struct RefundedPayment {
     /// Telegram payment charge identifier.
     pub telegram_payment_charge_id: String,
     /// Provider payment refund identifier.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub provider_payment_charge_id: Option<String>,
 }
 
@@ -150,8 +160,10 @@ pub struct PreCheckoutQuery {
     /// Bot-specified invoice payload.
     pub invoice_payload: String,
     /// Identifier of the shipping option chosen by the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_option_id: Option<String>,
     /// Order info provided by the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub order_info: Option<OrderInfo>,
 }
 
@@ -165,6 +177,7 @@ pub struct StarAmount {
     /// Integer Star amount.
     pub amount: u64,
     /// Fractional amount in nanostar units (1 Star = 1,000,000,000 nanostars).
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub nanostar_amount: Option<u32>,
 }
 
@@ -314,6 +327,7 @@ pub struct StarTransaction {
     /// Number of Telegram Stars transferred.
     pub amount: u64,
     /// Number of 1/1000000000 shares of Telegram Stars transferred.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub nanostar_amount: Option<u32>,
     /// Date the transaction was created, as a Unix timestamp.
     pub date: i64,
