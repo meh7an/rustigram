@@ -1101,7 +1101,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram"
-version = "0.9.9"
+version = "0.9.10"
 dependencies = [
  "anyhow",
  "rustigram-api",
@@ -1116,7 +1116,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram-api"
-version = "0.9.9"
+version = "0.9.10"
 dependencies = [
  "async-trait",
  "bytes",
@@ -1133,7 +1133,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram-bot"
-version = "0.9.9"
+version = "0.9.10"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1154,7 +1154,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram-macros"
-version = "0.9.9"
+version = "0.9.10"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1163,7 +1163,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram-types"
-version = "0.9.9"
+version = "0.9.10"
 dependencies = [
  "serde",
  "serde_json",
