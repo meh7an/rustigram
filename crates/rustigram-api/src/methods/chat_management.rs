@@ -1181,3 +1181,85 @@ impl GetUserChatBoosts {
 }
 
 impl_into_future!(GetUserChatBoosts, UserChatBoosts, "getUserChatBoosts");
+
+// ─── answerChatJoinRequestQuery ───────────────────────────────────────────────
+
+/// Outcome of a chat join request query.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum JoinRequestResult {
+    /// Approve the user's request and let them join.
+    Approve,
+    /// Decline the user's request.
+    Decline,
+    /// Leave the decision to other administrators.
+    Queue,
+}
+
+#[derive(Serialize)]
+struct AnswerChatJoinRequestQueryParams {
+    chat_join_request_query_id: String,
+    result: JoinRequestResult,
+}
+
+/// Builder for the [`answerChatJoinRequestQuery`](https://core.telegram.org/bots/api#answerchatjoinrequestquery) method.
+pub struct AnswerChatJoinRequestQuery {
+    client: BotClient,
+    params: AnswerChatJoinRequestQueryParams,
+}
+
+impl AnswerChatJoinRequestQuery {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_join_request_query_id: impl Into<String>,
+        result: JoinRequestResult,
+    ) -> Self {
+        Self {
+            client,
+            params: AnswerChatJoinRequestQueryParams {
+                chat_join_request_query_id: chat_join_request_query_id.into(),
+                result,
+            },
+        }
+    }
+}
+
+impl_into_future!(
+    AnswerChatJoinRequestQuery,
+    bool,
+    "answerChatJoinRequestQuery"
+);
+
+// ─── sendChatJoinRequestWebApp ────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SendChatJoinRequestWebAppParams {
+    chat_join_request_query_id: String,
+    web_app_url: String,
+}
+
+/// Builder for the [`sendChatJoinRequestWebApp`](https://core.telegram.org/bots/api#sendchatjoinrequestwebapp) method.
+///
+/// Shows a Mini App to the user before the join decision is made.
+pub struct SendChatJoinRequestWebApp {
+    client: BotClient,
+    params: SendChatJoinRequestWebAppParams,
+}
+
+impl SendChatJoinRequestWebApp {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_join_request_query_id: impl Into<String>,
+        web_app_url: impl Into<String>,
+    ) -> Self {
+        Self {
+            client,
+            params: SendChatJoinRequestWebAppParams {
+                chat_join_request_query_id: chat_join_request_query_id.into(),
+                web_app_url: web_app_url.into(),
+            },
+        }
+    }
+}
+
+impl_into_future!(SendChatJoinRequestWebApp, bool, "sendChatJoinRequestWebApp");

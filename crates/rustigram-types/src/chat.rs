@@ -49,6 +49,11 @@ pub struct Chat {
     /// `true` if the chat is the direct messages chat of a channel.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_direct_messages: Option<bool>,
+    /// The bot that processes join request queries in the chat.
+    ///
+    /// Only available to chat administrators.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guard_bot: Option<User>,
 }
 
 impl Chat {
@@ -223,7 +228,8 @@ pub struct ChatPhoto {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 /// Defines chat permissions for regular members.
 pub struct ChatPermissions {
-    /// Allows sending text messages.
+    /// `true` if the user is allowed to send text messages, rich messages, contacts,
+    /// giveaways, giveaway winners, invoices, locations, and venues.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_messages: Option<bool>,
     /// Allows sending audio files.
@@ -379,4 +385,39 @@ pub struct ChatJoinRequest {
     /// The invite link used to send the request, if any.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invite_link: Option<ChatInviteLink>,
+    /// Identifier of the join request query.
+    ///
+    /// When present, the bot must call `answerChatJoinRequestQuery` or
+    /// `sendChatJoinRequestWebApp` within 10 seconds.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub query_id: Option<String>,
+}
+
+// ─── Link & InputMediaLink ────────────────────────────────────────────────────
+
+/// Represents an HTTP link.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Link {
+    /// The HTTP(S) URL.
+    pub url: String,
+}
+
+/// An HTTP link to be used as [`InputPollOptionMedia`](crate::poll::InputPollOptionMedia).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InputMediaLink {
+    /// Always `"link"`.
+    #[serde(rename = "type")]
+    pub kind: String,
+    /// The HTTP(S) URL of the link.
+    pub url: String,
+}
+
+impl InputMediaLink {
+    /// Creates a new `InputMediaLink` from a URL.
+    pub fn new(url: impl Into<String>) -> Self {
+        Self {
+            kind: "link".to_owned(),
+            url: url.into(),
+        }
+    }
 }
