@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.9](https://github.com/meh7an/rustigram/compare/rustigram-macros-v0.9.8...rustigram-macros-v0.9.9) - 2026-06-10
+
+### Added
+
+- rich messages, join request queries and polls
+
 ## [0.9.8](https://github.com/meh7an/rustigram/compare/rustigram-macros-v0.9.7...rustigram-macros-v0.9.8) - 2026-05-21
 
 ### Fixed
