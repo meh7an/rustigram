@@ -12,7 +12,7 @@ A comprehensive, async-first Rust framework for the [Telegram Bot API](https://c
 
 ```toml
 [dependencies]
-rustigram = "0.9.8"
+rustigram = "0.9.9"
 tokio     = { version = "1", features = ["full"] }
 ```
 
@@ -32,7 +32,7 @@ The framework is split into focused crates so you can depend on only what you ne
 | `rustigram-macros` | Procedural macros (`#[handler]`, `#[derive(DialogueState)]`) |
 | `rustigram`        | Public facade re-exporting all sub-crates                    |
 
-**Supported Bot API version:** 9.7 (May 2026)
+**Supported Bot API version:** 10.1 (June 2026)
 **Minimum Rust version:** 1.75
 
 ---

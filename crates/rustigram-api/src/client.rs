@@ -653,6 +653,26 @@ impl BotClient {
     ) -> SendMessageDraft {
         SendMessageDraft::new(self.clone(), chat_id, draft_id, text)
     }
+    /// Calls `sendRichMessage` — sends a rich formatted message (Bot API 10.1).
+    pub fn send_rich_message(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        rich_message: rustigram_types::rich_message::InputRichMessage,
+    ) -> SendRichMessage {
+        SendRichMessage::new(self.clone(), chat_id, rich_message)
+    }
+    /// Calls `sendRichMessageDraft` — streams a partial rich message as an ephemeral preview (Bot API 10.1).
+    ///
+    /// The draft expires after 30 seconds. Call [`send_rich_message`](Self::send_rich_message)
+    /// with the completed content to persist it.
+    pub fn send_rich_message_draft(
+        &self,
+        chat_id: i64,
+        draft_id: i64,
+        rich_message: rustigram_types::rich_message::InputRichMessage,
+    ) -> SendRichMessageDraft {
+        SendRichMessageDraft::new(self.clone(), chat_id, draft_id, rich_message)
+    }
     /// Calls `deleteMessage` — deletes a message.
     pub fn delete_message(
         &self,
@@ -703,6 +723,23 @@ impl BotClient {
         text: impl Into<String>,
     ) -> EditMessageText {
         EditMessageText::inline(self.clone(), inline_message_id, text)
+    }
+    /// Calls `editMessageText` to replace a chat message with rich formatted content.
+    pub fn edit_message_rich_text(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        message_id: i64,
+        rich_message: rustigram_types::rich_message::InputRichMessage,
+    ) -> EditMessageText {
+        EditMessageText::in_chat_rich(self.clone(), chat_id, message_id, rich_message)
+    }
+    /// Calls `editMessageText` to replace an inline message with rich formatted content.
+    pub fn edit_inline_message_rich_text(
+        &self,
+        inline_message_id: impl Into<String>,
+        rich_message: rustigram_types::rich_message::InputRichMessage,
+    ) -> EditMessageText {
+        EditMessageText::inline_rich(self.clone(), inline_message_id, rich_message)
     }
     /// Calls `editMessageCaption` — edits the caption of a media message.
     pub fn edit_message_caption(
@@ -940,6 +977,28 @@ impl BotClient {
         user_id: i64,
     ) -> DeclineChatJoinRequest {
         DeclineChatJoinRequest::new(self.clone(), chat_id, user_id)
+    }
+    /// Calls `answerChatJoinRequestQuery` — processes a join request query (Bot API 10.1).
+    ///
+    /// Must be called within 10 seconds of receiving a [`ChatJoinRequest`](rustigram_types::ChatJoinRequest)
+    /// that carries a `query_id`.
+    pub fn answer_chat_join_request_query(
+        &self,
+        chat_join_request_query_id: impl Into<String>,
+        result: crate::methods::chat_management::JoinRequestResult,
+    ) -> AnswerChatJoinRequestQuery {
+        AnswerChatJoinRequestQuery::new(self.clone(), chat_join_request_query_id, result)
+    }
+    /// Calls `sendChatJoinRequestWebApp` — shows a Mini App to the user before deciding (Bot API 10.1).
+    ///
+    /// Must be called within 10 seconds of receiving a [`ChatJoinRequest`](rustigram_types::ChatJoinRequest)
+    /// that carries a `query_id`.
+    pub fn send_chat_join_request_web_app(
+        &self,
+        chat_join_request_query_id: impl Into<String>,
+        web_app_url: impl Into<String>,
+    ) -> SendChatJoinRequestWebApp {
+        SendChatJoinRequestWebApp::new(self.clone(), chat_join_request_query_id, web_app_url)
     }
     /// Calls `banChatSenderChat` — bans a channel chat from sending in a supergroup or channel.
     pub fn ban_chat_sender_chat(
