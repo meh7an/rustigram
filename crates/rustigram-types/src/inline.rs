@@ -758,6 +758,8 @@ pub struct InlineQueryResultCachedAudio {
 pub enum InputMessageContent {
     /// The message text.
     Text(InputTextMessageContent),
+    /// A rich formatted message.
+    Rich(crate::rich_message::InputRichMessageContent),
     /// A location on a map.
     Location(InputLocationMessageContent),
     /// A venue.

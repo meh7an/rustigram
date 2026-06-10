@@ -2431,3 +2431,163 @@ impl SendChecklist {
 }
 
 impl_into_future!(SendChecklist, Message, "sendChecklist");
+
+// ─── sendRichMessage ──────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SendRichMessageParams {
+    chat_id: ChatId,
+    rich_message: rustigram_types::rich_message::InputRichMessage,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    disable_notification: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    protect_content: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_parameters: Option<ReplyParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<rustigram_types::keyboard::ReplyMarkup>,
+}
+
+/// Builder for the [`sendRichMessage`](https://core.telegram.org/bots/api#sendrichmessage) method.
+pub struct SendRichMessage {
+    client: BotClient,
+    params: SendRichMessageParams,
+}
+
+impl SendRichMessage {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        rich_message: rustigram_types::rich_message::InputRichMessage,
+    ) -> Self {
+        Self {
+            client,
+            params: SendRichMessageParams {
+                chat_id: chat_id.into(),
+                rich_message,
+                business_connection_id: None,
+                message_thread_id: None,
+                direct_messages_topic_id: None,
+                disable_notification: None,
+                protect_content: None,
+                allow_paid_broadcast: None,
+                message_effect_id: None,
+                suggested_post_parameters: None,
+                reply_parameters: None,
+                reply_markup: None,
+            },
+        }
+    }
+
+    /// Sets the business connection identifier.
+    pub fn business_connection_id(mut self, id: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(id.into());
+        self
+    }
+    /// Sends the message to the specified topic thread.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+    /// Sends the message to the specified direct messages topic.
+    pub fn direct_messages_topic_id(mut self, id: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(id);
+        self
+    }
+    /// Sends the message silently (no notification sound).
+    pub fn disable_notification(mut self, v: bool) -> Self {
+        self.params.disable_notification = Some(v);
+        self
+    }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Allows up to 1 000 messages per second by paying 0.1 Stars per message.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Unique identifier of the message effect to add to the message.
+    pub fn message_effect_id(mut self, id: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(id.into());
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, p: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(p);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, rp: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(rp);
+        self
+    }
+    /// Attaches a reply markup to the message.
+    pub fn reply_markup(mut self, m: rustigram_types::keyboard::ReplyMarkup) -> Self {
+        self.params.reply_markup = Some(m);
+        self
+    }
+}
+
+impl_into_future!(SendRichMessage, Message, "sendRichMessage");
+
+// ─── sendRichMessageDraft ─────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct SendRichMessageDraftParams {
+    chat_id: i64,
+    draft_id: i64,
+    rich_message: rustigram_types::rich_message::InputRichMessage,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_thread_id: Option<i64>,
+}
+
+/// Builder for the [`sendRichMessageDraft`](https://core.telegram.org/bots/api#sendrichmessagedraft) method.
+///
+/// Streams a partial rich message as a 30-second ephemeral preview.
+/// Once generation is complete, call [`sendRichMessage`] with the full content to persist it.
+pub struct SendRichMessageDraft {
+    client: BotClient,
+    params: SendRichMessageDraftParams,
+}
+
+impl SendRichMessageDraft {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: i64,
+        draft_id: i64,
+        rich_message: rustigram_types::rich_message::InputRichMessage,
+    ) -> Self {
+        Self {
+            client,
+            params: SendRichMessageDraftParams {
+                chat_id,
+                draft_id,
+                rich_message,
+                message_thread_id: None,
+            },
+        }
+    }
+
+    /// Sends the draft to the specified topic thread.
+    pub fn message_thread_id(mut self, id: i64) -> Self {
+        self.params.message_thread_id = Some(id);
+        self
+    }
+}
+
+impl_into_future!(SendRichMessageDraft, bool, "sendRichMessageDraft");
