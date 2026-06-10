@@ -6,6 +6,7 @@ use serde::Serialize;
 use rustigram_types::checklist::InputChecklist;
 use rustigram_types::keyboard::InlineKeyboardMarkup;
 use rustigram_types::message::{LinkPreviewOptions, Message, MessageEntity, ParseMode};
+use rustigram_types::rich_message::InputRichMessage;
 use rustigram_types::user::ChatId;
 
 use crate::client::BotClient;
@@ -52,7 +53,12 @@ pub enum EditTarget {
 struct EditMessageTextParams {
     #[serde(flatten)]
     target: EditTarget,
-    text: String,
+    /// New text of the message; required if `rich_message` isn't specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    text: Option<String>,
+    /// New rich content of the message; required if `text` isn't specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    rich_message: Option<InputRichMessage>,
     #[serde(skip_serializing_if = "Option::is_none")]
     business_connection_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -85,7 +91,8 @@ impl EditMessageText {
                     chat_id: chat_id.into(),
                     message_id,
                 },
-                text: text.into(),
+                text: Some(text.into()),
+                rich_message: None,
                 business_connection_id: None,
                 parse_mode: None,
                 entities: None,
@@ -105,7 +112,54 @@ impl EditMessageText {
                 target: EditTarget::Inline {
                     inline_message_id: inline_message_id.into(),
                 },
-                text: text.into(),
+                text: Some(text.into()),
+                rich_message: None,
+                business_connection_id: None,
+                parse_mode: None,
+                entities: None,
+                link_preview_options: None,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Targets a chat message for editing with a rich message.
+    pub(crate) fn in_chat_rich(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        message_id: i64,
+        rich_message: InputRichMessage,
+    ) -> Self {
+        Self {
+            client,
+            params: EditMessageTextParams {
+                target: EditTarget::Chat {
+                    chat_id: chat_id.into(),
+                    message_id,
+                },
+                text: None,
+                rich_message: Some(rich_message),
+                business_connection_id: None,
+                parse_mode: None,
+                entities: None,
+                link_preview_options: None,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Targets an inline message for editing with a rich message.
+    pub(crate) fn inline_rich(
+        client: BotClient,
+        inline_message_id: impl Into<String>,
+        rich_message: InputRichMessage,
+    ) -> Self {
+        Self {
+            client,
+            params: EditMessageTextParams {
+                target: EditTarget::Inline {
+                    inline_message_id: inline_message_id.into(),
+                },
+                text: None,
+                rich_message: Some(rich_message),
                 business_connection_id: None,
                 parse_mode: None,
                 entities: None,

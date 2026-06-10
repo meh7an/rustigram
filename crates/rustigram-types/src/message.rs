@@ -9,6 +9,7 @@ use crate::file::{Animation, Audio, Document, LivePhoto, PhotoSize, Video, Video
 use crate::keyboard::InlineKeyboardMarkup;
 use crate::managed_bot::ManagedBotCreated;
 use crate::poll::{Poll, PollOptionAdded, PollOptionDeleted};
+use crate::rich_message::RichMessage;
 use crate::sticker::Sticker;
 use crate::suggested_post::{
     SuggestedPostApprovalFailed, SuggestedPostApproved, SuggestedPostDeclined, SuggestedPostInfo,
@@ -137,6 +138,10 @@ pub struct Message {
     /// Actual UTF-8 text of the message (0–4096 characters).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
+
+    /// Rich formatted message content.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rich_message: Option<RichMessage>,
 
     /// Special entities like usernames, URLs, bot commands, etc.
     #[serde(skip_serializing_if = "Option::is_none")]
