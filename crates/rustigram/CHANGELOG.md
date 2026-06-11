@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.12](https://github.com/meh7an/rustigram/compare/rustigram-v0.9.11...rustigram-v0.9.12) - 2026-06-11
+
+### Fixed
+
+- make ChatMemberRestricted::can_react_to_messages optional
+
 ## [0.9.11](https://github.com/meh7an/rustigram/compare/rustigram-v0.9.9...rustigram-v0.9.11) - 2026-06-11
 
 ### Added
