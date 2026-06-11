@@ -24,6 +24,7 @@
 //! | [`keyboard`] | Inline and reply keyboards, [`keyboard::ReplyMarkup`] |
 //! | [`payments`] | [`payments::LabeledPrice`], invoices, Star transactions, [`payments::TransactionPartner`], [`payments::OwnedGift`] |
 //! | [`poll`] | [`poll::Poll`], [`poll::PollAnswer`], [`poll::InputPollOption`] |
+//! | [`rich_message`] | [`rich_message::RichMessage`], [`rich_message::RichBlock`], [`rich_message::RichText`], [`rich_message::InputRichMessage`] |
 //! | [`sticker`] | [`sticker::Sticker`], [`sticker::StickerSet`], [`sticker::InputSticker`] |
 //! | [`suggested_post`] | [`suggested_post::SuggestedPostInfo`], [`suggested_post::SuggestedPostParameters`], service messages |
 //! | [`inline`] | [`inline::InlineQuery`], all `InlineQueryResult` variants |
@@ -68,6 +69,8 @@ pub mod payments;
 pub mod poll;
 /// Reaction types.
 pub mod reaction;
+/// Rich message types (Bot API 10.1).
+pub mod rich_message;
 /// Sticker types.
 pub mod sticker;
 /// Story types.
@@ -81,7 +84,10 @@ pub mod user;
 /// Webhook info types.
 pub mod webhook;
 
-pub use chat::{Chat, ChatFullInfo, ChatPermissions, ChatType};
+pub use chat::{
+    Chat, ChatFullInfo, ChatInviteLink, ChatJoinRequest, ChatPermissions, ChatType, InputMediaLink,
+    Link,
+};
 pub use chat_member::{
     ChatMember, ChatMemberAdministrator, ChatMemberBanned, ChatMemberLeft, ChatMemberMember,
     ChatMemberOwner, ChatMemberRestricted,
@@ -119,6 +125,20 @@ pub use payments::{
 pub use poll::{
     InputPollMedia, InputPollOption, InputPollOptionMedia, Poll, PollAnswer, PollMedia, PollOption,
     PollOptionAdded, PollOptionDeleted,
+};
+pub use rich_message::{
+    InputRichMessage, InputRichMessageContent, RichBlock, RichBlockAnchor, RichBlockAnimation,
+    RichBlockAudio, RichBlockBlockQuotation, RichBlockCaption, RichBlockCollage, RichBlockDetails,
+    RichBlockDivider, RichBlockFooter, RichBlockList, RichBlockListItem, RichBlockMap,
+    RichBlockMathematicalExpression, RichBlockPhoto, RichBlockPreformatted, RichBlockPullQuotation,
+    RichBlockSectionHeading, RichBlockSlideshow, RichBlockTable, RichBlockTableCell,
+    RichBlockThinking, RichBlockVideo, RichBlockVoiceNote, RichMessage, RichText, RichTextAnchor,
+    RichTextAnchorLink, RichTextBankCardNumber, RichTextBold, RichTextBotCommand, RichTextCashtag,
+    RichTextCode, RichTextCustomEmoji, RichTextDateTime, RichTextEmailAddress, RichTextFootnote,
+    RichTextHashtag, RichTextItalic, RichTextMarked, RichTextMathematicalExpression,
+    RichTextMention, RichTextPhoneNumber, RichTextReference, RichTextSpoiler,
+    RichTextStrikethrough, RichTextSubscript, RichTextSuperscript, RichTextTextMention,
+    RichTextUnderline, RichTextUrl,
 };
 pub use sticker::{MaskPosition, Sticker, StickerSet, StickerType};
 pub use story::{

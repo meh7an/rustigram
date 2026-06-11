@@ -67,6 +67,7 @@ mod user {
             has_topics_enabled: None,
             allows_users_to_create_topics: None,
             supports_guest_queries: None,
+            supports_join_request_queries: None,
         }
     }
 
@@ -119,6 +120,7 @@ mod message {
                 last_name: None,
                 is_forum: None,
                 is_direct_messages: None,
+                guard_bot: None,
             },
             forward_origin: None,
             is_topic_message: None,
@@ -206,6 +208,7 @@ mod message {
             guest_bot_caller_user: None,
             guest_query_id: None,
             live_photo: None,
+            rich_message: None,
         }
     }
 

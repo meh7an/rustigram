@@ -38,6 +38,9 @@ pub struct PollMedia {
     /// Video media.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub video: Option<Video>,
+    /// HTTP link attached to the poll option.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub link: Option<crate::chat::Link>,
 }
 
 /// Media content for a poll description or quiz explanation to be sent.
@@ -70,6 +73,8 @@ pub enum InputPollOptionMedia {
     Animation(crate::file::InputMediaAnimation),
     /// A live photo.
     LivePhoto(crate::file::InputMediaLivePhoto),
+    /// An HTTP link.
+    Link(crate::chat::InputMediaLink),
     /// A location.
     Location(crate::file::InputMediaLocation),
     /// A photo.

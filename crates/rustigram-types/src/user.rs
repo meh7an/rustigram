@@ -68,6 +68,11 @@ pub struct User {
     /// Returned only in `getMe`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supports_guest_queries: Option<bool>,
+
+    /// Bots only — `true` if the bot supports join request queries and can be assigned to
+    /// process them. Returned only in `getMe`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supports_join_request_queries: Option<bool>,
 }
 
 impl User {

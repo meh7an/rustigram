@@ -6,13 +6,13 @@
 [![Crates.io](https://img.shields.io/crates/v/rustigram.svg)](https://crates.io/crates/rustigram)
 [![Docs.rs](https://img.shields.io/badge/docs-rustigram.io-blue.svg)](https://rustigram.io/docs/rustigram/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Telegram Bot API](https://img.shields.io/badge/Bot%20API-9.7-blue.svg)](https://core.telegram.org/bots/api)
+[![Telegram Bot API](https://img.shields.io/badge/Bot%20API-10.1-blue.svg)](https://core.telegram.org/bots/api)
 
 A comprehensive, async-first Rust framework for the [Telegram Bot API](https://core.telegram.org/bots/api).
 
 ```toml
 [dependencies]
-rustigram = "0.9.8"
+rustigram = "0.9.9"
 tokio     = { version = "1", features = ["full"] }
 ```
 
@@ -32,7 +32,7 @@ The framework is split into focused crates so you can depend on only what you ne
 | `rustigram-macros` | Procedural macros (`#[handler]`, `#[derive(DialogueState)]`) |
 | `rustigram`        | Public facade re-exporting all sub-crates                    |
 
-**Supported Bot API version:** 9.7 (May 2026)
+**Supported Bot API version:** 10.1 (June 2026)
 **Minimum Rust version:** 1.75
 
 ---
