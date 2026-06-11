@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.11](https://github.com/meh7an/rustigram/compare/rustigram-v0.9.9...rustigram-v0.9.11) - 2026-06-11
+
+### Added
+
+- add Bot API 10.1 rich messages, join request queries, and poll link media
+
+### Other
+
+- release v0.9.11
+- release v0.9.9
+
 ## [0.9.9](https://github.com/meh7an/rustigram/compare/rustigram-v0.9.8...rustigram-v0.9.9) - 2026-06-11
 
 ### Added
