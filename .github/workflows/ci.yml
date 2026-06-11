@@ -74,6 +74,11 @@ jobs:
         steps:
             - uses: actions/checkout@v6
 
+            - name: Inject version into site
+              run: |
+                  VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
+                  sed -i "s|<span class=\"badge\">v[^<]*</span>|<span class=\"badge\">v${VERSION}</span>|" site/index.html
+
             - uses: dtolnay/rust-toolchain@stable
 
             - uses: Swatinem/rust-cache@v2
