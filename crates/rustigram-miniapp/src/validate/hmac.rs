@@ -96,12 +96,12 @@ mod tests {
     fn build_valid_init_data(token: &str, auth_date: i64) -> String {
         let user_json = r#"{"id":42,"first_name":"Mehran"}"#;
 
-        let mut entries = vec![
+        let mut entries = [
             ("auth_date", auth_date.to_string()),
             ("query_id", "test_query_001".to_string()),
             ("user", user_json.to_string()),
         ];
-        entries.sort_by(|(a, _), (b, _)| a.cmp(b));
+        entries.sort_by_key(|(a, _)| *a);
 
         let dcs = entries
             .iter()
