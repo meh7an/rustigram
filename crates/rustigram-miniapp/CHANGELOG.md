@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1](https://github.com/meh7an/rustigram/compare/rustigram-miniapp-v0.10.0...rustigram-miniapp-v0.10.1) - 2026-06-13
+
+### Fixed
+
+- add version to website home
+
+### Other
+
+- release v0.10.0
+
 ## [0.10.0](https://github.com/meh7an/rustigram/releases/tag/rustigram-miniapp-v0.10.0) - 2026-06-13
 
 ### Added
