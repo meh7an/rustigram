@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0](https://github.com/meh7an/rustigram/compare/rustigram-v0.9.12...rustigram-v0.10.0) - 2026-06-13
+
+### Other
+
+- add rustigram-tma support for mini-apps
+
 ## [0.9.8](https://github.com/meh7an/rustigram/compare/rustigram-v0.9.7...rustigram-v0.9.8) - 2026-05-21
 
 ### Fixed
