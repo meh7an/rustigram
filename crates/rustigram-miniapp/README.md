@@ -12,20 +12,21 @@ extractors, and keeps TypeScript types in sync with Rust structs via
 
 ```toml
 [dependencies]
-rustigram-miniapp = "0.10.1"
+rustigram-miniapp = "0.10.2"
 ```
 
 ---
 
 ## What it does
 
-| Feature                | Description                                                                             |
-| ---------------------- | --------------------------------------------------------------------------------------- |
-| HMAC-SHA256 validation | First-party validation against the bot token                                            |
-| Ed25519 validation     | Third-party validation using Telegram's public key                                      |
-| Axum extractor         | `TmaInitData` — validates on extraction, rejects automatically                          |
-| Tower middleware       | `BotTokenLayer` — injects the bot token into every request                              |
-| Type generation        | `cargo run --example gen-types --features ts` syncs Rust types to `@rustigram/tma-core` |
+| Feature                | Description                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------- |
+| HMAC-SHA256 validation | First-party validation against the bot token                                                      |
+| Ed25519 validation     | Third-party validation using Telegram's public key                                                |
+| Axum extractor         | `TmaInitData` — validates on extraction, rejects automatically                                    |
+| Tower middleware       | `BotTokenLayer` — injects the bot token into every request                                        |
+| Type generation        | `cargo run --example gen-types --features ts` syncs Rust types to `@rustigram/tma-core`           |
+| Gateway signing        | `TmaGatewayLayer` — signs forwarded requests so SolidStart can verify they passed Rust validation |
 
 ---
 
@@ -75,6 +76,35 @@ let data = validate_ed25519(
 
 println!("user id: {}", data.user.unwrap().id);
 ```
+
+### Rust gateway + SolidStart BFF
+
+When SolidStart handles SSR behind Rust, add `TmaGatewayLayer` so SolidStart
+can verify requests came through the validated Rust gateway without needing
+the bot token.
+
+```rust
+use rustigram_miniapp::{
+    BotToken, BotTokenLayer, GatewaySecret, TmaGatewayLayer, extract::TmaInitData,
+};
+
+let app = Router::new()
+    .route("/tma", post(tma_handler))
+    .layer(TmaGatewayLayer(GatewaySecret(
+        std::env::var("GATEWAY_SECRET").unwrap(),
+    )))
+    .layer(BotTokenLayer(BotToken(
+        std::env::var("BOT_TOKEN").unwrap(),
+    )));
+```
+
+SolidStart then uses `createTmaMiddleware(null, { gatewaySecret })` — no
+`BOT_TOKEN` needed in the TypeScript environment.
+
+| Service    | Env vars needed                |
+| ---------- | ------------------------------ |
+| Rust       | `BOT_TOKEN` + `GATEWAY_SECRET` |
+| SolidStart | `GATEWAY_SECRET` only          |
 
 ---
 

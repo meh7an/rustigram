@@ -1,50 +1,90 @@
-//! TMA bridge for the rustigram framework.
+//! Server-side Telegram Mini App bridge for the rustigram framework.
 //!
-//! Provides server-side initData validation, typed Axum extractors, and an optional
-//! ts-rs-powered type generation pipeline so Rust structs stay in sync with the
-//! TypeScript `@rustigram/tma-*` packages.
+//! Provides initData validation, typed Axum extractors, a Tower middleware
+//! pipeline, and an optional ts-rs type generation pipeline so Rust structs
+//! stay in sync with the TypeScript `@rustigram/tma-*` packages.
 //!
 //! # Feature flags
 //!
-//! - `ts` — enables ts-rs derives on all public types. Required to run `gen-types`.
+//! | Flag | Effect |
+//! |---|---|
+//! | `ts` | Enables ts-rs derives on all public types. Required for `gen-types`. |
+//!
+//! # Deployment modes
+//!
+//! ## Mode 1 — TypeScript only
+//!
+//! `@rustigram/tma-server` handles validation. No Rust backend required.
+//! `BOT_TOKEN` lives in the TypeScript environment.
+//!
+//! ## Mode 2 — Rust only
+//!
+//! Rust is the API server. `@rustigram/tma-server` is not used on the
+//! backend at all. `@rustigram/tma-core` still works on the frontend.
+//! `BOT_TOKEN` lives in the Rust environment only.
+//!
+//! ## Mode 3 — Rust gateway + SolidStart BFF
+//!
+//! Rust validates and signs forwarded requests. SolidStart parses without
+//! re-validating. `BOT_TOKEN` lives in Rust only. SolidStart only needs
+//! `GATEWAY_SECRET`.
+//!
+//! See [`extract::BotTokenLayer`], [`extract::TmaGatewayLayer`], and
+//! [`extract::TmaInitData`] for the full setup.
 //!
 //! # Quick start
 //!
 //! ```rust,ignore
-//! use axum::Router;
-//! use rustigram_miniapp::{BotToken, BotTokenLayer, extract::TmaInitData};
+//! use axum::{routing::post, Router};
+//! use rustigram_miniapp::{
+//!     extract::TmaInitData, BotToken, BotTokenLayer,
+//!     GatewaySecret, TmaGatewayLayer,
+//! };
 //!
-//! async fn tma_handler(TmaInitData(init_data): TmaInitData) {
-//!     println!("user: {:?}", init_data.user);
+//! async fn tma_handler(TmaInitData(data): TmaInitData) {
+//!     println!("user: {:?}", data.user);
 //! }
 //!
+//! // Mode 2 — Rust only
 //! let app = Router::new()
-//!     .route("/tma", axum::routing::post(tma_handler))
-//!     .layer(BotTokenLayer(BotToken(std::env::var("BOT_TOKEN").unwrap())));
+//!     .route("/tma", post(tma_handler))
+//!     .layer(BotTokenLayer(BotToken(
+//!         std::env::var("BOT_TOKEN").unwrap(),
+//!     )));
+//!
+//! // Mode 3 — Rust gateway, add TmaGatewayLayer for the trust signal
+//! let app = Router::new()
+//!     .route("/tma", post(tma_handler))
+//!     .layer(TmaGatewayLayer(GatewaySecret(
+//!         std::env::var("GATEWAY_SECRET").unwrap(),
+//!     )))
+//!     .layer(BotTokenLayer(BotToken(
+//!         std::env::var("BOT_TOKEN").unwrap(),
+//!     )));
 //! ```
 
-//! TMA bridge for the rustigram framework.
-//!
-//! Provides server-side initData validation, typed Axum extractors, and an
-//! optional ts-rs type generation pipeline.
-//!
-//! # Feature flags
-//!
-//! - `ts` — enables ts-rs derives on all public types; required for `gen-types`.
-
-/// Error types and result aliases used across the crate.
+/// Error types and result alias used across the crate.
 pub mod error;
-/// Axum extractors for TMA initData and bot token handling.
+
+/// Axum extractors and Tower middleware for TMA request handling.
+///
+/// See [`extract::TmaInitData`] for the main extractor,
+/// [`extract::BotTokenLayer`] for injecting the bot token, and
+/// [`extract::TmaGatewayLayer`] for the Mode 3 gateway trust signal.
 pub mod extract;
-/// Parsing utilities for TMA initData payloads and related request data.
+
+/// initData query string parsing utilities (crate-internal).
 pub mod parse;
-/// Public types used by the TMA bridge.
+
+/// Typed representations of all Telegram Mini App objects.
 pub mod types;
-/// Validation helpers for HMAC and Ed25519 request signing.
+
+/// initData validation — HMAC-SHA256 ([`validate::validate_hmac`]) and
+/// Ed25519 ([`validate::validate_ed25519`]).
 pub mod validate;
 
 pub use error::{MiniAppError, Result};
-pub use extract::{BotToken, BotTokenLayer, TmaInitData};
+pub use extract::{BotToken, BotTokenLayer, GatewaySecret, TmaGatewayLayer, TmaInitData};
 pub use types::{
     ColorScheme, ContentSafeAreaInset, InitDataChatType, SafeAreaInset, ThemeParams, WebAppChat,
     WebAppChatType, WebAppInitData, WebAppUser,

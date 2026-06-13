@@ -4,9 +4,11 @@
 //! as a handler parameter to get verified, typed initData automatically.
 
 pub mod axum;
+pub mod gateway;
 pub mod layer;
 
 pub use axum::TmaInitData;
+pub use gateway::{GatewaySecret, TmaGatewayLayer};
 pub use layer::BotTokenLayer;
 
 /// Newtype wrapping the bot token string.
