@@ -1,0 +1,43 @@
+[package]
+name         = "rustigram-miniapp"
+description  = "Axum extractors, initData validation, and ts-rs type bridge for Telegram Mini Apps"
+keywords     = ["telegram", "miniapp", "tma", "axum", "bot"]
+categories   = ["api-bindings", "asynchronous", "web-programming"]
+version.workspace      = true
+edition.workspace      = true
+authors.workspace      = true
+license.workspace      = true
+readme.workspace       = true
+repository.workspace   = true
+rust-version.workspace = true
+
+[dependencies]
+axum.workspace = true
+reqwest.workspace = true
+rustigram-types.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+ts-rs = { workspace = true, optional = true }
+sha2.workspace = true
+hex.workspace = true
+hmac.workspace = true
+ed25519-dalek.workspace = true
+base64.workspace = true
+form_urlencoded.workspace = true
+tower.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+ts = ["dep:ts-rs", "ts-rs/serde-compat"]
+
+[[example]]
+name = "gen-types"
+required-features = ["ts"]
+
+[dev-dependencies]
+rand.workspace = true

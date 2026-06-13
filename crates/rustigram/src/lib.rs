@@ -9,7 +9,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! rustigram = "0.9.9"
+//! rustigram = "0.10.0"
 //! tokio     = { version = "1", features = ["full"] }
 //! ```
 //!

@@ -288,6 +288,50 @@ impl Filter for GroupFilter {
     }
 }
 
+/// Passes when the message contains a `web_app_data` field.
+///
+/// Triggered when a user taps a Web App keyboard button that sends data
+/// directly to the bot (as opposed to launching a full TMA session).
+///
+/// Requires the `tma` feature on `rustigram-bot`.
+#[cfg(feature = "tma")]
+#[derive(Clone, Copy)]
+pub struct WebAppDataFilter;
+
+#[cfg(feature = "tma")]
+impl Filter for WebAppDataFilter {
+    fn check(&self, ctx: &Context) -> bool {
+        ctx.message()
+            .and_then(|m| m.web_app_data.as_ref())
+            .is_some()
+    }
+}
+
+/// Passes when the message contains `web_app_data` AND the given predicate
+/// returns `true` for `button_text`.
+///
+/// Useful when multiple Web App buttons have different labels and you want
+/// to route them to separate handlers.
+///
+/// Requires the `tma` feature on `rustigram-bot`.
+#[cfg(feature = "tma")]
+#[derive(Clone)]
+pub struct WebAppDataMatchingFilter<F> {
+    predicate: F,
+}
+
+#[cfg(feature = "tma")]
+impl<F> Filter for WebAppDataMatchingFilter<F>
+where
+    F: Fn(&str) -> bool + Send + Sync + Clone + 'static,
+{
+    fn check(&self, ctx: &Context) -> bool {
+        ctx.message()
+            .and_then(|m| m.web_app_data.as_ref())
+            .is_some_and(|d| (self.predicate)(d.button_text.as_str()))
+    }
+}
+
 /// Convenience constructors for all built-in filters.
 ///
 /// Import this module and call functions to create filters:
@@ -349,5 +393,28 @@ pub mod filters {
     /// Always passes — useful as a catch-all fallback route.
     pub fn any() -> FnFilter<fn(&Context) -> bool> {
         FnFilter(|_| true)
+    }
+    /// Passes for any message that carries `web_app_data`.
+    ///
+    /// Requires the `tma` feature on `rustigram-bot`.
+    #[cfg(feature = "tma")]
+    pub fn web_app_data() -> WebAppDataFilter {
+        WebAppDataFilter
+    }
+    /// Passes for messages whose `web_app_data.button_text` satisfies `predicate`.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// filters::web_app_data_matching(|btn| btn == "Open Wallet")
+    /// ```
+    ///
+    /// Requires the `tma` feature on `rustigram-bot`.
+    #[cfg(feature = "tma")]
+    pub fn web_app_data_matching<F>(predicate: F) -> WebAppDataMatchingFilter<F>
+    where
+        F: Fn(&str) -> bool + Send + Sync + Clone + 'static,
+    {
+        WebAppDataMatchingFilter { predicate }
     }
 }

@@ -12,7 +12,7 @@ A comprehensive, async-first Rust framework for the [Telegram Bot API](https://c
 
 ```toml
 [dependencies]
-rustigram = "0.9.9"
+rustigram = "0.10.0"
 tokio     = { version = "1", features = ["full"] }
 ```
 
@@ -24,13 +24,14 @@ rustigram is a typed, ergonomic Rust library for building Telegram bots. Every B
 
 The framework is split into focused crates so you can depend on only what you need:
 
-| Crate              | Purpose                                                      |
-| ------------------ | ------------------------------------------------------------ |
-| `rustigram-types`  | All Bot API types, fully serde-serialisable                  |
-| `rustigram-api`    | HTTP client and typed method builders                        |
-| `rustigram-bot`    | Dispatcher, filters, handlers, FSM, update listeners         |
-| `rustigram-macros` | Procedural macros (`#[handler]`, `#[derive(DialogueState)]`) |
-| `rustigram`        | Public facade re-exporting all sub-crates                    |
+| Crate               | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `rustigram-types`   | All Bot API types, fully serde-serialisable                    |
+| `rustigram-api`     | HTTP client and typed method builders                          |
+| `rustigram-bot`     | Dispatcher, filters, handlers, FSM, update listeners           |
+| `rustigram-macros`  | Procedural macros (`#[handler]`, `#[derive(DialogueState)]`)   |
+| `rustigram-miniapp` | Axum extractors and initData validation for Telegram Mini Apps |
+| `rustigram`         | Public facade re-exporting all sub-crates                      |
 
 **Supported Bot API version:** 10.1 (June 2026)
 **Minimum Rust version:** 1.75

@@ -145,4 +145,30 @@ impl Context {
         }
         Some(builder)
     }
+
+    /// Returns the Web App data from this update's message, if present.
+    ///
+    /// Populated when a user taps a `web_app` keyboard button that sends data
+    /// directly to the bot — as opposed to launching a full TMA session.
+    /// Contains the raw `data` string and the `button_text` that triggered it.
+    ///
+    /// For TMA session-based `initData` validation use
+    /// [`rustigram_miniapp::validate_hmac`] or
+    /// [`rustigram_miniapp::validate_ed25519`] on the server side.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// async fn handle_tma(ctx: Context) -> BotResult<()> {
+    ///     if let Some(data) = ctx.tma_data() {
+    ///         println!("button: {}, payload: {}", data.button_text, data.data);
+    ///     }
+    ///     Ok(())
+    /// }
+    /// ```
+    #[cfg(feature = "tma")]
+    #[must_use]
+    pub fn tma_data(&self) -> Option<&rustigram_types::message::WebAppData> {
+        self.message()?.web_app_data.as_ref()
+    }
 }

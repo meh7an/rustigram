@@ -1,0 +1,2 @@
+[env]
+TMA_TYPES_OUT = "../rustigram-tma/packages/core/src/generated"
