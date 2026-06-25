@@ -10,7 +10,7 @@ members  = [
 ]
 
 [workspace.package]
-version      = "0.10.2"
+version      = "0.10.3"
 edition      = "2021"
 authors      = ["Mehran <hi@mehran.tech>"]
 license      = "MIT"
@@ -64,11 +64,11 @@ form_urlencoded = "1.2.2"
 rand = "0.8"
 
 # internal
-rustigram-types  = { version = "0.10.2", path = "crates/rustigram-types" }
-rustigram-api    = { version = "0.10.2", path = "crates/rustigram-api" }
-rustigram-bot    = { version = "0.10.2", path = "crates/rustigram-bot" }
-rustigram-macros = { version = "0.10.2", path = "crates/rustigram-macros" }
-rustigram-miniapp = { version = "0.10.2", path = "crates/rustigram-miniapp" }
+rustigram-types  = { version = "0.10.3", path = "crates/rustigram-types" }
+rustigram-api    = { version = "0.10.3", path = "crates/rustigram-api" }
+rustigram-bot    = { version = "0.10.3", path = "crates/rustigram-bot" }
+rustigram-macros = { version = "0.10.3", path = "crates/rustigram-macros" }
+rustigram-miniapp = { version = "0.10.3", path = "crates/rustigram-miniapp" }
 
 [profile.release]
 lto           = true
