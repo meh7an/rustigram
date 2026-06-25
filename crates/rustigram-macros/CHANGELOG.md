@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.3](https://github.com/meh7an/rustigram/compare/rustigram-macros-v0.10.2...rustigram-macros-v0.10.3) - 2026-06-25
+
+### Other
+
+- Fix captions parse_mode
+
 ## [0.10.2](https://github.com/meh7an/rustigram/compare/rustigram-macros-v0.10.1...rustigram-macros-v0.10.2) - 2026-06-13
 
 ### Other
