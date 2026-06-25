@@ -1570,6 +1570,7 @@ macro_rules! media_sender {
                             if let Some(id) = self.opts.message_thread_id { form = form.text("message_thread_id", id.to_string()); }
                             if let Some(id) = self.opts.direct_messages_topic_id { form = form.text("direct_messages_topic_id", id.to_string()); }
                             if let Some(c) = &self.opts.caption { form = form.text("caption", c.clone()); }
+                            if let Some(m) = &self.opts.parse_mode { form = form.text("parse_mode", format!("{m:?}")); }
                             if let Some(v) = self.opts.disable_notification { form = form.text("disable_notification", v.to_string()); }
                             if let Some(v) = &self.opts.reply_markup { form = form.text("reply_markup", serde_json::to_string(v).unwrap()); }
                             if let Some(p) = &self.opts.suggested_post_parameters { form = form.text("suggested_post_parameters", serde_json::to_string(p).unwrap()); }
