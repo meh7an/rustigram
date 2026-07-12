@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::chat::{Chat, Location, Venue};
 use crate::checklist::{Checklist, ChecklistTasksAdded, ChecklistTasksDone};
+use crate::community::{CommunityChatAdded, CommunityChatRemoved};
 use crate::direct_messages::{
     DirectMessagePriceChanged, DirectMessagesTopic, PaidMessagePriceChanged,
 };
@@ -23,8 +24,21 @@ use crate::user::User;
 /// official Bot API documentation for field availability rules.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Message {
-    /// Unique message identifier inside this chat.
+    /// Unique message identifier inside this chat; `0` for ephemeral messages.
+    /// In specific instances (e.g. a video sent to a large chat), the server
+    /// might schedule the message instead of sending it immediately — in that
+    /// case this field is also `0` until the message is actually sent.
     pub message_id: i64,
+
+    /// For ephemeral messages — the user who received the message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub receiver_user: Option<User>,
+
+    /// For ephemeral messages — identifier of the message inside this chat.
+    /// The identifier may be reused for another ephemeral message once this
+    /// one is deleted or expires.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ephemeral_message_id: Option<i64>,
 
     /// Optional — unique identifier of a message thread to which the message belongs.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -78,6 +92,8 @@ pub struct Message {
     pub is_automatic_forward: Option<bool>,
 
     /// For replies in the same chat and message thread, the original message.
+    /// The nested `Message` never carries its own `reply_to_message`, even if
+    /// it is itself a reply. May be omitted for replies to an ephemeral message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_message: Option<Box<Message>>,
 
@@ -266,6 +282,12 @@ pub struct Message {
     /// `true` if the channel was created (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub channel_chat_created: Option<bool>,
+    /// Service message: chat added to a Community.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub community_chat_added: Option<CommunityChatAdded>,
+    /// Service message: chat removed from a Community.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub community_chat_removed: Option<CommunityChatRemoved>,
     /// Auto-delete timer changed (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_auto_delete_timer_changed: Option<serde_json::Value>,
@@ -540,15 +562,31 @@ pub enum MessageOrigin {
 /// Parameters for replying to a message.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReplyParameters {
-    /// Identifier of the message that will be replied to.
-    pub message_id: i64,
-    /// Chat containing the message.
+    /// Identifier of the message that will be replied to in the current
+    /// chat, or in the chat `chat_id` if specified. Required if
+    /// `ephemeral_message_id` isn't specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message_id: Option<i64>,
+    /// Identifier of the ephemeral message that will be replied to in the
+    /// current chat. A reply to an ephemeral message must itself be an
+    /// ephemeral message. Required if `message_id` isn't specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ephemeral_message_id: Option<i64>,
+    /// If the message to be replied to is from a different chat, the chat
+    /// containing it. Not supported for messages sent on behalf of a business
+    /// account, direct-messages-chat messages, or ephemeral messages.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chat_id: Option<crate::user::ChatId>,
-    /// `true` if the message should be sent even if the specified message is not found.
+    /// `true` if the message should be sent even if the specified message is
+    /// not found. Always `false` for replies in another chat or forum topic
+    /// and for sent ephemeral messages. Always `true` for messages sent on
+    /// behalf of a business account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
-    /// Quoted part of the message to be replied to.
+    /// Quoted part of the message to be replied to; 0–1024 characters after
+    /// entities parsing. Must be an exact substring of the message being
+    /// replied to, including any bold/italic/underline/strikethrough/spoiler/
+    /// custom_emoji/date_time entities. Ignored for ephemeral messages.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quote: Option<String>,
     /// Parse mode for the quote.

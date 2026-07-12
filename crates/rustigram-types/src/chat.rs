@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::community::Community;
 use crate::message::Message;
 use crate::user::User;
 
@@ -210,6 +211,10 @@ pub struct ChatFullInfo {
     /// The location to which the supergroup is connected.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub location: Option<ChatLocation>,
+
+    /// The Community to which the chat belongs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub community: Option<Community>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

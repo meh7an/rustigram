@@ -62,6 +62,10 @@ struct SendMessageParams {
     reply_markup: Option<ReplyMarkup>,
     #[serde(skip_serializing_if = "Option::is_none")]
     suggested_post_parameters: Option<SuggestedPostParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    receiver_user_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    callback_query_id: Option<String>,
 }
 
 /// Builder for the [`sendMessage`](https://core.telegram.org/bots/api#sendmessage) method.
@@ -94,6 +98,8 @@ impl SendMessage {
                 reply_parameters: None,
                 reply_markup: None,
                 suggested_post_parameters: None,
+                receiver_user_id: None,
+                callback_query_id: None,
             },
         }
     }
@@ -155,7 +161,27 @@ impl SendMessage {
     /// Convenience shortcut for `reply_parameters` — sets the reply-to message ID.
     pub fn reply_to(mut self, message_id: i64) -> Self {
         self.params.reply_parameters = Some(ReplyParameters {
-            message_id,
+            message_id: Some(message_id),
+            ephemeral_message_id: None,
+            chat_id: None,
+            allow_sending_without_reply: None,
+            quote: None,
+            quote_parse_mode: None,
+            quote_entities: None,
+            quote_position: None,
+            poll_option_id: None,
+            checklist_task_id: None,
+        });
+        self
+    }
+    /// Convenience shortcut for `reply_parameters` — replies to an ephemeral message.
+    ///
+    /// A reply to an ephemeral message must itself be sent as an ephemeral
+    /// message (see [`receiver_user_id`](Self::receiver_user_id)).
+    pub fn reply_to_ephemeral(mut self, ephemeral_message_id: i64) -> Self {
+        self.params.reply_parameters = Some(ReplyParameters {
+            message_id: None,
+            ephemeral_message_id: Some(ephemeral_message_id),
             chat_id: None,
             allow_sending_without_reply: None,
             quote: None,
@@ -175,6 +201,20 @@ impl SendMessage {
     /// Suggested post parameters for channel direct messages chats.
     pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self {
         self.params.suggested_post_parameters = Some(params);
+        self
+    }
+    /// For outgoing ephemeral messages — the user who will receive the message.
+    ///
+    /// Group and supergroup chats only. Delivery is not guaranteed, especially
+    /// if the user is offline. See [`reply_to_ephemeral`](Self::reply_to_ephemeral)
+    /// for replying to an existing ephemeral message.
+    pub fn receiver_user_id(mut self, id: i64) -> Self {
+        self.params.receiver_user_id = Some(id);
+        self
+    }
+    /// For outgoing ephemeral messages — the callback query that triggered it, if any.
+    pub fn callback_query_id(mut self, id: impl Into<String>) -> Self {
+        self.params.callback_query_id = Some(id.into());
         self
     }
 }
@@ -534,6 +574,10 @@ struct SendLocationParams {
     reply_parameters: Option<ReplyParameters>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<ReplyMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    receiver_user_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    callback_query_id: Option<String>,
 }
 
 /// Builder for the [`sendLocation`](https://core.telegram.org/bots/api#sendlocation) method.
@@ -565,6 +609,8 @@ impl SendLocation {
                 protect_content: None,
                 reply_parameters: None,
                 reply_markup: None,
+                receiver_user_id: None,
+                callback_query_id: None,
             },
         }
     }
@@ -583,7 +629,9 @@ impl SendLocation {
         self.params.horizontal_accuracy = Some(v);
         self
     }
-    /// Sets how long the location stays live, in seconds (60–86400).
+    /// Sets how long the location stays live, in seconds (60–86400), or
+    /// `0x7FFFFFFF` for indefinitely editable live locations. Must be `0`
+    /// for ephemeral messages.
     pub fn live_period(mut self, v: u32) -> Self {
         self.params.live_period = Some(v);
         self
@@ -606,6 +654,16 @@ impl SendLocation {
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self {
         self.params.reply_markup = Some(m.into());
+        self
+    }
+    /// For outgoing ephemeral messages — the user who will receive the message.
+    pub fn receiver_user_id(mut self, id: i64) -> Self {
+        self.params.receiver_user_id = Some(id);
+        self
+    }
+    /// For outgoing ephemeral messages — the callback query that triggered it, if any.
+    pub fn callback_query_id(mut self, id: impl Into<String>) -> Self {
+        self.params.callback_query_id = Some(id.into());
         self
     }
 }
@@ -635,6 +693,10 @@ struct SendContactParams {
     reply_parameters: Option<ReplyParameters>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<ReplyMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    receiver_user_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    callback_query_id: Option<String>,
 }
 
 /// Builder for the [`sendContact`](https://core.telegram.org/bots/api#sendcontact) method.
@@ -664,6 +726,8 @@ impl SendContact {
                 protect_content: None,
                 reply_parameters: None,
                 reply_markup: None,
+                receiver_user_id: None,
+                callback_query_id: None,
             },
         }
     }
@@ -695,6 +759,16 @@ impl SendContact {
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self {
         self.params.reply_markup = Some(m.into());
+        self
+    }
+    /// For outgoing ephemeral messages — the user who will receive the message.
+    pub fn receiver_user_id(mut self, id: i64) -> Self {
+        self.params.receiver_user_id = Some(id);
+        self
+    }
+    /// For outgoing ephemeral messages — the callback query that triggered it, if any.
+    pub fn callback_query_id(mut self, id: impl Into<String>) -> Self {
+        self.params.callback_query_id = Some(id.into());
         self
     }
 }
@@ -1057,6 +1131,13 @@ pub struct MediaSendOptions {
     pub reply_markup: Option<ReplyMarkup>,
     /// Suggested post parameters for channel direct messages chats.
     pub suggested_post_parameters: Option<SuggestedPostParameters>,
+    /// For outgoing ephemeral messages — identifier of the user who will
+    /// receive the message; group and supergroup chats only. Delivery is not
+    /// guaranteed, especially if the user is offline.
+    pub receiver_user_id: Option<i64>,
+    /// For outgoing ephemeral messages — identifier of the callback query
+    /// that triggered the message, if any.
+    pub callback_query_id: Option<String>,
 }
 
 /// Builds the JSON body for a simple (non-file-upload) part of a media send.
@@ -1113,6 +1194,12 @@ fn media_json_body(
     }
     if let Some(v) = &opts.suggested_post_parameters {
         obj.insert("suggested_post_parameters".to_owned(), serde_json::json!(v));
+    }
+    if let Some(v) = opts.receiver_user_id {
+        obj.insert("receiver_user_id".to_owned(), serde_json::json!(v));
+    }
+    if let Some(v) = &opts.callback_query_id {
+        obj.insert("callback_query_id".to_owned(), serde_json::json!(v));
     }
     if let serde_json::Value::Object(extra_obj) = extra {
         for (k, v) in extra_obj {
@@ -1206,6 +1293,16 @@ impl SendPhoto {
         self.opts.suggested_post_parameters = Some(params);
         self
     }
+    /// For outgoing ephemeral messages — the user who will receive the message.
+    pub fn receiver_user_id(mut self, id: i64) -> Self {
+        self.opts.receiver_user_id = Some(id);
+        self
+    }
+    /// For outgoing ephemeral messages — the callback query that triggered it, if any.
+    pub fn callback_query_id(mut self, id: impl Into<String>) -> Self {
+        self.opts.callback_query_id = Some(id.into());
+        self
+    }
 }
 
 impl IntoFuture for SendPhoto {
@@ -1255,6 +1352,12 @@ impl IntoFuture for SendPhoto {
                             "suggested_post_parameters",
                             serde_json::to_string(p).unwrap(),
                         );
+                    }
+                    if let Some(id) = self.opts.receiver_user_id {
+                        form = form.text("receiver_user_id", id.to_string());
+                    }
+                    if let Some(id) = &self.opts.callback_query_id {
+                        form = form.text("callback_query_id", id.clone());
                     }
                     self.client.post_multipart("sendPhoto", form).await
                 }
@@ -1542,6 +1645,10 @@ macro_rules! media_sender {
             pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self { self.opts.reply_markup = Some(m.into()); self }
             /// Suggested post parameters for channel direct messages chats.
             pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self { self.opts.suggested_post_parameters = Some(params); self }
+            /// For outgoing ephemeral messages — the user who will receive the message.
+            pub fn receiver_user_id(mut self, id: i64) -> Self { self.opts.receiver_user_id = Some(id); self }
+            /// For outgoing ephemeral messages — the callback query that triggered it, if any.
+            pub fn callback_query_id(mut self, id: impl Into<String>) -> Self { self.opts.callback_query_id = Some(id.into()); self }
 
             $(
                 #[doc = concat!("Sets the ", stringify!($extra_field), " for the media.")]
@@ -1574,6 +1681,8 @@ macro_rules! media_sender {
                             if let Some(v) = self.opts.disable_notification { form = form.text("disable_notification", v.to_string()); }
                             if let Some(v) = &self.opts.reply_markup { form = form.text("reply_markup", serde_json::to_string(v).unwrap()); }
                             if let Some(p) = &self.opts.suggested_post_parameters { form = form.text("suggested_post_parameters", serde_json::to_string(p).unwrap()); }
+                            if let Some(id) = self.opts.receiver_user_id { form = form.text("receiver_user_id", id.to_string()); }
+                            if let Some(id) = &self.opts.callback_query_id { form = form.text("callback_query_id", id.clone()); }
 
                             $(
                                 if let Some(ref v) = self.$extra_field {
@@ -1675,6 +1784,42 @@ impl DeleteMessages {
     }
 }
 impl_into_future!(DeleteMessages, bool, "deleteMessages");
+
+// ─── deleteEphemeralMessage ───────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct DeleteEphemeralMessageParams {
+    chat_id: ChatId,
+    receiver_user_id: i64,
+    ephemeral_message_id: i64,
+}
+
+/// Builder for the [`deleteEphemeralMessage`](https://core.telegram.org/bots/api#deleteephemeralmessage) method.
+///
+/// Note that it is not guaranteed that the user will receive the message
+/// deletion event, especially if they are offline.
+pub struct DeleteEphemeralMessage {
+    client: BotClient,
+    params: DeleteEphemeralMessageParams,
+}
+impl DeleteEphemeralMessage {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        receiver_user_id: i64,
+        ephemeral_message_id: i64,
+    ) -> Self {
+        Self {
+            client,
+            params: DeleteEphemeralMessageParams {
+                chat_id: chat_id.into(),
+                receiver_user_id,
+                ephemeral_message_id,
+            },
+        }
+    }
+}
+impl_into_future!(DeleteEphemeralMessage, bool, "deleteEphemeralMessage");
 
 // ─── stopPoll ─────────────────────────────────────────────────────────────────
 
@@ -1954,6 +2099,10 @@ struct SendVenueParams {
     reply_parameters: Option<ReplyParameters>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<ReplyMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    receiver_user_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    callback_query_id: Option<String>,
 }
 
 /// Builder for the [`sendVenue`](https://core.telegram.org/bots/api#sendvenue) method.
@@ -1989,6 +2138,8 @@ impl SendVenue {
                 protect_content: None,
                 reply_parameters: None,
                 reply_markup: None,
+                receiver_user_id: None,
+                callback_query_id: None,
             },
         }
     }
@@ -2040,6 +2191,16 @@ impl SendVenue {
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self {
         self.params.reply_markup = Some(m.into());
+        self
+    }
+    /// For outgoing ephemeral messages — the user who will receive the message.
+    pub fn receiver_user_id(mut self, id: i64) -> Self {
+        self.params.receiver_user_id = Some(id);
+        self
+    }
+    /// For outgoing ephemeral messages — the callback query that triggered it, if any.
+    pub fn callback_query_id(mut self, id: impl Into<String>) -> Self {
+        self.params.callback_query_id = Some(id.into());
         self
     }
 }

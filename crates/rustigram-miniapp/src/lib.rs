@@ -62,6 +62,18 @@
 //!         std::env::var("BOT_TOKEN").unwrap(),
 //!     )));
 //! ```
+//!
+//! # Security — Mini App origin restriction (Bot API 10.2)
+//!
+//! Telegram now disallows calling Mini App methods from an origin different
+//! from the Mini App's own domain. This protection is enforced client-side by
+//! Telegram and rolls out automatically to all Mini Apps on July 20, 2026 —
+//! opt-out is via @BotFather, not via this crate. It requires **no changes**
+//! in `rustigram-miniapp`: initData validation, the Axum extractors, and the
+//! gateway layer all operate on data Telegram has already validated against
+//! the registered domain, so there is nothing for this crate to additionally
+//! enforce. If you opted out via @BotFather, you are responsible for ensuring
+//! your Mini App has no links to untrusted sites.
 
 /// Error types and result alias used across the crate.
 pub mod error;

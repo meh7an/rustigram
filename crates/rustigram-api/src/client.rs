@@ -689,6 +689,20 @@ impl BotClient {
     ) -> DeleteMessages {
         DeleteMessages::new(self.clone(), chat_id, message_ids)
     }
+    /// Calls `deleteEphemeralMessage` — deletes an ephemeral message (Bot API 10.2).
+    pub fn delete_ephemeral_message(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        receiver_user_id: i64,
+        ephemeral_message_id: i64,
+    ) -> DeleteEphemeralMessage {
+        DeleteEphemeralMessage::new(
+            self.clone(),
+            chat_id,
+            receiver_user_id,
+            ephemeral_message_id,
+        )
+    }
     /// Calls `stopPoll` — stops an open poll.
     pub fn stop_poll(
         &self,
@@ -790,6 +804,51 @@ impl BotClient {
         inline_message_id: impl Into<String>,
     ) -> EditMessageReplyMarkup {
         EditMessageReplyMarkup::inline(self.clone(), inline_message_id)
+    }
+    /// Calls `editEphemeralMessageText` — edits the text of an ephemeral message (Bot API 10.2).
+    pub fn edit_ephemeral_message_text(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        receiver_user_id: i64,
+        ephemeral_message_id: i64,
+        text: impl Into<String>,
+    ) -> EditEphemeralMessageText {
+        EditEphemeralMessageText::new(
+            self.clone(),
+            chat_id,
+            receiver_user_id,
+            ephemeral_message_id,
+            text,
+        )
+    }
+    /// Calls `editEphemeralMessageCaption` — edits the caption of an ephemeral message (Bot API 10.2).
+    pub fn edit_ephemeral_message_caption(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        receiver_user_id: i64,
+        ephemeral_message_id: i64,
+    ) -> EditEphemeralMessageCaption {
+        EditEphemeralMessageCaption::new(
+            self.clone(),
+            chat_id,
+            receiver_user_id,
+            ephemeral_message_id,
+        )
+    }
+    /// Calls `editEphemeralMessageReplyMarkup` — replaces the inline keyboard of an
+    /// ephemeral message (Bot API 10.2).
+    pub fn edit_ephemeral_message_reply_markup(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        receiver_user_id: i64,
+        ephemeral_message_id: i64,
+    ) -> EditEphemeralMessageReplyMarkup {
+        EditEphemeralMessageReplyMarkup::new(
+            self.clone(),
+            chat_id,
+            receiver_user_id,
+            ephemeral_message_id,
+        )
     }
     /// Calls `editMessageChecklist` — edits a checklist on behalf of a business account.
     pub fn edit_message_checklist(

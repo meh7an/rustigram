@@ -414,6 +414,200 @@ impl EditMessageReplyMarkup {
 
 impl_into_future!(EditMessageReplyMarkup, Message, "editMessageReplyMarkup");
 
+// ─── editEphemeralMessageText ─────────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct EditEphemeralMessageTextParams {
+    chat_id: ChatId,
+    receiver_user_id: i64,
+    ephemeral_message_id: i64,
+    text: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    parse_mode: Option<ParseMode>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    entities: Option<Vec<MessageEntity>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+/// Builder for the [`editEphemeralMessageText`](https://core.telegram.org/bots/api#editephemeralmessagetext) method.
+///
+/// Note that it is not guaranteed that the user will receive the message edit
+/// event, especially if they are offline.
+pub struct EditEphemeralMessageText {
+    client: BotClient,
+    params: EditEphemeralMessageTextParams,
+}
+
+impl EditEphemeralMessageText {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        receiver_user_id: i64,
+        ephemeral_message_id: i64,
+        text: impl Into<String>,
+    ) -> Self {
+        Self {
+            client,
+            params: EditEphemeralMessageTextParams {
+                chat_id: chat_id.into(),
+                receiver_user_id,
+                ephemeral_message_id,
+                text: text.into(),
+                parse_mode: None,
+                entities: None,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Sets the parse mode for the message text.
+    pub fn parse_mode(mut self, m: ParseMode) -> Self {
+        self.params.parse_mode = Some(m);
+        self
+    }
+    /// Special entities in the message text, in place of `parse_mode`.
+    pub fn entities(mut self, e: Vec<MessageEntity>) -> Self {
+        self.params.entities = Some(e);
+        self
+    }
+    /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
+    pub fn reply_markup(mut self, m: InlineKeyboardMarkup) -> Self {
+        self.params.reply_markup = Some(m);
+        self
+    }
+}
+
+impl_into_future!(EditEphemeralMessageText, bool, "editEphemeralMessageText");
+
+// ─── editEphemeralMessageCaption ──────────────────────────────────────────────
+
+#[derive(Serialize)]
+struct EditEphemeralMessageCaptionParams {
+    chat_id: ChatId,
+    receiver_user_id: i64,
+    ephemeral_message_id: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    caption: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    parse_mode: Option<ParseMode>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    caption_entities: Option<Vec<MessageEntity>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+/// Builder for the [`editEphemeralMessageCaption`](https://core.telegram.org/bots/api#editephemeralmessagecaption) method.
+///
+/// Note that it is not guaranteed that the user will receive the message edit
+/// event, especially if they are offline.
+pub struct EditEphemeralMessageCaption {
+    client: BotClient,
+    params: EditEphemeralMessageCaptionParams,
+}
+
+impl EditEphemeralMessageCaption {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        receiver_user_id: i64,
+        ephemeral_message_id: i64,
+    ) -> Self {
+        Self {
+            client,
+            params: EditEphemeralMessageCaptionParams {
+                chat_id: chat_id.into(),
+                receiver_user_id,
+                ephemeral_message_id,
+                caption: None,
+                parse_mode: None,
+                caption_entities: None,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Sets the new caption text (0–1024 characters).
+    pub fn caption(mut self, c: impl Into<String>) -> Self {
+        self.params.caption = Some(c.into());
+        self
+    }
+    /// Sets the caption parse mode.
+    pub fn parse_mode(mut self, m: ParseMode) -> Self {
+        self.params.parse_mode = Some(m);
+        self
+    }
+    /// Special entities in the caption, in place of `parse_mode`.
+    pub fn caption_entities(mut self, e: Vec<MessageEntity>) -> Self {
+        self.params.caption_entities = Some(e);
+        self
+    }
+    /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
+    pub fn reply_markup(mut self, m: InlineKeyboardMarkup) -> Self {
+        self.params.reply_markup = Some(m);
+        self
+    }
+}
+
+impl_into_future!(
+    EditEphemeralMessageCaption,
+    bool,
+    "editEphemeralMessageCaption"
+);
+
+// ─── editEphemeralMessageReplyMarkup ──────────────────────────────────────────
+
+#[derive(Serialize)]
+struct EditEphemeralMessageReplyMarkupParams {
+    chat_id: ChatId,
+    receiver_user_id: i64,
+    ephemeral_message_id: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+/// Builder for the [`editEphemeralMessageReplyMarkup`](https://core.telegram.org/bots/api#editephemeralmessagereplymarkup) method.
+///
+/// Note that it is not guaranteed that the user will receive the message edit
+/// event, especially if they are offline.
+pub struct EditEphemeralMessageReplyMarkup {
+    client: BotClient,
+    params: EditEphemeralMessageReplyMarkupParams,
+}
+
+impl EditEphemeralMessageReplyMarkup {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        receiver_user_id: i64,
+        ephemeral_message_id: i64,
+    ) -> Self {
+        Self {
+            client,
+            params: EditEphemeralMessageReplyMarkupParams {
+                chat_id: chat_id.into(),
+                receiver_user_id,
+                ephemeral_message_id,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
+    pub fn reply_markup(mut self, m: InlineKeyboardMarkup) -> Self {
+        self.params.reply_markup = Some(m);
+        self
+    }
+    /// Removes the inline keyboard from the message.
+    pub fn remove_markup(mut self) -> Self {
+        self.params.reply_markup = None;
+        self
+    }
+}
+
+impl_into_future!(
+    EditEphemeralMessageReplyMarkup,
+    bool,
+    "editEphemeralMessageReplyMarkup"
+);
+
 // ─── editMessageChecklist ─────────────────────────────────────────────────────
 
 #[derive(Serialize)]

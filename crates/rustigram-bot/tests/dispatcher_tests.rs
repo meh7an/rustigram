@@ -144,6 +144,10 @@ fn make_text_update(text: &str, chat_type: ChatType) -> Update {
             guest_query_id: None,
             live_photo: None,
             rich_message: None,
+            receiver_user: None,
+            ephemeral_message_id: None,
+            community_chat_added: None,
+            community_chat_removed: None,
         }),
     }
 }
@@ -300,6 +304,24 @@ mod context_tests {
     fn context_from_id() {
         let ctx = ctx_from(make_text_update("hi", ChatType::Private));
         assert_eq!(ctx.from_id(), Some(42));
+    }
+
+    #[test]
+    fn context_is_ephemeral_false_for_regular_message() {
+        let ctx = ctx_from(make_text_update("hi", ChatType::Private));
+        assert!(!ctx.is_ephemeral());
+        assert_eq!(ctx.ephemeral_message_id(), None);
+    }
+
+    #[test]
+    fn context_is_ephemeral_true_when_set() {
+        let mut update = make_text_update("shh", ChatType::Group);
+        if let UpdateKind::Message(ref mut msg) = update.kind {
+            msg.ephemeral_message_id = Some(7);
+        }
+        let ctx = ctx_from(update);
+        assert!(ctx.is_ephemeral());
+        assert_eq!(ctx.ephemeral_message_id(), Some(7));
     }
 }
 

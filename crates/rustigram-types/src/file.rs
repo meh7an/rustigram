@@ -418,6 +418,25 @@ pub struct InputMediaAudio {
     pub title: Option<String>,
 }
 
+/// A voice message file to be sent.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InputMediaVoiceNote {
+    /// File to send: `file_id`, HTTP URL, or `"attach://<n>"`.
+    pub media: String,
+    /// Caption (0–1024 characters after entities parsing).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption: Option<String>,
+    /// Parse mode for the caption.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<crate::message::ParseMode>,
+    /// Special entities in the caption.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption_entities: Option<Vec<crate::message::MessageEntity>>,
+    /// Duration of the voice message in seconds.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration: Option<u32>,
+}
+
 /// A document (general file) to include in a media group.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InputMediaDocument {
@@ -533,6 +552,8 @@ pub enum InputMedia {
     Document(InputMediaDocument),
     /// A live photo.
     LivePhoto(InputMediaLivePhoto),
+    /// A voice message.
+    VoiceNote(InputMediaVoiceNote),
 }
 
 // ─── InputPaidMedia ───────────────────────────────────────────────────────────

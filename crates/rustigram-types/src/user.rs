@@ -150,6 +150,10 @@ pub struct BotCommand {
     pub command: String,
     /// Description of the command (3–256 characters).
     pub description: String,
+    /// `true` if the command sends an ephemeral message, visible only to the
+    /// sender of the message and the bot.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_ephemeral: Option<bool>,
 }
 
 /// Flexible chat identifier — either a numeric ID or a `@username`.

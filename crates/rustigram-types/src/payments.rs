@@ -167,6 +167,19 @@ pub struct PreCheckoutQuery {
     pub order_info: Option<OrderInfo>,
 }
 
+/// Information about changes to a user payment subscription toward the bot.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BotSubscriptionUpdated {
+    /// User who subscribed for payments toward the bot.
+    pub user: User,
+    /// Bot-specified invoice payload.
+    pub invoice_payload: String,
+    /// The new state of the subscription: `"canceled"` if the user canceled
+    /// it, `"active"` if the user re-enabled a previously canceled
+    /// subscription, or `"failed"` if payment for the subscription failed.
+    pub state: String,
+}
+
 /// An amount of Telegram Stars.
 ///
 /// `amount` is the integer Star count. `nanostar_amount` is a fractional

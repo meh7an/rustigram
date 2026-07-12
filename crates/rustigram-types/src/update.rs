@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::chat::ChatJoinRequest;
 use crate::inline::{ChosenInlineResult, InlineQuery};
 use crate::message::Message;
-use crate::payments::{PreCheckoutQuery, ShippingQuery};
+use crate::payments::{BotSubscriptionUpdated, PreCheckoutQuery, ShippingQuery};
 use crate::poll::{Poll, PollAnswer};
 use crate::user::User;
 
@@ -73,6 +73,8 @@ pub enum UpdateKind {
     PurchasedPaidMedia(PaidMediaPurchased),
     /// New guest message — the bot can reply using [`answerGuestQuery`](https://core.telegram.org/bots/api#answerguestquery).
     GuestMessage(Message),
+    /// User payment subscription toward the bot has changed.
+    Subscription(BotSubscriptionUpdated),
 }
 
 impl Update {
@@ -108,6 +110,7 @@ impl Update {
             UpdateKind::ShippingQuery(q) => Some(&q.from),
             UpdateKind::PreCheckoutQuery(q) => Some(&q.from),
             UpdateKind::PollAnswer(a) => a.user.as_ref(),
+            UpdateKind::Subscription(s) => Some(&s.user),
             _ => None,
         }
     }

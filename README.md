@@ -6,13 +6,13 @@
 [![Crates.io](https://img.shields.io/crates/v/rustigram.svg)](https://crates.io/crates/rustigram)
 [![Docs.rs](https://img.shields.io/badge/docs-rustigram.io-blue.svg)](https://rustigram.io/docs/rustigram/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Telegram Bot API](https://img.shields.io/badge/Bot%20API-10.1-blue.svg)](https://core.telegram.org/bots/api)
+[![Telegram Bot API](https://img.shields.io/badge/Bot%20API-10.2-blue.svg)](https://core.telegram.org/bots/api)
 
 A comprehensive, async-first Rust framework for the [Telegram Bot API](https://core.telegram.org/bots/api).
 
 ```toml
 [dependencies]
-rustigram = "0.10.3"
+rustigram = "0.10.4"
 tokio     = { version = "1", features = ["full"] }
 ```
 
@@ -33,7 +33,7 @@ The framework is split into focused crates so you can depend on only what you ne
 | `rustigram-miniapp` | Axum extractors and initData validation for Telegram Mini Apps |
 | `rustigram`         | Public facade re-exporting all sub-crates                      |
 
-**Supported Bot API version:** 10.1 (June 2026)
+**Supported Bot API version:** 10.2 (July 2026)
 **Minimum Rust version:** 1.75
 
 ---
@@ -691,12 +691,14 @@ err.retry_after()       // Some(secs) when rate-limited
 
 The `examples/` directory contains complete runnable bots:
 
-| Example           | Description                               |
-| ----------------- | ----------------------------------------- |
-| `echo_bot`        | Minimal bot — echoes any message back     |
-| `inline_keyboard` | Inline buttons and callback query routing |
-| `webhook_bot`     | Production webhook server setup           |
-| `state_machine`   | Multi-step conversation with FSM          |
+| Example             | Description                               |
+| ------------------- | ----------------------------------------- |
+| `echo_bot`          | Minimal bot — echoes any message back     |
+| `inline_keyboard`   | Inline buttons and callback query routing |
+| `webhook_bot`       | Production webhook server setup           |
+| `state_machine`     | Multi-step conversation with FSM          |
+| `ephemeral_message` | Ephemeral replies — send, edit, delete    |
+| `rich_blocks`       | Rich message built from `InputRichBlock`s |
 
 Run any example:
 
@@ -717,8 +719,8 @@ cargo test --workspace
 | Suite              | Count | What is tested                                            |
 | ------------------ | ----- | --------------------------------------------------------- |
 | `client_tests`     | 11    | Token validation, error types, client config              |
-| `types_tests`      | 23    | Serde round-trips, helper methods, Update deserialization |
-| `dispatcher_tests` | 20    | All filters, combinators, Context helpers, state storage  |
+| `types_tests`      | 39    | Serde round-trips, helper methods, Update deserialization |
+| `dispatcher_tests` | 22    | All filters, combinators, Context helpers, state storage  |
 
 ---
 

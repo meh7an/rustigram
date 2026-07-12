@@ -43,6 +43,8 @@ pub mod chat;
 pub mod chat_member;
 /// Checklist content type and related service messages.
 pub mod checklist;
+/// Community (linked chats) types.
+pub mod community;
 /// Direct messages topic and channel pricing service messages.
 pub mod direct_messages;
 /// File and media types.
@@ -96,15 +98,16 @@ pub use checklist::{
     Checklist, ChecklistTask, ChecklistTasksAdded, ChecklistTasksDone, InputChecklist,
     InputChecklistTask,
 };
+pub use community::{Community, CommunityChatAdded, CommunityChatRemoved};
 pub use direct_messages::{
     DirectMessagePriceChanged, DirectMessagesTopic, PaidMessagePriceChanged,
 };
 pub use file::{
     File, InputMedia, InputMediaAnimation, InputMediaAudio, InputMediaDocument,
     InputMediaLivePhoto, InputMediaLocation, InputMediaPhoto, InputMediaSticker, InputMediaVenue,
-    InputMediaVideo, InputPaidMedia, InputPaidMediaLivePhoto, InputPaidMediaPhoto,
-    InputPaidMediaVideo, InputProfilePhoto, InputProfilePhotoAnimated, InputProfilePhotoStatic,
-    LivePhoto, PhotoSize, VideoQuality,
+    InputMediaVideo, InputMediaVoiceNote, InputPaidMedia, InputPaidMediaLivePhoto,
+    InputPaidMediaPhoto, InputPaidMediaVideo, InputProfilePhoto, InputProfilePhotoAnimated,
+    InputProfilePhotoStatic, LivePhoto, PhotoSize, VideoQuality,
 };
 pub use inline::{ChosenInlineResult, InlineQuery, InlineQueryResult, SentGuestMessage};
 pub use keyboard::{
@@ -117,28 +120,35 @@ pub use message::{
     ReactionType, ReplyParameters,
 };
 pub use payments::{
-    AcceptedGiftTypes, AffiliateInfo, LabeledPrice, OrderInfo, OwnedGift, OwnedGiftRegular,
-    OwnedGiftUnique, OwnedGifts, PaidMediaLivePhoto, PaidMediaPhoto, PaidMediaPreview,
-    PreCheckoutQuery, ShippingAddress, ShippingOption, ShippingQuery, StarTransaction,
-    StarTransactions, TransactionPartner,
+    AcceptedGiftTypes, AffiliateInfo, BotSubscriptionUpdated, LabeledPrice, OrderInfo, OwnedGift,
+    OwnedGiftRegular, OwnedGiftUnique, OwnedGifts, PaidMediaLivePhoto, PaidMediaPhoto,
+    PaidMediaPreview, PreCheckoutQuery, ShippingAddress, ShippingOption, ShippingQuery,
+    StarTransaction, StarTransactions, TransactionPartner,
 };
 pub use poll::{
     InputPollMedia, InputPollOption, InputPollOptionMedia, Poll, PollAnswer, PollMedia, PollOption,
     PollOptionAdded, PollOptionDeleted,
 };
 pub use rich_message::{
-    InputRichMessage, InputRichMessageContent, RichBlock, RichBlockAnchor, RichBlockAnimation,
-    RichBlockAudio, RichBlockBlockQuotation, RichBlockCaption, RichBlockCollage, RichBlockDetails,
-    RichBlockDivider, RichBlockFooter, RichBlockList, RichBlockListItem, RichBlockMap,
-    RichBlockMathematicalExpression, RichBlockPhoto, RichBlockPreformatted, RichBlockPullQuotation,
-    RichBlockSectionHeading, RichBlockSlideshow, RichBlockTable, RichBlockTableCell,
-    RichBlockThinking, RichBlockVideo, RichBlockVoiceNote, RichMessage, RichText, RichTextAnchor,
-    RichTextAnchorLink, RichTextBankCardNumber, RichTextBold, RichTextBotCommand, RichTextCashtag,
-    RichTextCode, RichTextCustomEmoji, RichTextDateTime, RichTextEmailAddress, RichTextFootnote,
-    RichTextHashtag, RichTextItalic, RichTextMarked, RichTextMathematicalExpression,
-    RichTextMention, RichTextPhoneNumber, RichTextReference, RichTextSpoiler,
-    RichTextStrikethrough, RichTextSubscript, RichTextSuperscript, RichTextTextMention,
-    RichTextUnderline, RichTextUrl,
+    InputRichBlock, InputRichBlockAnchor, InputRichBlockAnimation, InputRichBlockAudio,
+    InputRichBlockBlockQuotation, InputRichBlockCollage, InputRichBlockDetails,
+    InputRichBlockDivider, InputRichBlockFooter, InputRichBlockList, InputRichBlockListItem,
+    InputRichBlockMap, InputRichBlockMathematicalExpression, InputRichBlockParagraph,
+    InputRichBlockPhoto, InputRichBlockPreformatted, InputRichBlockPullQuotation,
+    InputRichBlockSectionHeading, InputRichBlockSlideshow, InputRichBlockTable,
+    InputRichBlockThinking, InputRichBlockVideo, InputRichBlockVoiceNote, InputRichMessage,
+    InputRichMessageContent, InputRichMessageMedia, InputRichMessageMediaKind, RichBlock,
+    RichBlockAnchor, RichBlockAnimation, RichBlockAudio, RichBlockBlockQuotation, RichBlockCaption,
+    RichBlockCollage, RichBlockDetails, RichBlockDivider, RichBlockFooter, RichBlockList,
+    RichBlockListItem, RichBlockMap, RichBlockMathematicalExpression, RichBlockPhoto,
+    RichBlockPreformatted, RichBlockPullQuotation, RichBlockSectionHeading, RichBlockSlideshow,
+    RichBlockTable, RichBlockTableCell, RichBlockThinking, RichBlockVideo, RichBlockVoiceNote,
+    RichMessage, RichText, RichTextAnchor, RichTextAnchorLink, RichTextBankCardNumber,
+    RichTextBold, RichTextBotCommand, RichTextCashtag, RichTextCode, RichTextCustomEmoji,
+    RichTextDateTime, RichTextEmailAddress, RichTextFootnote, RichTextHashtag, RichTextItalic,
+    RichTextMarked, RichTextMathematicalExpression, RichTextMention, RichTextPhoneNumber,
+    RichTextReference, RichTextSpoiler, RichTextStrikethrough, RichTextSubscript,
+    RichTextSuperscript, RichTextTextMention, RichTextUnderline, RichTextUrl,
 };
 pub use sticker::{MaskPosition, Sticker, StickerSet, StickerType};
 pub use story::{

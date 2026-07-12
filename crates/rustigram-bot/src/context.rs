@@ -130,6 +130,28 @@ impl Context {
         self.message().and_then(|m| m.command())
     }
 
+    /// Returns `true` if the current update's message is an ephemeral message.
+    #[must_use]
+    pub fn is_ephemeral(&self) -> bool {
+        self.message()
+            .is_some_and(|m| m.ephemeral_message_id.is_some())
+    }
+
+    /// Returns the ephemeral message identifier, if the current update's
+    /// message is an ephemeral message.
+    ///
+    /// Note that this is unrelated to [`Context::reply`] — replying to an
+    /// ephemeral message still requires calling [`BotClient::send_message`]
+    /// directly with `.receiver_user_id(...)` (and, within 15 seconds of the
+    /// triggering action, `.callback_query_id(...)` or
+    /// [`ReplyParameters::reply_to_ephemeral`](rustigram_types::message::ReplyParameters::reply_to_ephemeral)),
+    /// since `reply()`'s signature has no room for the extra targeting
+    /// parameters without a breaking change.
+    #[must_use]
+    pub fn ephemeral_message_id(&self) -> Option<i64> {
+        self.message()?.ephemeral_message_id
+    }
+
     /// Sends a text reply to the current chat, automatically setting
     /// `reply_to_message_id` to the incoming message.
     ///

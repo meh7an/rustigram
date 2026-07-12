@@ -209,6 +209,10 @@ mod message {
             guest_query_id: None,
             live_photo: None,
             rich_message: None,
+            receiver_user: None,
+            ephemeral_message_id: None,
+            community_chat_added: None,
+            community_chat_removed: None,
         }
     }
 
@@ -324,6 +328,231 @@ mod poll {
 }
 
 #[cfg(test)]
+mod rich_message {
+    use rustigram_types::file::{InputMediaPhoto, InputMediaVoiceNote};
+    use rustigram_types::rich_message::{
+        InputRichBlock, InputRichBlockListItem, InputRichBlockParagraph,
+        InputRichBlockSectionHeading, InputRichMessage, InputRichMessageMedia,
+        InputRichMessageMediaKind, RichText,
+    };
+
+    #[test]
+    fn input_media_voice_note_round_trip() {
+        let voice = InputMediaVoiceNote {
+            media: "file_id_123".to_owned(),
+            caption: Some("a note".to_owned()),
+            parse_mode: None,
+            caption_entities: None,
+            duration: Some(12),
+        };
+        let json = serde_json::to_string(&voice).unwrap();
+        let back: InputMediaVoiceNote = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.media, "file_id_123");
+        assert_eq!(back.duration, Some(12));
+    }
+
+    #[test]
+    fn input_rich_message_media_tags_by_type() {
+        let media = InputRichMessageMedia {
+            id: "photo-1".to_owned(),
+            media: InputRichMessageMediaKind::Photo(InputMediaPhoto {
+                media: "file_id_abc".to_owned(),
+                caption: None,
+                parse_mode: None,
+                caption_entities: None,
+                show_caption_above_media: None,
+                has_spoiler: None,
+            }),
+        };
+        let json = serde_json::to_value(&media).unwrap();
+        assert_eq!(json["id"], "photo-1");
+        assert_eq!(json["media"]["type"], "photo");
+        assert_eq!(json["media"]["media"], "file_id_abc");
+    }
+
+    #[test]
+    fn input_rich_block_paragraph_round_trip() {
+        let block = InputRichBlock::Paragraph(InputRichBlockParagraph {
+            text: RichText::Plain("hello".to_owned()),
+        });
+        let json = serde_json::to_value(&block).unwrap();
+        assert_eq!(json["type"], "paragraph");
+        let back: InputRichBlock = serde_json::from_value(json).unwrap();
+        assert!(matches!(back, InputRichBlock::Paragraph(_)));
+    }
+
+    #[test]
+    fn input_rich_block_section_heading_uses_heading_tag() {
+        let block = InputRichBlock::SectionHeading(InputRichBlockSectionHeading {
+            text: RichText::Plain("Title".to_owned()),
+            size: 2,
+        });
+        let json = serde_json::to_value(&block).unwrap();
+        assert_eq!(json["type"], "heading");
+        assert_eq!(json["size"], 2);
+    }
+
+    #[test]
+    fn input_rich_block_list_nests_paragraphs() {
+        let block = InputRichBlock::List(rustigram_types::rich_message::InputRichBlockList {
+            items: vec![InputRichBlockListItem {
+                blocks: vec![InputRichBlock::Paragraph(InputRichBlockParagraph {
+                    text: RichText::Plain("item one".to_owned()),
+                })],
+                has_checkbox: None,
+                is_checked: None,
+                value: None,
+                kind: None,
+            }],
+        });
+        let json = serde_json::to_value(&block).unwrap();
+        assert_eq!(json["type"], "list");
+        assert_eq!(json["items"][0]["blocks"][0]["type"], "paragraph");
+    }
+
+    #[test]
+    fn input_rich_message_from_blocks() {
+        let msg = InputRichMessage::from_blocks(vec![InputRichBlock::Paragraph(
+            InputRichBlockParagraph {
+                text: RichText::Plain("body".to_owned()),
+            },
+        )]);
+        assert!(msg.html.is_none());
+        assert!(msg.markdown.is_none());
+        assert!(msg.blocks.is_some());
+        let json = serde_json::to_value(&msg).unwrap();
+        assert!(json.get("html").is_none());
+        assert!(json.get("blocks").is_some());
+    }
+
+    #[test]
+    fn input_rich_message_media_setter() {
+        let msg = InputRichMessage::from_html("<p>hi</p>").media(vec![InputRichMessageMedia {
+            id: "img-1".to_owned(),
+            media: InputRichMessageMediaKind::Photo(InputMediaPhoto {
+                media: "file_id".to_owned(),
+                caption: None,
+                parse_mode: None,
+                caption_entities: None,
+                show_caption_above_media: None,
+                has_spoiler: None,
+            }),
+        }]);
+        assert_eq!(msg.media.as_ref().unwrap().len(), 1);
+    }
+}
+
+#[cfg(test)]
+mod ephemeral {
+    use rustigram_types::message::ReplyParameters;
+    use rustigram_types::user::BotCommand;
+
+    #[test]
+    fn bot_command_is_ephemeral_round_trip() {
+        let cmd = BotCommand {
+            command: "secret".to_owned(),
+            description: "sends an ephemeral reply".to_owned(),
+            is_ephemeral: Some(true),
+        };
+        let json = serde_json::to_value(&cmd).unwrap();
+        assert_eq!(json["is_ephemeral"], true);
+        let back: BotCommand = serde_json::from_value(json).unwrap();
+        assert_eq!(back.is_ephemeral, Some(true));
+    }
+
+    #[test]
+    fn bot_command_omits_is_ephemeral_when_none() {
+        let cmd = BotCommand {
+            command: "start".to_owned(),
+            description: "greeting".to_owned(),
+            is_ephemeral: None,
+        };
+        let json = serde_json::to_value(&cmd).unwrap();
+        assert!(json.get("is_ephemeral").is_none());
+    }
+
+    #[test]
+    fn message_deserialises_ephemeral_fields() {
+        let json = r#"{
+            "message_id": 0,
+            "date": 1700000000,
+            "chat": { "id": 1, "type": "group" },
+            "receiver_user": { "id": 42, "is_bot": false, "first_name": "Test" },
+            "ephemeral_message_id": 7
+        }"#;
+        let msg: rustigram_types::message::Message = serde_json::from_str(json).unwrap();
+        assert_eq!(msg.ephemeral_message_id, Some(7));
+        assert_eq!(msg.receiver_user.map(|u| u.id), Some(42));
+    }
+
+    #[test]
+    fn reply_parameters_ephemeral_only() {
+        let rp = ReplyParameters {
+            message_id: None,
+            ephemeral_message_id: Some(99),
+            chat_id: None,
+            allow_sending_without_reply: None,
+            quote: None,
+            quote_parse_mode: None,
+            quote_entities: None,
+            quote_position: None,
+            poll_option_id: None,
+            checklist_task_id: None,
+        };
+        let json = serde_json::to_value(&rp).unwrap();
+        assert!(json.get("message_id").is_none());
+        assert_eq!(json["ephemeral_message_id"], 99);
+    }
+}
+
+#[cfg(test)]
+mod community {
+    use rustigram_types::community::{Community, CommunityChatAdded, CommunityChatRemoved};
+
+    #[test]
+    fn community_round_trip() {
+        let c = Community {
+            id: 555,
+            name: "Rustaceans".to_owned(),
+        };
+        let json = serde_json::to_string(&c).unwrap();
+        let back: Community = serde_json::from_str(&json).unwrap();
+        assert_eq!(back.id, 555);
+        assert_eq!(back.name, "Rustaceans");
+    }
+
+    #[test]
+    fn community_chat_added_round_trip() {
+        let added = CommunityChatAdded {
+            community: Community {
+                id: 1,
+                name: "Group".to_owned(),
+            },
+        };
+        let json = serde_json::to_value(&added).unwrap();
+        assert_eq!(json["community"]["id"], 1);
+    }
+
+    #[test]
+    fn community_chat_removed_serialises_empty_object() {
+        let removed = CommunityChatRemoved::default();
+        let json = serde_json::to_value(&removed).unwrap();
+        assert!(json.as_object().unwrap().is_empty());
+    }
+
+    #[test]
+    fn chat_full_info_deserialises_community() {
+        let json = r#"{
+            "id": 10,
+            "type": "supergroup",
+            "community": { "id": 20, "name": "Rustaceans" }
+        }"#;
+        let info: rustigram_types::chat::ChatFullInfo = serde_json::from_str(json).unwrap();
+        assert_eq!(info.community.map(|c| c.id), Some(20));
+    }
+}
+
+#[cfg(test)]
 mod update_deserialization {
     use rustigram_types::update::{Update, UpdateKind};
 
@@ -383,5 +612,25 @@ mod update_deserialization {
         }"#;
         let update: Update = serde_json::from_str(json).unwrap();
         assert_eq!(update.chat_id(), Some(555));
+    }
+
+    #[test]
+    fn deserialises_subscription_update() {
+        let json = r#"{
+            "update_id": 7,
+            "subscription": {
+                "user": { "id": 1, "is_bot": false, "first_name": "Test" },
+                "invoice_payload": "premium_monthly",
+                "state": "active"
+            }
+        }"#;
+        let update: Update = serde_json::from_str(json).unwrap();
+        assert!(matches!(update.kind, UpdateKind::Subscription(_)));
+        assert_eq!(update.from().map(|u| u.id), Some(1));
+
+        if let UpdateKind::Subscription(sub) = &update.kind {
+            assert_eq!(sub.state, "active");
+            assert_eq!(sub.invoice_payload, "premium_monthly");
+        }
     }
 }
