@@ -12,7 +12,7 @@ A comprehensive, async-first Rust framework for the [Telegram Bot API](https://c
 
 ```toml
 [dependencies]
-rustigram = "0.10.4"
+rustigram = "0.11.0"
 tokio     = { version = "1", features = ["full"] }
 ```
 

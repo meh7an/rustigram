@@ -12,7 +12,7 @@ extractors, and keeps TypeScript types in sync with Rust structs via
 
 ```toml
 [dependencies]
-rustigram-miniapp = "0.10.4"
+rustigram-miniapp = "0.11.0"
 ```
 
 ---
