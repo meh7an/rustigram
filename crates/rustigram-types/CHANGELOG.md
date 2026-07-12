@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0](https://github.com/meh7an/rustigram/compare/rustigram-types-v0.10.3...rustigram-types-v0.11.0) - 2026-07-12
+
+### Added
+
+- add Bot API 10.2 ephemeral messages, communities, and rich message blocks
+
+### Fixed
+
+- bump version to 0.11.0
+
 ## [0.10.3](https://github.com/meh7an/rustigram/compare/rustigram-types-v0.10.2...rustigram-types-v0.10.3) - 2026-06-25
 
 ### Other
