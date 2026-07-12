@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.4](https://github.com/meh7an/rustigram/compare/rustigram-macros-v0.10.3...rustigram-macros-v0.10.4) - 2026-07-12
+
+### Added
+
+- add Bot API 10.2 ephemeral messages, communities, and rich message blocks
+
 ## [0.10.3](https://github.com/meh7an/rustigram/compare/rustigram-macros-v0.10.2...rustigram-macros-v0.10.3) - 2026-06-25
 
 ### Other
