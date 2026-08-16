@@ -350,15 +350,35 @@ impl BotClient {
             "{}/file/bot{}/{}",
             self.inner.config.api_base_url, self.inner.config.token, file_path
         );
-        self.inner
-            .http
-            .get(&url)
-            .send()
-            .await
-            .map_err(Error::Http)?
-            .bytes()
-            .await
-            .map_err(Error::Http)
+        let resp = self.inner.http.get(&url).send().await.map_err(Error::Http)?;
+
+        // The file endpoint answers with an error envelope rather than file
+        // bytes when the path has expired or the token is wrong. Reading the
+        // body unconditionally returned that envelope *as the file*: a caller
+        // asking for a photo received thirty bytes of JSON and no error at all.
+        let status = resp.status();
+        if !status.is_success() {
+            let body = resp.text().await.unwrap_or_default();
+            // The same envelope every other call returns, with the result
+            // ignored — a failed download has none. A proxy in front of
+            // Telegram may answer with HTML instead, in which case the status
+            // and the raw body are all there is to report.
+            let envelope: Option<ApiResponse<serde::de::IgnoredAny>> =
+                serde_json::from_str(&body).ok();
+            return Err(Error::Api {
+                error_code: envelope
+                    .as_ref()
+                    .and_then(|e| e.error_code)
+                    .unwrap_or_else(|| status.as_u16()),
+                description: envelope
+                    .and_then(|e| e.description)
+                    .unwrap_or(body),
+                migrate_to_chat_id: None,
+                retry_after: None,
+            });
+        }
+
+        resp.bytes().await.map_err(Error::Http)
     }
 
     // ── Update methods ────────────────────────────────────────────────────────

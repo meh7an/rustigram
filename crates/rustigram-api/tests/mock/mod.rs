@@ -102,6 +102,61 @@ pub async fn mount_api_error(
         .await;
 }
 
+/// Mounts a raw body on a method's path, for responses that are not valid
+/// `ApiResponse` JSON at all.
+pub async fn mount_raw(server: &MockServer, api_method: &str, status: u16, body: &str) {
+    Mock::given(method("POST"))
+        .and(path(api_path(api_method)))
+        .respond_with(ResponseTemplate::new(status).set_body_string(body))
+        .mount(server)
+        .await;
+}
+
+/// Mounts a `GET` returning raw bytes, for the file-download endpoint.
+pub async fn mount_file(server: &MockServer, file_path: &str, bytes: &'static [u8]) {
+    Mock::given(method("GET"))
+        .and(path(format!("/file/bot{TOKEN}/{file_path}")))
+        .respond_with(ResponseTemplate::new(200).set_body_bytes(bytes))
+        .mount(server)
+        .await;
+}
+
+/// Answers the first `n` calls to a method with one response and the rest with
+/// another, so a retry can be observed rather than inferred.
+///
+/// Registration order matters here: wiremock prefers the mock mounted first
+/// among those still able to respond, so the scripted response must be mounted
+/// before the fallback.
+pub async fn mount_then(
+    server: &MockServer,
+    api_method: &str,
+    first: Value,
+    times: u64,
+    then: Value,
+) {
+    Mock::given(method("POST"))
+        .and(path(api_path(api_method)))
+        .respond_with(ResponseTemplate::new(200).set_body_json(first))
+        .up_to_n_times(times)
+        .mount(server)
+        .await;
+    Mock::given(method("POST"))
+        .and(path(api_path(api_method)))
+        .respond_with(ResponseTemplate::new(200).set_body_json(then))
+        .mount(server)
+        .await;
+}
+
+/// A flood-control body, with the wait Telegram asks for.
+pub fn flood_control(retry_after: u32) -> Value {
+    serde_json::json!({
+        "ok": false,
+        "error_code": 429,
+        "description": "Too Many Requests: retry after 1",
+        "parameters": { "retry_after": retry_after },
+    })
+}
+
 /// Every request the server received, in order.
 pub async fn requests(server: &MockServer) -> Vec<Request> {
     server
