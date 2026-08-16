@@ -1,23 +1,97 @@
 name: Release
 
+# Manual only, and deliberately unclever. Nothing about a release is derived:
+# the version lives in `[workspace.package]` and the notes live in the
+# changelogs, both written by hand and reviewed before this runs.
+#
+# The publish itself is `cargo publish --workspace`, which packages every crate,
+# verifies each against a local registry of the others, and uploads them in
+# dependency order — macros, types, api, miniapp, bot, rustigram. That ordering
+# was the only hard part of releasing this workspace, and cargo does it.
 on:
-    push:
-        branches: [ main ]
+    workflow_dispatch:
+        inputs:
+            version:
+                description: "Version to release, e.g. 0.12.0 — must already be set in Cargo.toml"
+                required: true
 
 permissions:
-    pull-requests: write
     contents: write
 
 jobs:
-    release-plz:
-        name: Release-plz
+    release:
+        name: Publish
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v6
               with:
                   fetch-depth: 0
             - uses: dtolnay/rust-toolchain@stable
-            - uses: release-plz/action@v0.5
+            - uses: Swatinem/rust-cache@v2
+
+            # ── Refuse to release something nobody prepared ──────────────────
+            #
+            # Each of these has a failure mode that is silent otherwise: shipping
+            # the wrong version, shipping with no notes, or re-tagging.
+
+            - name: The tree must already be at this version
+              run: |
+                  actual=$(grep -m1 '^version' Cargo.toml | sed 's/.*"\(.*\)"/\1/')
+                  if [ "$actual" != "${{ inputs.version }}" ]; then
+                      echo "::error::asked for ${{ inputs.version }}, Cargo.toml says $actual"
+                      exit 1
+                  fi
+
+            - name: The changelog must have a section for this version
+              run: |
+                  for crate in rustigram rustigram-types rustigram-api \
+                               rustigram-bot rustigram-macros rustigram-miniapp; do
+                      grep -q "^## \[${{ inputs.version }}\]" "crates/$crate/CHANGELOG.md" || {
+                          echo "::error::crates/$crate/CHANGELOG.md has no [${{ inputs.version }}] section — is it still [Unreleased]?"
+                          exit 1
+                      }
+                  done
+
+            - name: The tag must not already exist
+              run: |
+                  if git rev-parse "v${{ inputs.version }}" >/dev/null 2>&1; then
+                      echo "::error::tag v${{ inputs.version }} already exists"
+                      exit 1
+                  fi
+
+            # ── Prove it works before anything leaves the machine ────────────
+
+            - name: Full suite
+              run: cargo test --workspace --all-features
+
+            - name: Dry run the publish
+              run: cargo publish --workspace --dry-run
+
+            # ── Ship ────────────────────────────────────────────────────────
+
+            - name: Publish to crates.io
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+              run: cargo publish --workspace
+
+            - name: Extract the release notes
+              run: |
+                  awk -v v="${{ inputs.version }}" '
+                      $0 ~ "^## \\[" v "\\]" { on = 1; next }
+                      on && /^## \[/ { exit }
+                      on { print }
+                  ' crates/rustigram/CHANGELOG.md > NOTES.md
+                  test -s NOTES.md || {
+                      echo "::error::extracted release notes are empty"
+                      exit 1
+                  }
+
+            # Creates the tag as well, so there is no separate tagging step and
+            # no git identity to configure.
+            - name: GitHub release
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh release create "v${{ inputs.version }}" \
+                      --title "v${{ inputs.version }}" \
+                      --notes-file NOTES.md
