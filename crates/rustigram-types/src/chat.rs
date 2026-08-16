@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::business::{Birthdate, BusinessIntro, BusinessLocation, BusinessOpeningHours, UserRating};
+use crate::business::{
+    Birthdate, BusinessIntro, BusinessLocation, BusinessOpeningHours, UserRating,
+};
 use crate::community::Community;
 use crate::file::Audio;
 use crate::gifts::UniqueGiftColors;

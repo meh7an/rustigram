@@ -607,11 +607,7 @@ impl EditEphemeralMessageMedia {
     }
 }
 
-impl_into_future!(
-    EditEphemeralMessageMedia,
-    bool,
-    "editEphemeralMessageMedia"
-);
+impl_into_future!(EditEphemeralMessageMedia, bool, "editEphemeralMessageMedia");
 
 // ─── editEphemeralMessageReplyMarkup ──────────────────────────────────────────
 
@@ -847,7 +843,7 @@ impl EditMessageLiveLocation {
                 heading: None,
                 proximity_alert_radius: None,
                 reply_markup: None,
-                            business_connection_id: None,
+                business_connection_id: None,
             },
         }
     }
@@ -870,7 +866,7 @@ impl EditMessageLiveLocation {
                 heading: None,
                 proximity_alert_radius: None,
                 reply_markup: None,
-                            business_connection_id: None,
+                business_connection_id: None,
             },
         }
     }
@@ -926,7 +922,7 @@ impl StopMessageLiveLocation {
                     message_id,
                 },
                 reply_markup: None,
-                            business_connection_id: None,
+                business_connection_id: None,
             },
         }
     }
@@ -938,7 +934,7 @@ impl StopMessageLiveLocation {
                     inline_message_id: inline_message_id.into(),
                 },
                 reply_markup: None,
-                            business_connection_id: None,
+                business_connection_id: None,
             },
         }
     }

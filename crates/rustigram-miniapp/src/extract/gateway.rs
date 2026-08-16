@@ -186,10 +186,7 @@ mod tests {
     /// and the downstream extractor is what rejects them.
     #[tokio::test]
     async fn requests_without_init_data_pass_through_unsigned() {
-        let req = HttpRequest::builder()
-            .uri("/")
-            .body(Body::empty())
-            .unwrap();
+        let req = HttpRequest::builder().uri("/").body(Body::empty()).unwrap();
         assert_eq!(body_of(req).await, "<unsigned>");
     }
 

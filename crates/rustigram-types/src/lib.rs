@@ -111,8 +111,8 @@ pub use business::{
     UserRating,
 };
 pub use chat::{
-    Chat, ChatFullInfo, ChatInviteLink, ChatJoinRequest, ChatPermissions, ChatType, InputMediaLink,
-    Link,
+    Chat, ChatFullInfo, ChatInviteLink, ChatJoinRequest, ChatLocation, ChatPermissions, ChatPhoto,
+    ChatType, InputMediaLink, Link, Location, Venue,
 };
 pub use chat_member::{
     ChatMember, ChatMemberAdministrator, ChatMemberBanned, ChatMemberLeft, ChatMemberMember,
@@ -127,47 +127,64 @@ pub use direct_messages::{
     DirectMessagePriceChanged, DirectMessagesTopic, PaidMessagePriceChanged,
 };
 pub use file::{
-    File, InputMedia, InputMediaAnimation, InputMediaAudio, InputMediaDocument,
-    InputMediaLivePhoto, InputMediaLocation, InputMediaPhoto, InputMediaSticker, InputMediaVenue,
-    InputMediaVideo, InputMediaVoiceNote, InputPaidMedia, InputPaidMediaLivePhoto,
-    InputPaidMediaPhoto, InputPaidMediaVideo, InputProfilePhoto, InputProfilePhotoAnimated,
-    InputProfilePhotoStatic, LivePhoto, PhotoSize, VideoQuality,
+    Animation, Audio, Document, File, InputFile, InputMedia, InputMediaAnimation, InputMediaAudio,
+    InputMediaDocument, InputMediaLivePhoto, InputMediaLocation, InputMediaPhoto,
+    InputMediaSticker, InputMediaVenue, InputMediaVideo, InputMediaVoiceNote, InputPaidMedia,
+    InputPaidMediaLivePhoto, InputPaidMediaPhoto, InputPaidMediaVideo, InputProfilePhoto,
+    InputProfilePhotoAnimated, InputProfilePhotoStatic, LivePhoto, PassportFile, PhotoSize, Video,
+    VideoNote, VideoQuality, Voice,
 };
-pub use inline::{
-    ChosenInlineResult, InlineQuery, InlineQueryResult, InlineQueryResultsButton,
-    PreparedInlineMessage, SentGuestMessage,
-};
-pub use keyboard::{
-    ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, PreparedKeyboardButton,
-    ReplyKeyboardMarkup, ReplyKeyboardRemove,
-};
-pub use managed_bot::ManagedBotCreated;
 pub use forum::{
     ForumTopic, ForumTopicClosed, ForumTopicCreated, ForumTopicEdited, ForumTopicReopened,
     GeneralForumTopicHidden, GeneralForumTopicUnhidden,
 };
-pub use message::{
-    ChatOwnerChanged, ChatOwnerLeft, InaccessibleMessage, MaybeInaccessibleMessage, Message,
-    MessageAutoDeleteTimerChanged, MessageEntity, MessageEntityKind, MessageOrigin,
-    ProximityAlertTriggered, ReactionType, ReplyParameters, WriteAccessAllowed,
-};
-pub use shared::{ChatShared, SharedUser, UsersShared};
-pub use video_chat::{
-    VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted,
-};
 pub use games::{CallbackGame, Game, GameHighScore};
-pub use gifts::{GiftInfo, UniqueGiftInfo};
+pub use gifts::{
+    Gift, GiftBackground, GiftInfo, Gifts, UniqueGift, UniqueGiftBackdrop,
+    UniqueGiftBackdropColors, UniqueGiftColors, UniqueGiftInfo, UniqueGiftModel, UniqueGiftSymbol,
+};
 pub use giveaway::{Giveaway, GiveawayCompleted, GiveawayCreated, GiveawayWinners};
+pub use inline::{
+    ChosenInlineResult, InlineQuery, InlineQueryResult, InlineQueryResultArticle,
+    InlineQueryResultAudio, InlineQueryResultCachedAudio, InlineQueryResultCachedDocument,
+    InlineQueryResultCachedGif, InlineQueryResultCachedMpeg4Gif, InlineQueryResultCachedPhoto,
+    InlineQueryResultCachedSticker, InlineQueryResultCachedVideo, InlineQueryResultCachedVoice,
+    InlineQueryResultContact, InlineQueryResultDocument, InlineQueryResultGame,
+    InlineQueryResultGif, InlineQueryResultLocation, InlineQueryResultMpeg4Gif,
+    InlineQueryResultPhoto, InlineQueryResultVenue, InlineQueryResultVideo, InlineQueryResultVoice,
+    InlineQueryResultsButton, InputContactMessageContent, InputInvoiceMessageContent,
+    InputLocationMessageContent, InputMessageContent, InputTextMessageContent,
+    InputVenueMessageContent, PreparedInlineMessage, SentGuestMessage, SentWebAppMessage,
+};
+pub use keyboard::{
+    ButtonStyle, CopyTextButton, ForceReply, InlineKeyboardButton, InlineKeyboardMarkup,
+    KeyboardButton, KeyboardButtonPollType, KeyboardButtonRequestChat,
+    KeyboardButtonRequestManagedBot, KeyboardButtonRequestUsers, LoginUrl, MenuButton,
+    PreparedKeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, ReplyMarkup,
+    SwitchInlineQueryChosenChat,
+};
+pub use managed_bot::ManagedBotCreated;
+pub use message::{
+    ChatOwnerChanged, ChatOwnerLeft, Contact, Dice, ExternalReplyInfo, InaccessibleMessage,
+    LinkPreviewOptions, MaybeInaccessibleMessage, Message, MessageAutoDeleteTimerChanged,
+    MessageEntity, MessageEntityKind, MessageId, MessageOrigin, ParseMode, ProximityAlertTriggered,
+    ReactionType, ReplyParameters, TextQuote, WebAppData, WebAppInfo, WriteAccessAllowed,
+};
+pub use passport::{
+    EncryptedCredentials, EncryptedPassportElement, PassportData, PassportElementError,
+};
 pub use payments::{
     AcceptedGiftTypes, AffiliateInfo, BotSubscriptionUpdated, Invoice, LabeledPrice, OrderInfo,
     OwnedGift, OwnedGiftRegular, OwnedGiftUnique, OwnedGifts, PaidMedia, PaidMediaInfo,
     PaidMediaLivePhoto, PaidMediaPhoto, PaidMediaPreview, PaidMediaVideo, PreCheckoutQuery,
-    RefundedPayment, ShippingAddress, ShippingOption, ShippingQuery, StarTransaction,
-    StarTransactions, SuccessfulPayment, TransactionPartner,
+    RefundedPayment, RevenueWithdrawalState, ShippingAddress, ShippingOption, ShippingQuery,
+    StarAmount, StarTransaction, StarTransactions, SuccessfulPayment, TransactionPartner,
+    TransactionPartnerAffiliateProgram, TransactionPartnerChat, TransactionPartnerFragment,
+    TransactionPartnerTelegramApi, TransactionPartnerUser,
 };
 pub use poll::{
     InputPollMedia, InputPollOption, InputPollOptionMedia, Poll, PollAnswer, PollMedia, PollOption,
-    PollOptionAdded, PollOptionDeleted,
+    PollOptionAdded, PollOptionDeleted, PollType,
 };
 pub use rich_message::{
     InputRichBlock, InputRichBlockAnchor, InputRichBlockAnimation, InputRichBlockAudio,
@@ -180,17 +197,21 @@ pub use rich_message::{
     InputRichMessageContent, InputRichMessageMedia, InputRichMessageMediaKind, RichBlock,
     RichBlockAnchor, RichBlockAnimation, RichBlockAudio, RichBlockBlockQuotation, RichBlockCaption,
     RichBlockCollage, RichBlockDetails, RichBlockDivider, RichBlockFooter, RichBlockList,
-    RichBlockListItem, RichBlockMap, RichBlockMathematicalExpression, RichBlockPhoto,
-    RichBlockPreformatted, RichBlockPullQuotation, RichBlockSectionHeading, RichBlockSlideshow,
-    RichBlockTable, RichBlockTableCell, RichBlockThinking, RichBlockVideo, RichBlockVoiceNote,
-    RichMessage, RichText, RichTextAnchor, RichTextAnchorLink, RichTextBankCardNumber,
-    RichTextBold, RichTextBotCommand, RichTextCashtag, RichTextCode, RichTextCustomEmoji,
-    RichTextDateTime, RichTextEmailAddress, RichTextFootnote, RichTextHashtag, RichTextItalic,
-    RichTextMarked, RichTextMathematicalExpression, RichTextMention, RichTextPhoneNumber,
-    RichTextReference, RichTextSpoiler, RichTextStrikethrough, RichTextSubscript,
-    RichTextSuperscript, RichTextTextMention, RichTextNode, RichTextReferenceLink, RichTextUnderline, RichTextUrl,
+    RichBlockListItem, RichBlockMap, RichBlockMathematicalExpression, RichBlockParagraph,
+    RichBlockPhoto, RichBlockPreformatted, RichBlockPullQuotation, RichBlockSectionHeading,
+    RichBlockSlideshow, RichBlockTable, RichBlockTableCell, RichBlockThinking, RichBlockVideo,
+    RichBlockVoiceNote, RichMessage, RichText, RichTextAnchor, RichTextAnchorLink,
+    RichTextBankCardNumber, RichTextBold, RichTextBotCommand, RichTextCashtag, RichTextCode,
+    RichTextCustomEmoji, RichTextDateTime, RichTextEmailAddress, RichTextHashtag, RichTextItalic,
+    RichTextMarked, RichTextMathematicalExpression, RichTextMention, RichTextNode,
+    RichTextPhoneNumber, RichTextReference, RichTextReferenceLink, RichTextSpoiler,
+    RichTextStrikethrough, RichTextSubscript, RichTextSuperscript, RichTextTextMention,
+    RichTextUnderline, RichTextUrl,
 };
-pub use sticker::{MaskPosition, Sticker, StickerSet, StickerType};
+pub use shared::{ChatShared, SharedUser, UsersShared};
+pub use sticker::{
+    InputSticker, MaskPoint, MaskPosition, Sticker, StickerFormat, StickerSet, StickerType,
+};
 pub use story::{
     InputStoryContent, InputStoryContentPhoto, InputStoryContentVideo, LocationAddress, Story,
     StoryArea, StoryAreaPosition, StoryAreaType,
@@ -200,11 +221,17 @@ pub use suggested_post::{
     SuggestedPostPaid, SuggestedPostParameters, SuggestedPostPrice, SuggestedPostRefunded,
 };
 pub use update::{
-    BusinessBotRights, CallbackQuery, ChatBoostAdded, ChatBoostSource, ChatBoostSourceGiftCode,
-    ChatBoostSourceGiveaway, ChatBoostSourcePremium, Update, UpdateKind, UserChatBoosts,
+    BusinessBotRights, BusinessConnection, BusinessMessagesDeleted, CallbackQuery, ChatBoost,
+    ChatBoostAdded, ChatBoostRemoved, ChatBoostSource, ChatBoostSourceGiftCode,
+    ChatBoostSourceGiveaway, ChatBoostSourcePremium, ChatBoostUpdated, ChatMemberUpdated,
+    ManagedBotUpdated, MessageReactionCountUpdated, MessageReactionUpdated, PaidMediaPurchased,
+    ReactionCount, Update, UpdateKind, Updates, UserChatBoosts,
 };
 pub use user::{
-    BotAccessSettings, BotCommand, BotDescription, BotName, BotShortDescription,
+    BotAccessSettings, BotCommand, BotCommandScope, BotDescription, BotName, BotShortDescription,
     ChatAdministratorRights, ChatId, User, UserProfileAudios, UserProfilePhotos,
+};
+pub use video_chat::{
+    VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted,
 };
 pub use webhook::WebhookInfo;

@@ -3025,7 +3025,10 @@ mod tests {
             "message_effect_id",
             "suggested_post_parameters",
         ] {
-            assert!(json.get(key).is_none(), "{key} should be omitted when unset");
+            assert!(
+                json.get(key).is_none(),
+                "{key} should be omitted when unset"
+            );
         }
     }
 
@@ -3040,7 +3043,10 @@ mod tests {
         );
 
         let empty = SendMessageDraft::new(client(), 1_i64, 7, "hello").clear_text();
-        assert!(serde_json::to_value(&empty.params).unwrap().get("text").is_none());
+        assert!(serde_json::to_value(&empty.params)
+            .unwrap()
+            .get("text")
+            .is_none());
     }
 
     /// Regression guard for the multipart path. Both send paths must enumerate
@@ -3059,7 +3065,11 @@ mod tests {
             .filter_map(|l| l.trim().strip_prefix("pub "))
             .filter_map(|l| l.split(':').next())
             .collect();
-        assert_eq!(fields.len(), 17, "field count changed; update both send paths");
+        assert_eq!(
+            fields.len(),
+            17,
+            "field count changed; update both send paths"
+        );
 
         let helper = source
             .split("fn apply_media_opts(")

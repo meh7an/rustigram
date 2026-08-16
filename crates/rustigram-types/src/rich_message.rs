@@ -44,7 +44,6 @@ pub enum RichText {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum RichTextNode {
-
     /// Bold formatting.
     Bold(RichTextBold),
 
@@ -113,9 +112,6 @@ pub enum RichTextNode {
 
     /// A link targeting an in-document anchor.
     AnchorLink(RichTextAnchorLink),
-
-    /// A footnote body.
-    Footnote(RichTextFootnote),
 
     /// A reference to a footnote.
     Reference(RichTextReference),
@@ -310,15 +306,6 @@ pub struct RichTextAnchorLink {
     pub text: RichText,
     /// The target anchor name; empty string scrolls to the top.
     pub anchor_name: String,
-}
-
-/// The body of a footnote.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RichTextFootnote {
-    /// The footnote content.
-    pub text: RichText,
-    /// The footnote identifier.
-    pub name: String,
 }
 
 /// A link to a reference.

@@ -704,6 +704,7 @@ The `examples/` directory contains complete runnable bots:
 | `state_machine`     | Multi-step conversation with FSM          |
 | `ephemeral_message` | Ephemeral replies — send, edit, delete    |
 | `rich_blocks`       | Rich message built from `InputRichBlock`s |
+| `service_messages`  | Video chats, boosts, forum topics, giveaways |
 
 Run any example:
 
@@ -721,11 +722,17 @@ The test suite requires no bot token — all tests use hand-crafted in-memory da
 cargo test --workspace
 ```
 
-| Suite              | Count | What is tested                                            |
-| ------------------ | ----- | --------------------------------------------------------- |
-| `client_tests`     | 11    | Token validation, error types, client config              |
-| `types_tests`      | 39    | Serde round-trips, helper methods, Update deserialization |
-| `dispatcher_tests` | 22    | All filters, combinators, Context helpers, state storage  |
+| Suite               | Count | What is tested                                                     |
+| ------------------- | ----- | ------------------------------------------------------------------ |
+| `types_tests`       | 62    | Serde round-trips, service messages, union dispatch, `Update`      |
+| `dispatcher_tests`  | 22    | All filters, combinators, `Context` helpers, state storage         |
+| `client_tests`      | 11    | Token validation, error types, client config                       |
+| `vectors`           | 11    | Mini App initData validation against fixed vectors                 |
+| `version_numbers`   | 3     | README, `lib.rs`, and `Cargo.toml` versions agree                  |
+| inline unit tests   | 47    | Webhook auth, builder params, initData parsing, gateway signing    |
+| doc-tests           | 2     | Executable examples in the public docs                             |
+
+**159 tests in total.**
 
 ---
 

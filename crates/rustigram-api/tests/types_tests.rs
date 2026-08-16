@@ -555,10 +555,9 @@ mod service_messages {
         let ended: VideoChatEnded = serde_json::from_str(r#"{"duration":95}"#).unwrap();
         assert_eq!(ended.duration, 95);
 
-        let invited: VideoChatParticipantsInvited = serde_json::from_str(
-            r#"{"users":[{"id":42,"is_bot":false,"first_name":"Mehran"}]}"#,
-        )
-        .unwrap();
+        let invited: VideoChatParticipantsInvited =
+            serde_json::from_str(r#"{"users":[{"id":42,"is_bot":false,"first_name":"Mehran"}]}"#)
+                .unwrap();
         assert_eq!(invited.users.len(), 1);
         assert_eq!(invited.users[0].id, 42);
     }
@@ -581,10 +580,9 @@ mod service_messages {
 
     #[test]
     fn shared_entities_round_trip() {
-        let shared: UsersShared = serde_json::from_str(
-            r#"{"request_id":3,"users":[{"user_id":7,"username":"mehran"}]}"#,
-        )
-        .unwrap();
+        let shared: UsersShared =
+            serde_json::from_str(r#"{"request_id":3,"users":[{"user_id":7,"username":"mehran"}]}"#)
+                .unwrap();
         assert_eq!(shared.request_id, 3);
         assert_eq!(shared.users[0].user_id, 7);
         assert_eq!(shared.users[0].username.as_deref(), Some("mehran"));
@@ -612,8 +610,7 @@ mod service_messages {
         let boost: ChatBoostAdded = serde_json::from_str(r#"{"boost_count":4}"#).unwrap();
         assert_eq!(boost.boost_count, 4);
 
-        let access: WriteAccessAllowed =
-            serde_json::from_str(r#"{"from_request":true}"#).unwrap();
+        let access: WriteAccessAllowed = serde_json::from_str(r#"{"from_request":true}"#).unwrap();
         assert_eq!(access.from_request, Some(true));
         assert!(access.web_app_name.is_none());
     }
@@ -770,7 +767,10 @@ mod backgrounds_and_business {
         assert!(matches!(freeform, BackgroundFill::FreeformGradient(ref f) if f.colors.len() == 3));
 
         // The tag must survive serialisation, including the snake_case form.
-        assert_eq!(serde_json::to_value(&freeform).unwrap()["type"], "freeform_gradient");
+        assert_eq!(
+            serde_json::to_value(&freeform).unwrap()["type"],
+            "freeform_gradient"
+        );
     }
 
     /// `BackgroundTypePattern` nests a `BackgroundFill`, so this covers a tagged
@@ -879,10 +879,9 @@ mod unions_and_reconciliation {
     /// message is a strict subset of a message — so dispatch is on `date == 0`.
     #[test]
     fn maybe_inaccessible_dispatches_on_date() {
-        let gone: MaybeInaccessibleMessage = serde_json::from_str(
-            r#"{"chat":{"id":1,"type":"private"},"message_id":5,"date":0}"#,
-        )
-        .unwrap();
+        let gone: MaybeInaccessibleMessage =
+            serde_json::from_str(r#"{"chat":{"id":1,"type":"private"},"message_id":5,"date":0}"#)
+                .unwrap();
         assert!(matches!(gone, MaybeInaccessibleMessage::Inaccessible(ref m) if m.message_id == 5));
 
         let live: MaybeInaccessibleMessage = serde_json::from_str(
@@ -935,7 +934,9 @@ mod rich_text_dispatch {
     /// must produce and the extra required fields that variant needs.
     ///
     /// This is the test whose absence let the bug ship: with `RichText` fully
-    /// untagged, all 26 of these deserialized as `Bold` and nothing complained.
+    /// untagged, every one of these deserialized as `Bold` and nothing
+    /// complained. It also caught the `RichTextFootnote` removal —
+    /// there is no `footnote` discriminant in Bot API 10.2.
     const CASES: &[(&str, &str, &str)] = &[
         ("bold", "Bold", ""),
         ("italic", "Italic", ""),
@@ -948,26 +949,57 @@ mod rich_text_dispatch {
         ("code", "Code", ""),
         ("anchor", "Anchor", r#","name":"a""#),
         ("anchor_link", "AnchorLink", r#","anchor_name":"a""#),
-        ("date_time", "DateTime", r#","unix_time":1,"date_time_format":"f""#),
-        ("text_mention", "TextMention", r#","user":{"id":1,"is_bot":false,"first_name":"A"}"#),
-        ("custom_emoji", "CustomEmoji", r#","custom_emoji_id":"e","alternative_text":"x""#),
-        ("mathematical_expression", "MathematicalExpression", r#","expression":"x^2""#),
+        (
+            "date_time",
+            "DateTime",
+            r#","unix_time":1,"date_time_format":"f""#,
+        ),
+        (
+            "text_mention",
+            "TextMention",
+            r#","user":{"id":1,"is_bot":false,"first_name":"A"}"#,
+        ),
+        (
+            "custom_emoji",
+            "CustomEmoji",
+            r#","custom_emoji_id":"e","alternative_text":"x""#,
+        ),
+        (
+            "mathematical_expression",
+            "MathematicalExpression",
+            r#","expression":"x^2""#,
+        ),
         ("url", "Url", r#","url":"https://example.com""#),
-        ("email_address", "EmailAddress", r#","email_address":"a@b.c""#),
+        (
+            "email_address",
+            "EmailAddress",
+            r#","email_address":"a@b.c""#,
+        ),
         ("phone_number", "PhoneNumber", r#","phone_number":"+100""#),
-        ("bank_card_number", "BankCardNumber", r#","bank_card_number":"4000""#),
+        (
+            "bank_card_number",
+            "BankCardNumber",
+            r#","bank_card_number":"4000""#,
+        ),
         ("mention", "Mention", r#","username":"me""#),
         ("hashtag", "Hashtag", r#","hashtag":"tag""#),
         ("cashtag", "Cashtag", r#","cashtag":"USD""#),
         ("bot_command", "BotCommand", r#","bot_command":"/start""#),
-        ("footnote", "Footnote", r#","name":"fn1""#),
         ("reference", "Reference", r#","name":"fn1""#),
-        ("reference_link", "ReferenceLink", r#","reference_name":"r1""#),
+        (
+            "reference_link",
+            "ReferenceLink",
+            r#","reference_name":"r1""#,
+        ),
     ];
 
     fn variant_of(node: &RichTextNode) -> String {
         let debug = format!("{node:?}");
-        debug.split(['(', ' ']).next().unwrap_or_default().to_owned()
+        debug
+            .split(['(', ' '])
+            .next()
+            .unwrap_or_default()
+            .to_owned()
     }
 
     #[test]
@@ -1004,10 +1036,16 @@ mod rich_text_dispatch {
     fn nested_rich_text_resolves_at_every_level() {
         let json = r#"{"type":"bold","text":{"type":"italic","text":"deep"}}"#;
         let parsed: RichText = serde_json::from_str(json).unwrap();
-        let RichText::Node(outer) = parsed else { panic!("expected node") };
+        let RichText::Node(outer) = parsed else {
+            panic!("expected node")
+        };
         assert_eq!(variant_of(&outer), "Bold");
-        let RichTextNode::Bold(bold) = *outer else { panic!("expected bold") };
-        let RichText::Node(inner) = bold.text else { panic!("expected nested node") };
+        let RichTextNode::Bold(bold) = *outer else {
+            panic!("expected bold")
+        };
+        let RichText::Node(inner) = bold.text else {
+            panic!("expected nested node")
+        };
         assert_eq!(variant_of(&inner), "Italic");
     }
 

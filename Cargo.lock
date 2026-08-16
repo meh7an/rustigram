@@ -1280,7 +1280,7 @@ dependencies = [
  "anyhow",
  "rustigram-api",
  "rustigram-bot",
- "rustigram-macros",
+ "rustigram-miniapp",
  "rustigram-types",
  "tokio",
  "tracing",

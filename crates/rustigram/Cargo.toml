@@ -15,7 +15,7 @@ rust-version.workspace = true
 rustigram-types  = { workspace = true }
 rustigram-api    = { workspace = true }
 rustigram-bot    = { workspace = true }
-rustigram-macros = { workspace = true }
+rustigram-miniapp = { workspace = true, optional = true }
 tokio            = { workspace = true }
 tracing          = { workspace = true }
 anyhow           = { workspace = true }
@@ -23,3 +23,8 @@ tracing-subscriber = { workspace = true }
 
 [dev-dependencies]
 version-sync = { workspace = true }
+
+[features]
+# Forwards to rustigram-bot's `tma` feature, enabling `Context::tma_data` and
+# the `web_app_data` filters. Off by default: it pulls in rustigram-miniapp.
+tma = ["rustigram-bot/tma", "dep:rustigram-miniapp"]
