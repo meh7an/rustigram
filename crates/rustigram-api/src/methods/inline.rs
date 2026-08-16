@@ -58,6 +58,11 @@ impl AnswerInlineQuery {
         self.params.next_offset = Some(o.into());
         self
     }
+    /// A button shown above the inline query results.
+    pub fn button(mut self, v: InlineQueryResultsButton) -> Self {
+        self.params.button = Some(v);
+        self
+    }
 }
 impl IntoFuture for AnswerInlineQuery {
     type Output = crate::error::Result<bool>;

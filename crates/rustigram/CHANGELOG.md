@@ -95,6 +95,12 @@ defines neither for those methods, so anything set was discarded by Telegram.
 
 ### Added
 
+- **43 parameters across 13 methods became settable.** They were declared and
+  serialised but had no setter, so a caller could not reach them —
+  `sendInvoice` alone accounted for 16, including `protect_content` and
+  `reply_parameters`; also `createInvoiceLink`, `promoteChatMember`, `sendPoll`,
+  `sendContact`, `sendDice`, `sendLocation`, `answerInlineQuery`, the `edit*`
+  family's `business_connection_id`, and `sendMessageDraft`.
 - **Every media builder now matches the Bot API's parameter list exactly.**
   `send_video` and `send_animation` gain `.show_caption_above_media()` and
   `.has_spoiler()`; the five captioned builders gain `.caption_entities()`;

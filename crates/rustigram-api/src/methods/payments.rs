@@ -184,6 +184,86 @@ impl SendInvoice {
         self.params.message_effect_id = Some(v.into());
         self
     }
+    /// Sets `max_tip_amount`.
+    pub fn max_tip_amount(mut self, v: u32) -> Self {
+        self.params.max_tip_amount = Some(v);
+        self
+    }
+    /// Sets `suggested_tip_amounts`.
+    pub fn suggested_tip_amounts(mut self, v: Vec<u32>) -> Self {
+        self.params.suggested_tip_amounts = Some(v);
+        self
+    }
+    /// Sets `start_parameter`.
+    pub fn start_parameter(mut self, v: impl Into<String>) -> Self {
+        self.params.start_parameter = Some(v.into());
+        self
+    }
+    /// Sets `provider_data`.
+    pub fn provider_data(mut self, v: impl Into<String>) -> Self {
+        self.params.provider_data = Some(v.into());
+        self
+    }
+    /// Sets `photo_url`.
+    pub fn photo_url(mut self, v: impl Into<String>) -> Self {
+        self.params.photo_url = Some(v.into());
+        self
+    }
+    /// Sets `photo_size`.
+    pub fn photo_size(mut self, v: u32) -> Self {
+        self.params.photo_size = Some(v);
+        self
+    }
+    /// Sets `photo_width`.
+    pub fn photo_width(mut self, v: u32) -> Self {
+        self.params.photo_width = Some(v);
+        self
+    }
+    /// Sets `photo_height`.
+    pub fn photo_height(mut self, v: u32) -> Self {
+        self.params.photo_height = Some(v);
+        self
+    }
+    /// Sets `need_phone_number`.
+    pub fn need_phone_number(mut self, v: bool) -> Self {
+        self.params.need_phone_number = Some(v);
+        self
+    }
+    /// Sets `need_email`.
+    pub fn need_email(mut self, v: bool) -> Self {
+        self.params.need_email = Some(v);
+        self
+    }
+    /// Sets `send_phone_number_to_provider`.
+    pub fn send_phone_number_to_provider(mut self, v: bool) -> Self {
+        self.params.send_phone_number_to_provider = Some(v);
+        self
+    }
+    /// Sets `send_email_to_provider`.
+    pub fn send_email_to_provider(mut self, v: bool) -> Self {
+        self.params.send_email_to_provider = Some(v);
+        self
+    }
+    /// Sends the message silently — the recipient receives no notification sound.
+    pub fn disable_notification(mut self, v: bool) -> Self {
+        self.params.disable_notification = Some(v);
+        self
+    }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, v: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(v);
+        self
+    }
 }
 
 impl_into_future!(SendInvoice, Message, "sendInvoice");
@@ -337,6 +417,31 @@ impl CreateInvoiceLink {
     /// Indicates that the final price depends on the shipping method.
     pub fn is_flexible(mut self, v: bool) -> Self {
         self.params.is_flexible = Some(v);
+        self
+    }
+    /// Sets `suggested_tip_amounts`.
+    pub fn suggested_tip_amounts(mut self, v: Vec<i64>) -> Self {
+        self.params.suggested_tip_amounts = Some(v);
+        self
+    }
+    /// Sets `provider_data`.
+    pub fn provider_data(mut self, v: impl Into<String>) -> Self {
+        self.params.provider_data = Some(v.into());
+        self
+    }
+    /// Sets `photo_size`.
+    pub fn photo_size(mut self, v: i64) -> Self {
+        self.params.photo_size = Some(v);
+        self
+    }
+    /// Sets `photo_width`.
+    pub fn photo_width(mut self, v: i64) -> Self {
+        self.params.photo_width = Some(v);
+        self
+    }
+    /// Sets `photo_height`.
+    pub fn photo_height(mut self, v: i64) -> Self {
+        self.params.photo_height = Some(v);
         self
     }
 }

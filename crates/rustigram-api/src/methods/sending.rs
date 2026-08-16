@@ -615,6 +615,16 @@ impl SendDice {
         self.params.suggested_post_parameters = Some(v);
         self
     }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, v: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(v);
+        self
+    }
 }
 
 impl_into_future!(SendDice, Message, "sendDice");
@@ -770,6 +780,16 @@ impl SendLocation {
         self.params.suggested_post_parameters = Some(v);
         self
     }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, v: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(v);
+        self
+    }
 }
 
 impl_into_future!(SendLocation, Message, "sendLocation");
@@ -905,6 +925,16 @@ impl SendContact {
     /// Suggested post parameters for channel direct messages chats.
     pub fn suggested_post_parameters(mut self, v: SuggestedPostParameters) -> Self {
         self.params.suggested_post_parameters = Some(v);
+        self
+    }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, v: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(v);
         self
     }
 }
@@ -1194,6 +1224,21 @@ impl SendPoll {
         self.params.message_effect_id = Some(v.into());
         self
     }
+    /// Sends the poll already closed, so it cannot be voted on.
+    pub fn is_closed(mut self, v: bool) -> Self {
+        self.params.is_closed = Some(v);
+        self
+    }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, v: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(v);
+        self
+    }
 }
 
 impl_into_future!(SendPoll, Message, "sendPoll");
@@ -1256,6 +1301,11 @@ impl SendMessageDraft {
     /// Sends the draft with no text at all, which the API permits.
     pub fn clear_text(mut self) -> Self {
         self.params.text = None;
+        self
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, v: i64) -> Self {
+        self.params.message_thread_id = Some(v);
         self
     }
 }

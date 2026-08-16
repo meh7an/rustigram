@@ -189,6 +189,11 @@ impl EditMessageText {
         self.params.reply_markup = Some(m);
         self
     }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
+        self
+    }
 }
 
 impl_into_future!(EditMessageText, Message, "editMessageText");
@@ -271,6 +276,16 @@ impl EditMessageCaption {
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: InlineKeyboardMarkup) -> Self {
         self.params.reply_markup = Some(m);
+        self
+    }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
+        self
+    }
+    /// Special entities in the caption, in place of `parse_mode`.
+    pub fn caption_entities(mut self, v: Vec<MessageEntity>) -> Self {
+        self.params.caption_entities = Some(v);
         self
     }
 }
@@ -404,6 +419,11 @@ impl EditMessageReplyMarkup {
     /// Removes the inline keyboard from the message.
     pub fn remove_markup(mut self) -> Self {
         self.params.reply_markup = None;
+        self
+    }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
         self
     }
 }
@@ -883,6 +903,16 @@ impl EditMessageLiveLocation {
     /// Business connection ID for acting on behalf of a business account.
     pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
         self.params.business_connection_id = Some(v.into());
+        self
+    }
+    /// Radius of uncertainty for the location, in metres (0–1500).
+    pub fn horizontal_accuracy(mut self, v: f64) -> Self {
+        self.params.horizontal_accuracy = Some(v);
+        self
+    }
+    /// Distance for proximity alerts about the approaching member, in metres.
+    pub fn proximity_alert_radius(mut self, v: u32) -> Self {
+        self.params.proximity_alert_radius = Some(v);
         self
     }
 }

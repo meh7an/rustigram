@@ -309,6 +309,31 @@ impl PromoteChatMember {
         self.params.can_manage_tags = Some(v);
         self
     }
+    /// Hides the administrator in the chat member list.
+    pub fn is_anonymous(mut self, v: bool) -> Self {
+        self.params.is_anonymous = Some(v);
+        self
+    }
+    /// Sets `can_post_messages`.
+    pub fn can_post_messages(mut self, v: bool) -> Self {
+        self.params.can_post_messages = Some(v);
+        self
+    }
+    /// Sets `can_edit_messages`.
+    pub fn can_edit_messages(mut self, v: bool) -> Self {
+        self.params.can_edit_messages = Some(v);
+        self
+    }
+    /// Sets `can_edit_stories`.
+    pub fn can_edit_stories(mut self, v: bool) -> Self {
+        self.params.can_edit_stories = Some(v);
+        self
+    }
+    /// Sets `can_delete_stories`.
+    pub fn can_delete_stories(mut self, v: bool) -> Self {
+        self.params.can_delete_stories = Some(v);
+        self
+    }
 }
 
 impl_into_future!(PromoteChatMember, bool, "promoteChatMember");
