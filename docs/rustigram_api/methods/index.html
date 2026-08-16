@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Typed method builders for every Telegram Bot API endpoint. Typed builder structs for every Telegram Bot API method."><title>rustigram_api::methods - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><script id="default-settings" 
+data-use_system_theme="false"
+data-theme="tg-dark"></script><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustigram_api" data-themes="tg-dark,tg-light" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="stylesheet" href="../../theme.css"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<!-- Override the mono font variable before the first paint -->
+<style>
+  :root {
+    --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+  }
+</style>
+
+<style>
+  /* Allow logo + text to sit on the same line in the sidebar crate heading */
+  .sidebar-crate h2 a {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-crate h2 a img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    /* ── 1. Redirect built-in themes to Telegram themes ── */
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        localStorage.setItem("rustdoc-theme", sysDark ? "tg-dark" : "tg-light");
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          sysDark ? "tg-dark" : "tg-light",
+        );
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+
+    /* ── 2. Favicon + sidebar tweaks (need DOM ready) ── */
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Replace rustdoc's Rust logo favicon with ours */
+      document
+        .querySelectorAll('link[rel="icon"], link[rel="alternate icon"]')
+        .forEach(function (el) {
+          el.remove();
+        });
+      var fav = document.createElement("link");
+      fav.rel = "icon";
+      fav.type = "image/svg+xml";
+      fav.href = "https://rustigram.io/logo.svg";
+      document.head.appendChild(fav);
+
+      var meta = document.querySelector('meta[name="rustdoc-vars"]');
+      if (meta && meta.getAttribute("data-current-crate") === "rustigram") {
+        var crateLink = document.querySelector(".sidebar-crate h2 a");
+        if (crateLink) {
+          crateLink.href = "https://rustigram.io";
+
+          var logo = document.createElement("img");
+          logo.src = "https://rustigram.io/logo.svg";
+          logo.alt = "rustigram";
+          logo.setAttribute("aria-hidden", "true");
+          crateLink.insertBefore(logo, crateLink.firstChild);
+        }
+      }
+    });
+  })();
+</script>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module methods</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../rustigram_api/index.html">rustigram_<wbr>api</a><span class="version">0.12.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module methods</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example" title="Example">Example</a></li></ul><h3><a href="#modules">Module Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate rustigram_<wbr>api</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">rustigram_api</a></div><h1>Module <span>methods</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/rustigram_api/methods/mod.rs.html#1-76">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Typed method builders for every Telegram Bot API endpoint.
+Typed builder structs for every Telegram Bot API method.</p>
+<p>Every method is implemented as a builder that carries its required and
+optional parameters, then executes via <code>.await</code>. All builders implement
+<code>IntoFuture</code> so they can be <code>await</code>-ed directly.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rustigram_api::BotClient;
+
+<span class="kw">let </span>msg = client
+    .send_message(<span class="number">12345</span>, <span class="string">"Hello!"</span>)
+    .parse_mode(rustigram_types::message::ParseMode::HTML)
+    .disable_notification(<span class="bool-val">true</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;</code></pre></div></div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt><code>pub use <a class="mod" href="bot_settings/index.html" title="mod rustigram_api::methods::bot_settings">bot_settings</a>::*;</code></dt><dt><code>pub use <a class="mod" href="business/index.html" title="mod rustigram_api::methods::business">business</a>::*;</code></dt><dt><code>pub use <a class="mod" href="chat_management/index.html" title="mod rustigram_api::methods::chat_management">chat_management</a>::*;</code></dt><dt><code>pub use <a class="mod" href="editing/index.html" title="mod rustigram_api::methods::editing">editing</a>::*;</code></dt><dt><code>pub use <a class="mod" href="forum/index.html" title="mod rustigram_api::methods::forum">forum</a>::*;</code></dt><dt><code>pub use <a class="mod" href="games/index.html" title="mod rustigram_api::methods::games">games</a>::*;</code></dt><dt><code>pub use <a class="mod" href="getters/index.html" title="mod rustigram_api::methods::getters">getters</a>::*;</code></dt><dt><code>pub use <a class="mod" href="gifts/index.html" title="mod rustigram_api::methods::gifts">gifts</a>::*;</code></dt><dt><code>pub use <a class="mod" href="inline/index.html" title="mod rustigram_api::methods::inline">inline</a>::*;</code></dt><dt><code>pub use <a class="mod" href="miniapp/index.html" title="mod rustigram_api::methods::miniapp">miniapp</a>::*;</code></dt><dt><code>pub use <a class="mod" href="passport/index.html" title="mod rustigram_api::methods::passport">passport</a>::*;</code></dt><dt><code>pub use <a class="mod" href="payments/index.html" title="mod rustigram_api::methods::payments">payments</a>::*;</code></dt><dt><code>pub use <a class="mod" href="reactions/index.html" title="mod rustigram_api::methods::reactions">reactions</a>::*;</code></dt><dt><code>pub use <a class="mod" href="sending/index.html" title="mod rustigram_api::methods::sending">sending</a>::*;</code></dt><dt><code>pub use <a class="mod" href="stickers/index.html" title="mod rustigram_api::methods::stickers">stickers</a>::*;</code></dt><dt><code>pub use <a class="mod" href="stories/index.html" title="mod rustigram_api::methods::stories">stories</a>::*;</code></dt><dt><code>pub use <a class="mod" href="updates/index.html" title="mod rustigram_api::methods::updates">updates</a>::*;</code></dt><dt><code>pub use <a class="mod" href="verification/index.html" title="mod rustigram_api::methods::verification">verification</a>::*;</code></dt></dl><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="bot_settings/index.html" title="mod rustigram_api::methods::bot_settings">bot_<wbr>settings</a></dt><dd>Bot identity and command configuration methods.</dd><dt><a class="mod" href="business/index.html" title="mod rustigram_api::methods::business">business</a></dt><dd>Business account management methods.</dd><dt><a class="mod" href="chat_management/index.html" title="mod rustigram_api::methods::chat_management">chat_<wbr>management</a></dt><dd>Chat membership and administration methods.</dd><dt><a class="mod" href="editing/index.html" title="mod rustigram_api::methods::editing">editing</a></dt><dd>Message editing methods.</dd><dt><a class="mod" href="forum/index.html" title="mod rustigram_api::methods::forum">forum</a></dt><dd>Forum topic management methods.</dd><dt><a class="mod" href="games/index.html" title="mod rustigram_api::methods::games">games</a></dt><dd>Game score and high score methods.</dd><dt><a class="mod" href="getters/index.html" title="mod rustigram_api::methods::getters">getters</a></dt><dd>Information retrieval methods.</dd><dt><a class="mod" href="gifts/index.html" title="mod rustigram_api::methods::gifts">gifts</a></dt><dd>Gift sending and management methods.</dd><dt><a class="mod" href="inline/index.html" title="mod rustigram_api::methods::inline">inline</a></dt><dd>Inline query handling methods.</dd><dt><a class="mod" href="miniapp/index.html" title="mod rustigram_api::methods::miniapp">miniapp</a></dt><dd>Mini App keyboard button and emoji status methods.</dd><dt><a class="mod" href="passport/index.html" title="mod rustigram_api::methods::passport">passport</a></dt><dd>Telegram Passport error reporting methods.</dd><dt><a class="mod" href="payments/index.html" title="mod rustigram_api::methods::payments">payments</a></dt><dd>Payment and Stars methods.</dd><dt><a class="mod" href="reactions/index.html" title="mod rustigram_api::methods::reactions">reactions</a></dt><dd>Message reaction methods.</dd><dt><a class="mod" href="sending/index.html" title="mod rustigram_api::methods::sending">sending</a></dt><dd>Message and media sending methods.</dd><dt><a class="mod" href="stickers/index.html" title="mod rustigram_api::methods::stickers">stickers</a></dt><dd>Sticker set management methods.</dd><dt><a class="mod" href="stories/index.html" title="mod rustigram_api::methods::stories">stories</a></dt><dd>Story posting and management methods (business bots).</dd><dt><a class="mod" href="updates/index.html" title="mod rustigram_api::methods::updates">updates</a></dt><dd>Update fetching and webhook configuration methods.</dd><dt><a class="mod" href="verification/index.html" title="mod rustigram_api::methods::verification">verification</a></dt><dd>User and chat verification methods.</dd></dl></section></div></main></body></html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A predicate evaluated against an incoming `Context`."><title>Filter in rustigram_bot::filter - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><script id="default-settings" 
+data-use_system_theme="false"
+data-theme="tg-dark"></script><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustigram_bot" data-themes="tg-dark,tg-light" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="stylesheet" href="../../theme.css"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<!-- Override the mono font variable before the first paint -->
+<style>
+  :root {
+    --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+  }
+</style>
+
+<style>
+  /* Allow logo + text to sit on the same line in the sidebar crate heading */
+  .sidebar-crate h2 a {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-crate h2 a img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    /* ── 1. Redirect built-in themes to Telegram themes ── */
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        localStorage.setItem("rustdoc-theme", sysDark ? "tg-dark" : "tg-light");
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          sysDark ? "tg-dark" : "tg-light",
+        );
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+
+    /* ── 2. Favicon + sidebar tweaks (need DOM ready) ── */
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Replace rustdoc's Rust logo favicon with ours */
+      document
+        .querySelectorAll('link[rel="icon"], link[rel="alternate icon"]')
+        .forEach(function (el) {
+          el.remove();
+        });
+      var fav = document.createElement("link");
+      fav.rel = "icon";
+      fav.type = "image/svg+xml";
+      fav.href = "https://rustigram.io/logo.svg";
+      document.head.appendChild(fav);
+
+      var meta = document.querySelector('meta[name="rustdoc-vars"]');
+      if (meta && meta.getAttribute("data-current-crate") === "rustigram") {
+        var crateLink = document.querySelector(".sidebar-crate h2 a");
+        if (crateLink) {
+          crateLink.href = "https://rustigram.io";
+
+          var logo = document.createElement("img");
+          logo.src = "https://rustigram.io/logo.svg";
+          logo.alt = "rustigram";
+          logo.setAttribute("aria-hidden", "true");
+          crateLink.insertBefore(logo, crateLink.firstChild);
+        }
+      }
+    });
+  })();
+</script>
+
+</head><body class="rustdoc trait"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Filter</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../rustigram_bot/index.html">rustigram_<wbr>bot</a><span class="version">0.12.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Filter</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.check" title="check">check</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2><a href="index.html">In rustigram_<wbr>bot::<wbr>filter</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">rustigram_bot</a>::<wbr><a href="index.html">filter</a></div><h1>Trait <span class="trait">Filter</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/rustigram_bot/filter.rs.html#26-29">Source</a> </span></div><pre class="rust item-decl"><code>pub trait Filter:
+    <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a>
+    + <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a>
+    + 'static {
+    // Required method
+    fn <a href="#tymethod.check" class="fn">check</a>(&amp;self, ctx: &amp;<a class="struct" href="../context/struct.Context.html" title="struct rustigram_bot::context::Context">Context</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.bool.html">bool</a>;
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A predicate evaluated against an incoming <a href="../context/struct.Context.html" title="struct rustigram_bot::context::Context"><code>Context</code></a>.</p>
+<p>Filters are <code>Send + Sync + 'static</code> and cheap to clone, making them safe
+to share across tasks. Combine filters with <a href="trait.FilterExt.html#method.and" title="method rustigram_bot::filter::FilterExt::and"><code>FilterExt::and</code></a>,
+<a href="trait.FilterExt.html#method.or" title="method rustigram_bot::filter::FilterExt::or"><code>FilterExt::or</code></a>, and <a href="trait.FilterExt.html#method.not" title="method rustigram_bot::filter::FilterExt::not"><code>FilterExt::not</code></a>.</p>
+<p>Implement this trait to create custom filters:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>rustigram_bot::filter::Filter;
+<span class="kw">use </span>rustigram_bot::Context;
+
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">struct </span>HasPhotoFilter;
+
+<span class="kw">impl </span>Filter <span class="kw">for </span>HasPhotoFilter {
+    <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>Context) -&gt; bool {
+        ctx.message().and_then(|m| m.photo.as_ref()).is_some()
+    }
+}</code></pre></div></div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.check" class="method"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#28">Source</a><h4 class="code-header">fn <a href="#tymethod.check" class="fn">check</a>(&amp;self, ctx: &amp;<a class="struct" href="../context/struct.Context.html" title="struct rustigram_bot::context::Context">Context</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.bool.html">bool</a></h4></section></summary><div class="docblock"><p>Returns <code>true</code> if this filter matches the given context.</p>
+</div></details></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><div class="negative-marker"></div><section id="impl-Filter-for-CallbackDataFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#235-241">Source</a><a href="#impl-Filter-for-CallbackDataFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.CallbackDataFilter.html" title="struct rustigram_bot::filter::CallbackDataFilter">CallbackDataFilter</a></h3></section><section id="impl-Filter-for-CallbackDataPrefixFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#258-264">Source</a><a href="#impl-Filter-for-CallbackDataPrefixFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.CallbackDataPrefixFilter.html" title="struct rustigram_bot::filter::CallbackDataPrefixFilter">CallbackDataPrefixFilter</a></h3></section><section id="impl-Filter-for-CallbackQueryFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#141-145">Source</a><a href="#impl-Filter-for-CallbackQueryFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.CallbackQueryFilter.html" title="struct rustigram_bot::filter::CallbackQueryFilter">CallbackQueryFilter</a></h3></section><section id="impl-Filter-for-CommandFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#175-180">Source</a><a href="#impl-Filter-for-CommandFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.CommandFilter.html" title="struct rustigram_bot::filter::CommandFilter">CommandFilter</a></h3></section><section id="impl-Filter-for-EditedMessageFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#131-135">Source</a><a href="#impl-Filter-for-EditedMessageFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.EditedMessageFilter.html" title="struct rustigram_bot::filter::EditedMessageFilter">EditedMessageFilter</a></h3></section><section id="impl-Filter-for-GroupFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#279-289">Source</a><a href="#impl-Filter-for-GroupFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.GroupFilter.html" title="struct rustigram_bot::filter::GroupFilter">GroupFilter</a></h3></section><section id="impl-Filter-for-InlineQueryFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#151-155">Source</a><a href="#impl-Filter-for-InlineQueryFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.InlineQueryFilter.html" title="struct rustigram_bot::filter::InlineQueryFilter">InlineQueryFilter</a></h3></section><section id="impl-Filter-for-MessageFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#121-125">Source</a><a href="#impl-Filter-for-MessageFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.MessageFilter.html" title="struct rustigram_bot::filter::MessageFilter">MessageFilter</a></h3></section><section id="impl-Filter-for-PrivateChatFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#269-274">Source</a><a href="#impl-Filter-for-PrivateChatFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.PrivateChatFilter.html" title="struct rustigram_bot::filter::PrivateChatFilter">PrivateChatFilter</a></h3></section><section id="impl-Filter-for-TextContainsFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#216-220">Source</a><a href="#impl-Filter-for-TextContainsFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.TextContainsFilter.html" title="struct rustigram_bot::filter::TextContainsFilter">TextContainsFilter</a></h3></section><section id="impl-Filter-for-TextFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#195-199">Source</a><a href="#impl-Filter-for-TextFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.TextFilter.html" title="struct rustigram_bot::filter::TextFilter">TextFilter</a></h3></section><section id="impl-Filter-for-WebAppDataFilter" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#302-308">Source</a><a href="#impl-Filter-for-WebAppDataFilter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.WebAppDataFilter.html" title="struct rustigram_bot::filter::WebAppDataFilter">WebAppDataFilter</a></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>tma</code></strong> only.</div></span></section><section id="impl-Filter-for-WebAppDataMatchingFilter%3CF%3E" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#324-333">Source</a><a href="#impl-Filter-for-WebAppDataMatchingFilter%3CF%3E" class="anchor">§</a><h3 class="code-header">impl&lt;F&gt; <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.WebAppDataMatchingFilter.html" title="struct rustigram_bot::filter::WebAppDataMatchingFilter">WebAppDataMatchingFilter</a>&lt;F&gt;<div class="where">where
+    F: <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/ops/function/trait.Fn.html" title="trait core::ops::function::Fn">Fn</a>(&amp;<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.str.html">str</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.bool.html">bool</a> + <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> + <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + 'static,</div></h3><span class="item-info"><div class="stab portability">Available on <strong>crate feature <code>tma</code></strong> only.</div></span></section><section id="impl-Filter-for-FnFilter%3CF%3E" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#102-106">Source</a><a href="#impl-Filter-for-FnFilter%3CF%3E" class="anchor">§</a><h3 class="code-header">impl&lt;F: <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/ops/function/trait.Fn.html" title="trait core::ops::function::Fn">Fn</a>(&amp;<a class="struct" href="../context/struct.Context.html" title="struct rustigram_bot::context::Context">Context</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.bool.html">bool</a> + <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> + <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + 'static&gt; <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.FnFilter.html" title="struct rustigram_bot::filter::FnFilter">FnFilter</a>&lt;F&gt;</h3></section><section id="impl-Filter-for-Not%3CF%3E" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#90-94">Source</a><a href="#impl-Filter-for-Not%3CF%3E" class="anchor">§</a><h3 class="code-header">impl&lt;F: <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a>&gt; <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.Not.html" title="struct rustigram_bot::filter::Not">Not</a>&lt;F&gt;</h3></section><section id="impl-Filter-for-And%3CL,+R%3E" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#67-71">Source</a><a href="#impl-Filter-for-And%3CL,+R%3E" class="anchor">§</a><h3 class="code-header">impl&lt;L: <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a>, R: <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a>&gt; <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.And.html" title="struct rustigram_bot::filter::And">And</a>&lt;L, R&gt;</h3></section><section id="impl-Filter-for-Or%3CL,+R%3E" class="impl"><a class="src rightside" href="../../src/rustigram_bot/filter.rs.html#79-83">Source</a><a href="#impl-Filter-for-Or%3CL,+R%3E" class="anchor">§</a><h3 class="code-header">impl&lt;L: <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a>, R: <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a>&gt; <a class="trait" href="trait.Filter.html" title="trait rustigram_bot::filter::Filter">Filter</a> for <a class="struct" href="struct.Or.html" title="struct rustigram_bot::filter::Or">Or</a>&lt;L, R&gt;</h3></section></div><script src="../../trait.impl/rustigram_bot/filter/trait.Filter.js" async></script></section></div></main></body></html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="HTTP client and typed method builders for the Telegram Bot API."><title>rustigram_api - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-17e0aaed.css"><script id="default-settings" 
+data-use_system_theme="false"
+data-theme="tg-dark"></script><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="rustigram_api" data-themes="tg-dark,tg-light" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../static.files/storage-41dd4d93.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-f7c3ffd8.css"></noscript><link rel="stylesheet" href="../theme.css"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"><!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<!-- Override the mono font variable before the first paint -->
+<style>
+  :root {
+    --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+  }
+</style>
+
+<style>
+  /* Allow logo + text to sit on the same line in the sidebar crate heading */
+  .sidebar-crate h2 a {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-crate h2 a img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    /* ── 1. Redirect built-in themes to Telegram themes ── */
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        localStorage.setItem("rustdoc-theme", sysDark ? "tg-dark" : "tg-light");
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          sysDark ? "tg-dark" : "tg-light",
+        );
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+
+    /* ── 2. Favicon + sidebar tweaks (need DOM ready) ── */
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Replace rustdoc's Rust logo favicon with ours */
+      document
+        .querySelectorAll('link[rel="icon"], link[rel="alternate icon"]')
+        .forEach(function (el) {
+          el.remove();
+        });
+      var fav = document.createElement("link");
+      fav.rel = "icon";
+      fav.type = "image/svg+xml";
+      fav.href = "https://rustigram.io/logo.svg";
+      document.head.appendChild(fav);
+
+      var meta = document.querySelector('meta[name="rustdoc-vars"]');
+      if (meta && meta.getAttribute("data-current-crate") === "rustigram") {
+        var crateLink = document.querySelector(".sidebar-crate h2 a");
+        if (crateLink) {
+          crateLink.href = "https://rustigram.io";
+
+          var logo = document.createElement("img");
+          logo.src = "https://rustigram.io/logo.svg";
+          logo.alt = "rustigram";
+          logo.setAttribute("aria-hidden", "true");
+          crateLink.insertBefore(logo, crateLink.firstChild);
+        }
+      }
+    });
+  })();
+</script>
+
+</head><body class="rustdoc mod crate"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate rustigram_api</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../rustigram_api/index.html">rustigram_<wbr>api</a><span class="version">0.12.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#error-handling" title="Error handling">Error handling</a></li><li><a href="#feature-flags" title="Feature flags">Feature flags</a></li><li><a href="#re-exports" title="Re-exports">Re-exports</a></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1>Crate <span>rustigram_<wbr>api</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/rustigram_api/lib.rs.html#1-45">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>HTTP client and typed method builders for the Telegram Bot API.</p>
+<p>The central type is <a href="client/struct.BotClient.html" title="struct rustigram_api::client::BotClient"><code>BotClient</code></a>, which is cheap to clone (all state is
+behind an <code>Arc</code>) and safe to share across tasks. Every Bot API method is
+exposed as a builder that returns a future:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">let </span>message = client
+    .send_message(chat_id, <span class="string">"Hello!"</span>)
+    .parse_mode(ParseMode::HTML)
+    .disable_notification(<span class="bool-val">true</span>)
+    .<span class="kw">await</span><span class="question-mark">?</span>;</code></pre></div><h2 id="error-handling"><a class="doc-anchor" href="#error-handling">§</a>Error handling</h2>
+<p>All methods return <a href="error/type.Result.html" title="type rustigram_api::error::Result"><code>Result&lt;T&gt;</code></a>. The <a href="error/enum.Error.html" title="enum rustigram_api::error::Error"><code>Error</code></a> type covers API-level
+failures (bad token, flood control, missing permissions), transport errors,
+and serialisation failures. Rate-limit errors (HTTP 429) are automatically
+retried by the polling engine in <code>rustigram-bot</code>; individual API calls
+surface them as <a href="error/enum.Error.html#variant.RateLimit" title="variant rustigram_api::error::Error::RateLimit"><code>Error::RateLimit</code></a>.</p>
+<h2 id="feature-flags"><a class="doc-anchor" href="#feature-flags">§</a>Feature flags</h2><div><table><thead><tr><th>Feature</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>rustls</code></td><td>yes</td><td>TLS via rustls</td></tr>
+</tbody></table>
+</div><h2 id="re-exports"><a class="doc-anchor" href="#re-exports">§</a>Re-exports</h2>
+<p>The <a href="methods/index.html" title="mod rustigram_api::methods"><code>methods</code></a> module re-exports every builder type. You generally do not
+need to import them directly — call the corresponding method on
+<a href="client/struct.BotClient.html" title="struct rustigram_api::client::BotClient"><code>BotClient</code></a> and the builder is returned.</p>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt id="reexport.BotClient"><code>pub use client::<a class="struct" href="client/struct.BotClient.html" title="struct rustigram_api::client::BotClient">BotClient</a>;</code></dt><dt id="reexport.ClientConfig"><code>pub use client::<a class="struct" href="client/struct.ClientConfig.html" title="struct rustigram_api::client::ClientConfig">ClientConfig</a>;</code></dt><dt id="reexport.Error"><code>pub use error::<a class="enum" href="error/enum.Error.html" title="enum rustigram_api::error::Error">Error</a>;</code></dt><dt id="reexport.Result"><code>pub use error::<a class="type" href="error/type.Result.html" title="type rustigram_api::error::Result">Result</a>;</code></dt></dl><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="client/index.html" title="mod rustigram_api::client">client</a></dt><dd>Core HTTP client and configuration.</dd><dt><a class="mod" href="error/index.html" title="mod rustigram_api::error">error</a></dt><dd>Error types for API operations.</dd><dt><a class="mod" href="methods/index.html" title="mod rustigram_api::methods">methods</a></dt><dd>Typed method builders for every Telegram Bot API endpoint.
+Typed builder structs for every Telegram Bot API method.</dd></dl></section></div></main></body></html>

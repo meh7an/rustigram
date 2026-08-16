@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Tower middleware that signs validated requests for downstream trust."><title>rustigram_miniapp::extract::gateway - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-17e0aaed.css"><script id="default-settings" 
+data-use_system_theme="false"
+data-theme="tg-dark"></script><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustigram_miniapp" data-themes="tg-dark,tg-light" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="stylesheet" href="../../../theme.css"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<!-- Override the mono font variable before the first paint -->
+<style>
+  :root {
+    --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+  }
+</style>
+
+<style>
+  /* Allow logo + text to sit on the same line in the sidebar crate heading */
+  .sidebar-crate h2 a {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-crate h2 a img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    /* ── 1. Redirect built-in themes to Telegram themes ── */
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        localStorage.setItem("rustdoc-theme", sysDark ? "tg-dark" : "tg-light");
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          sysDark ? "tg-dark" : "tg-light",
+        );
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+
+    /* ── 2. Favicon + sidebar tweaks (need DOM ready) ── */
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Replace rustdoc's Rust logo favicon with ours */
+      document
+        .querySelectorAll('link[rel="icon"], link[rel="alternate icon"]')
+        .forEach(function (el) {
+          el.remove();
+        });
+      var fav = document.createElement("link");
+      fav.rel = "icon";
+      fav.type = "image/svg+xml";
+      fav.href = "https://rustigram.io/logo.svg";
+      document.head.appendChild(fav);
+
+      var meta = document.querySelector('meta[name="rustdoc-vars"]');
+      if (meta && meta.getAttribute("data-current-crate") === "rustigram") {
+        var crateLink = document.querySelector(".sidebar-crate h2 a");
+        if (crateLink) {
+          crateLink.href = "https://rustigram.io";
+
+          var logo = document.createElement("img");
+          logo.src = "https://rustigram.io/logo.svg";
+          logo.alt = "rustigram";
+          logo.setAttribute("aria-hidden", "true");
+          crateLink.insertBefore(logo, crateLink.firstChild);
+        }
+      }
+    });
+  })();
+</script>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module gateway</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../rustigram_miniapp/index.html">rustigram_<wbr>miniapp</a><span class="version">0.12.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module gateway</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#security-model" title="Security model">Security model</a></li><li><a href="#layer-ordering" title="Layer ordering">Layer ordering</a></li></ul><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rustigram_<wbr>miniapp::<wbr>extract</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">rustigram_miniapp</a>::<wbr><a href="../index.html">extract</a></div><h1>Module <span>gateway</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/rustigram_miniapp/extract/gateway.rs.html#1-203">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Tower middleware that signs validated requests for downstream trust.</p>
+<p>In Mode 3 (Rust gateway + SolidStart BFF), Rust validates initData via
+<a href="../axum/struct.TmaInitData.html" title="struct rustigram_miniapp::extract::axum::TmaInitData"><code>super::TmaInitData</code></a> and then needs to prove to SolidStart that the
+request was validated — without sharing the bot token.</p>
+<p><a href="struct.TmaGatewayLayer.html" title="struct rustigram_miniapp::extract::gateway::TmaGatewayLayer"><code>TmaGatewayLayer</code></a> adds an <code>X-Tma-Gateway</code> header containing an
+HMAC-SHA256 of the raw initData string signed with <a href="struct.GatewaySecret.html" title="struct rustigram_miniapp::extract::gateway::GatewaySecret"><code>GatewaySecret</code></a>.
+SolidStart verifies this signature via <code>createTmaMiddleware(null, { gatewaySecret })</code> and only parses requests that carry a valid header.</p>
+<h2 id="security-model"><a class="doc-anchor" href="#security-model">§</a>Security model</h2>
+<ul>
+<li><code>BOT_TOKEN</code> — stays in Rust only, never reaches SolidStart.</li>
+<li><code>GATEWAY_SECRET</code> — shared between Rust and SolidStart. Proves a
+request passed through the validated Rust gateway.</li>
+<li>Without <code>GATEWAY_SECRET</code>, trust is network-level only (VPC / firewall).
+Add it for cryptographic proof when network isolation alone is not
+sufficient.</li>
+</ul>
+<h2 id="layer-ordering"><a class="doc-anchor" href="#layer-ordering">§</a>Layer ordering</h2>
+<p>Add <a href="struct.TmaGatewayLayer.html" title="struct rustigram_miniapp::extract::gateway::TmaGatewayLayer"><code>TmaGatewayLayer</code></a> <strong>outside</strong> (after) <a href="../layer/struct.BotTokenLayer.html" title="struct rustigram_miniapp::extract::layer::BotTokenLayer"><code>super::BotTokenLayer</code></a> so
+the bot token is available when <a href="../axum/struct.TmaInitData.html" title="struct rustigram_miniapp::extract::axum::TmaInitData"><code>super::TmaInitData</code></a> runs:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code>Router::new()
+    .route(<span class="string">"/tma"</span>, post(handler))
+    .layer(TmaGatewayLayer(GatewaySecret(
+        std::env::var(<span class="string">"GATEWAY_SECRET"</span>).unwrap(),
+    )))
+    .layer(BotTokenLayer(BotToken(
+        std::env::var(<span class="string">"BOT_TOKEN"</span>).unwrap(),
+    )));</code></pre></div></div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.GatewaySecret.html" title="struct rustigram_miniapp::extract::gateway::GatewaySecret">Gateway<wbr>Secret</a></dt><dd>Newtype wrapping the gateway shared secret.</dd><dt><a class="struct" href="struct.TmaGatewayLayer.html" title="struct rustigram_miniapp::extract::gateway::TmaGatewayLayer">TmaGateway<wbr>Layer</a></dt><dd>Tower layer that adds an HMAC-signed <code>X-Tma-Gateway</code> header to every
+request that has passed [<code>TmaInitData</code>] extraction.</dd><dt><a class="struct" href="struct.TmaGatewayService.html" title="struct rustigram_miniapp::extract::gateway::TmaGatewayService">TmaGateway<wbr>Service</a></dt><dd>Produced by <a href="struct.TmaGatewayLayer.html" title="struct rustigram_miniapp::extract::gateway::TmaGatewayLayer"><code>TmaGatewayLayer</code></a>.</dd></dl></section></div></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["SuggestedPostApprovalFailed","SuggestedPostApproved","SuggestedPostDeclined","SuggestedPostInfo","SuggestedPostPaid","SuggestedPostParameters","SuggestedPostPrice","SuggestedPostRefunded"]};

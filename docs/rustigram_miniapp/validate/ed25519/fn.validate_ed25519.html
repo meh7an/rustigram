@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Validate Telegram Mini App `initData` using Ed25519 signature verification."><title>validate_ed25519 in rustigram_miniapp::validate::ed25519 - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-17e0aaed.css"><script id="default-settings" 
+data-use_system_theme="false"
+data-theme="tg-dark"></script><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustigram_miniapp" data-themes="tg-dark,tg-light" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="stylesheet" href="../../../theme.css"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<!-- Override the mono font variable before the first paint -->
+<style>
+  :root {
+    --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+  }
+</style>
+
+<style>
+  /* Allow logo + text to sit on the same line in the sidebar crate heading */
+  .sidebar-crate h2 a {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-crate h2 a img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    /* ── 1. Redirect built-in themes to Telegram themes ── */
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        localStorage.setItem("rustdoc-theme", sysDark ? "tg-dark" : "tg-light");
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          sysDark ? "tg-dark" : "tg-light",
+        );
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+
+    /* ── 2. Favicon + sidebar tweaks (need DOM ready) ── */
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Replace rustdoc's Rust logo favicon with ours */
+      document
+        .querySelectorAll('link[rel="icon"], link[rel="alternate icon"]')
+        .forEach(function (el) {
+          el.remove();
+        });
+      var fav = document.createElement("link");
+      fav.rel = "icon";
+      fav.type = "image/svg+xml";
+      fav.href = "https://rustigram.io/logo.svg";
+      document.head.appendChild(fav);
+
+      var meta = document.querySelector('meta[name="rustdoc-vars"]');
+      if (meta && meta.getAttribute("data-current-crate") === "rustigram") {
+        var crateLink = document.querySelector(".sidebar-crate h2 a");
+        if (crateLink) {
+          crateLink.href = "https://rustigram.io";
+
+          var logo = document.createElement("img");
+          logo.src = "https://rustigram.io/logo.svg";
+          logo.alt = "rustigram";
+          logo.setAttribute("aria-hidden", "true");
+          crateLink.insertBefore(logo, crateLink.firstChild);
+        }
+      }
+    });
+  })();
+</script>
+
+</head><body class="rustdoc fn"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">validate_ed25519</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../rustigram_miniapp/index.html">rustigram_<wbr>miniapp</a><span class="version">0.12.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">validate_<wbr>ed25519</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#arguments" title="Arguments">Arguments</a></li><li><a href="#algorithm" title="Algorithm">Algorithm</a></li><li><a href="#errors" title="Errors">Errors</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In rustigram_<wbr>miniapp::<wbr>validate::<wbr>ed25519</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">rustigram_miniapp</a>::<wbr><a href="../index.html">validate</a>::<wbr><a href="index.html">ed25519</a></div><h1>Function <span class="fn">validate_<wbr>ed25519</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/rustigram_miniapp/validate/ed25519.rs.html#47-76">Source</a> </span></div><pre class="rust item-decl"><code>pub fn validate_ed25519(
+    init_data: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.str.html">str</a>,
+    bot_id: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.i64.html">i64</a>,
+    opts: <a class="struct" href="../struct.Ed25519ValidateOpts.html" title="struct rustigram_miniapp::validate::Ed25519ValidateOpts">Ed25519ValidateOpts</a>,
+) -&gt; <a class="type" href="../../error/type.Result.html" title="type rustigram_miniapp::error::Result">Result</a>&lt;<a class="struct" href="../../types/init_data/struct.WebAppInitData.html" title="struct rustigram_miniapp::types::init_data::WebAppInitData">WebAppInitData</a>&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Validate Telegram Mini App <code>initData</code> using Ed25519 signature verification.</p>
+<p>This is the third-party validation method — no bot token required. Use
+this when your backend is not the bot’s primary server but still needs to
+trust TMA-originated requests.</p>
+<h2 id="arguments"><a class="doc-anchor" href="#arguments">§</a>Arguments</h2>
+<ul>
+<li><code>init_data</code> — raw <code>window.Telegram.WebApp.initData</code> string.</li>
+<li><code>bot_id</code> — numeric bot ID (the part before <code>:</code> in the bot token).</li>
+<li><code>opts</code> — expiry check and environment selection.</li>
+</ul>
+<h2 id="algorithm"><a class="doc-anchor" href="#algorithm">§</a>Algorithm</h2>
+<ol>
+<li>Build <code>data_check_string = "${bot_id}:WebAppData\n&lt;sorted fields&gt;"</code>.</li>
+<li>Decode the <code>signature</code> field from base64url.</li>
+<li>Verify against Telegram’s hardcoded Ed25519 public key for the env.</li>
+</ol>
+<p>Mirrors <code>validateInitDataSignature</code> from <code>@rustigram/tma-server</code> exactly.</p>
+<h2 id="errors"><a class="doc-anchor" href="#errors">§</a>Errors</h2>
+<ul>
+<li><a href="../../error/enum.MiniAppError.html#variant.InvalidSignature" title="variant rustigram_miniapp::error::MiniAppError::InvalidSignature"><code>MiniAppError::InvalidSignature</code></a> — <code>signature</code> absent or did not verify.</li>
+<li><a href="../../error/enum.MiniAppError.html#variant.MalformedInitData" title="variant rustigram_miniapp::error::MiniAppError::MalformedInitData"><code>MiniAppError::MalformedInitData</code></a> — <code>auth_date</code> or <code>hash</code> missing.</li>
+<li><a href="../../error/enum.MiniAppError.html#variant.Expired" title="variant rustigram_miniapp::error::MiniAppError::Expired"><code>MiniAppError::Expired</code></a> — <code>auth_date</code> older than <code>opts.max_age_secs</code>.</li>
+</ul>
+</div></details></section></div></main></body></html>

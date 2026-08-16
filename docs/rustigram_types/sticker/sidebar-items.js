@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["MaskPoint","StickerFormat","StickerType"],"struct":["InputSticker","MaskPosition","Sticker","StickerSet"]};

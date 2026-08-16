@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["any","callback_data","callback_data_prefix","callback_query","command","edited_message","group","inline_query","message","private","text","text_contains","web_app_data","web_app_data_matching"]};

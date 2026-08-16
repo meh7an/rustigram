@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EditTarget"],"struct":["ApproveSuggestedPost","DeclineSuggestedPost","EditEphemeralMessageCaption","EditEphemeralMessageMedia","EditEphemeralMessageReplyMarkup","EditEphemeralMessageText","EditMessageCaption","EditMessageChecklist","EditMessageLiveLocation","EditMessageMedia","EditMessageReplyMarkup","EditMessageText","StopMessageLiveLocation"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Birthdate","BusinessIntro","BusinessLocation","BusinessOpeningHours","BusinessOpeningHoursInterval","UserRating"]};

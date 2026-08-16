@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Checklist","ChecklistTask","ChecklistTasksAdded","ChecklistTasksDone","InputChecklist","InputChecklistTask"]};

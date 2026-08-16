@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ChatType"],"struct":["Chat","ChatFullInfo","ChatInviteLink","ChatJoinRequest","ChatLocation","ChatPermissions","ChatPhoto","InputMediaLink","Link","Location","Venue"]};

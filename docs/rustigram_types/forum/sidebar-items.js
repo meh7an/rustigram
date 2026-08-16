@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ForumTopic","ForumTopicClosed","ForumTopicCreated","ForumTopicEdited","ForumTopicReopened","GeneralForumTopicHidden","GeneralForumTopicUnhidden"]};

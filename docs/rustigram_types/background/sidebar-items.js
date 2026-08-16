@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BackgroundFill","BackgroundType"],"struct":["BackgroundFillFreeformGradient","BackgroundFillGradient","BackgroundFillSolid","BackgroundTypeChatTheme","BackgroundTypeFill","BackgroundTypePattern","BackgroundTypeWallpaper","ChatBackground"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["InitDataChatType","WebAppChatType"],"struct":["WebAppChat","WebAppInitData","WebAppUser"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["background","business","chat","chat_member","checklist","community","direct_messages","file","forum","games","gifts","giveaway","inline","keyboard","managed_bot","message","passport","payments","poll","reaction","rich_message","shared","sticker","story","suggested_post","update","user","video_chat","webhook"]};

@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>rustigram — Async Telegram Bot Framework for Rust</title>
+    <meta
+      name="description"
+      content="A fast, ergonomic async Telegram Bot API framework for Rust, built on Tokio."
+    />
+    <meta property="og:title" content="rustigram" />
+    <meta
+      property="og:description"
+      content="Async Telegram Bot Framework for Rust. Built on Tokio."
+    />
+    <meta property="og:url" content="https://rustigram.io" />
+
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css"
+    />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+
+    <style>
+      :root {
+        --bg: #1e1e1e;
+        --bg2: #212429;
+        --bdr: #33373d;
+        --acc: #1c93e3;
+        --acc2: #30aafd;
+        --tx: #e8ecef;
+        --t2: #84888c;
+        --t3: #546e7a;
+        --mono: "IBM Plex Mono", "Courier New", monospace;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--tx);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+        padding: 48px 24px;
+        gap: 0;
+      }
+
+      a {
+        color: var(--acc2);
+        text-decoration: none;
+      }
+
+      /* Paper plane */
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .plane {
+        font-size: 56px;
+        color: var(--acc);
+        display: block;
+        line-height: 1;
+        animation: float 3.5s ease-in-out infinite;
+      }
+
+      /* Title */
+      h1 {
+        font-size: 52px;
+        font-weight: 700;
+        letter-spacing: -1.5px;
+        color: #fff;
+        line-height: 1;
+        margin-bottom: 10px;
+      }
+
+      .tagline {
+        font-size: 16px;
+        color: var(--t2);
+        margin-bottom: 20px;
+      }
+
+      /* Badges */
+      .badges {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        margin-bottom: 36px;
+      }
+
+      .badge {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--t3);
+        background: var(--bg2);
+        border: 1px solid var(--bdr);
+        padding: 3px 9px;
+        border-radius: 3px;
+      }
+
+      /* Link buttons */
+      .links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+      }
+
+      .lnk {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 20px;
+        border-radius: 3px;
+        font-size: 13.5px;
+        font-weight: 500;
+        border: 1px solid var(--bdr);
+        color: var(--t2);
+        transition:
+          border-color 0.15s,
+          color 0.15s,
+          background 0.15s;
+      }
+
+      .lnk:hover {
+        border-color: var(--acc);
+        color: var(--tx);
+      }
+      .lnk i {
+        font-size: 15px;
+      }
+
+      .lnk.primary {
+        background: var(--acc);
+        border-color: var(--acc);
+        color: #fff;
+      }
+      .lnk.primary:hover {
+        background: var(--acc2);
+        border-color: var(--acc2);
+        color: #fff;
+      }
+
+      /* cargo add */
+      .cargo {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--bg2);
+        border: 1px solid var(--bdr);
+        padding: 9px 16px;
+        border-radius: 3px;
+        font-family: var(--mono);
+        font-size: 13px;
+        margin-bottom: 56px;
+      }
+
+      .prompt {
+        color: var(--acc);
+        user-select: none;
+      }
+
+      .copy-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--t3);
+        padding: 0;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        line-height: 1;
+        transition: color 0.15s;
+      }
+      .copy-btn:hover {
+        color: var(--tx);
+      }
+
+      /* Footer */
+      footer {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 12px;
+        color: var(--t3);
+      }
+
+      footer a {
+        color: var(--t3);
+      }
+      footer a:hover {
+        color: var(--t2);
+      }
+      .sep {
+        color: var(--bdr);
+      }
+    </style>
+  </head>
+  <body>
+    <img
+      src="/logo.svg"
+      alt="rustigram logo"
+      class="plane"
+      width="256"
+      height="256"
+    />
+
+    <h1>rustigram</h1>
+    <p class="tagline">Async Telegram Bot Framework for Rust.</p>
+
+    <div class="badges">
+      <span class="badge">v0.12.0</span>
+      <span class="badge">rust 1.75+</span>
+      <span class="badge">MIT</span>
+    </div>
+
+    <div class="links">
+      <a href="/docs/rustigram/" class="lnk primary">
+        <i class="ti ti-book-2" aria-hidden="true"></i> Docs
+      </a>
+      <a
+        href="https://crates.io/crates/rustigram"
+        class="lnk"
+        target="_blank"
+        rel="noopener"
+      >
+        <i class="ti ti-package" aria-hidden="true"></i> crates.io
+      </a>
+      <a
+        href="https://github.com/meh7an/rustigram"
+        class="lnk"
+        target="_blank"
+        rel="noopener"
+      >
+        <i class="ti ti-brand-github" aria-hidden="true"></i> GitHub
+      </a>
+    </div>
+
+    <div class="cargo">
+      <span class="prompt">$</span>
+      <span>cargo add rustigram</span>
+      <button
+        class="copy-btn"
+        id="copy-btn"
+        aria-label="Copy command to clipboard"
+      >
+        <i class="ti ti-copy" id="copy-icon"></i>
+      </button>
+    </div>
+
+    <footer>
+      <span id="copyright">© 2026 Mehran</span>
+      <span class="sep">·</span>
+      <a
+        href="https://github.com/meh7an/rustigram"
+        target="_blank"
+        rel="noopener"
+        >meh7an/rustigram</a
+      >
+      <span class="sep">·</span>
+      <a
+        href="https://github.com/meh7an/rustigram/releases"
+        target="_blank"
+        rel="noopener"
+        >changelog</a
+      >
+    </footer>
+
+    <script>
+      document.getElementById("copyright").innerHTML =
+        "© " + new Date().getFullYear() + " Mehran";
+      const btn = document.getElementById("copy-btn");
+      const ico = document.getElementById("copy-icon");
+      btn.addEventListener("click", () => {
+        navigator.clipboard
+          .writeText("cargo add rustigram")
+          .then(() => {
+            ico.className = "ti ti-check";
+            ico.style.color = "#a5c261";
+            setTimeout(() => {
+              ico.className = "ti ti-copy";
+              ico.style.color = "";
+            }, 2000);
+          })
+          .catch(() => {});
+      });
+    </script>
+  </body>
+</html>

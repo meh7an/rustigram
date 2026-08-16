@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["bot_settings","business","chat_management","editing","forum","games","getters","gifts","inline","miniapp","passport","payments","reactions","sending","stickers","stories","updates","verification"]};

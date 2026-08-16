@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Inline query and result types."><title>rustigram_types::inline - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><script id="default-settings" 
+data-use_system_theme="false"
+data-theme="tg-dark"></script><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustigram_types" data-themes="tg-dark,tg-light" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="stylesheet" href="../../theme.css"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<!-- Override the mono font variable before the first paint -->
+<style>
+  :root {
+    --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+  }
+</style>
+
+<style>
+  /* Allow logo + text to sit on the same line in the sidebar crate heading */
+  .sidebar-crate h2 a {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-crate h2 a img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    /* ── 1. Redirect built-in themes to Telegram themes ── */
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        localStorage.setItem("rustdoc-theme", sysDark ? "tg-dark" : "tg-light");
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          sysDark ? "tg-dark" : "tg-light",
+        );
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+
+    /* ── 2. Favicon + sidebar tweaks (need DOM ready) ── */
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Replace rustdoc's Rust logo favicon with ours */
+      document
+        .querySelectorAll('link[rel="icon"], link[rel="alternate icon"]')
+        .forEach(function (el) {
+          el.remove();
+        });
+      var fav = document.createElement("link");
+      fav.rel = "icon";
+      fav.type = "image/svg+xml";
+      fav.href = "https://rustigram.io/logo.svg";
+      document.head.appendChild(fav);
+
+      var meta = document.querySelector('meta[name="rustdoc-vars"]');
+      if (meta && meta.getAttribute("data-current-crate") === "rustigram") {
+        var crateLink = document.querySelector(".sidebar-crate h2 a");
+        if (crateLink) {
+          crateLink.href = "https://rustigram.io";
+
+          var logo = document.createElement("img");
+          logo.src = "https://rustigram.io/logo.svg";
+          logo.alt = "rustigram";
+          logo.setAttribute("aria-hidden", "true");
+          crateLink.insertBefore(logo, crateLink.firstChild);
+        }
+      }
+    });
+  })();
+</script>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module inline</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../rustigram_types/index.html">rustigram_<wbr>types</a><span class="version">0.12.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module inline</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate rustigram_<wbr>types</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">rustigram_types</a></div><h1>Module <span>inline</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/rustigram_types/inline.rs.html#1-1049">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Inline query and result types.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.ChosenInlineResult.html" title="struct rustigram_types::inline::ChosenInlineResult">Chosen<wbr>Inline<wbr>Result</a></dt><dd>The result a user chose from an inline query.</dd><dt><a class="struct" href="struct.InlineQuery.html" title="struct rustigram_types::inline::InlineQuery">Inline<wbr>Query</a></dt><dd>An incoming inline query sent when a user types <code>@YourBot something</code> in any chat.</dd><dt><a class="struct" href="struct.InlineQueryResultArticle.html" title="struct rustigram_types::inline::InlineQueryResultArticle">Inline<wbr>Query<wbr>Result<wbr>Article</a></dt><dd>A link to an article or web page.</dd><dt><a class="struct" href="struct.InlineQueryResultAudio.html" title="struct rustigram_types::inline::InlineQueryResultAudio">Inline<wbr>Query<wbr>Result<wbr>Audio</a></dt><dd>A link to an audio file (<code>.mp3</code> or <code>.m4a</code>).</dd><dt><a class="struct" href="struct.InlineQueryResultCachedAudio.html" title="struct rustigram_types::inline::InlineQueryResultCachedAudio">Inline<wbr>Query<wbr>Result<wbr>Cached<wbr>Audio</a></dt><dd>An audio file from a previously uploaded Telegram file.</dd><dt><a class="struct" href="struct.InlineQueryResultCachedDocument.html" title="struct rustigram_types::inline::InlineQueryResultCachedDocument">Inline<wbr>Query<wbr>Result<wbr>Cached<wbr>Document</a></dt><dd>A document from a previously uploaded Telegram file.</dd><dt><a class="struct" href="struct.InlineQueryResultCachedGif.html" title="struct rustigram_types::inline::InlineQueryResultCachedGif">Inline<wbr>Query<wbr>Result<wbr>Cached<wbr>Gif</a></dt><dd>An animated GIF from a previously uploaded Telegram file.</dd><dt><a class="struct" href="struct.InlineQueryResultCachedMpeg4Gif.html" title="struct rustigram_types::inline::InlineQueryResultCachedMpeg4Gif">Inline<wbr>Query<wbr>Result<wbr>Cached<wbr>Mpeg4<wbr>Gif</a></dt><dd>An MPEG4 animation from a previously uploaded Telegram file.</dd><dt><a class="struct" href="struct.InlineQueryResultCachedPhoto.html" title="struct rustigram_types::inline::InlineQueryResultCachedPhoto">Inline<wbr>Query<wbr>Result<wbr>Cached<wbr>Photo</a></dt><dd>A photo from a previously uploaded Telegram file.</dd><dt><a class="struct" href="struct.InlineQueryResultCachedSticker.html" title="struct rustigram_types::inline::InlineQueryResultCachedSticker">Inline<wbr>Query<wbr>Result<wbr>Cached<wbr>Sticker</a></dt><dd>A sticker from a previously uploaded Telegram file.</dd><dt><a class="struct" href="struct.InlineQueryResultCachedVideo.html" title="struct rustigram_types::inline::InlineQueryResultCachedVideo">Inline<wbr>Query<wbr>Result<wbr>Cached<wbr>Video</a></dt><dd>A video from a previously uploaded Telegram file.</dd><dt><a class="struct" href="struct.InlineQueryResultCachedVoice.html" title="struct rustigram_types::inline::InlineQueryResultCachedVoice">Inline<wbr>Query<wbr>Result<wbr>Cached<wbr>Voice</a></dt><dd>A voice message from a previously uploaded Telegram file.</dd><dt><a class="struct" href="struct.InlineQueryResultContact.html" title="struct rustigram_types::inline::InlineQueryResultContact">Inline<wbr>Query<wbr>Result<wbr>Contact</a></dt><dd>A contact with a phone number.</dd><dt><a class="struct" href="struct.InlineQueryResultDocument.html" title="struct rustigram_types::inline::InlineQueryResultDocument">Inline<wbr>Query<wbr>Result<wbr>Document</a></dt><dd>A link to a general file (<code>application/pdf</code> or <code>application/zip</code>).</dd><dt><a class="struct" href="struct.InlineQueryResultGame.html" title="struct rustigram_types::inline::InlineQueryResultGame">Inline<wbr>Query<wbr>Result<wbr>Game</a></dt><dd>A game result.</dd><dt><a class="struct" href="struct.InlineQueryResultGif.html" title="struct rustigram_types::inline::InlineQueryResultGif">Inline<wbr>Query<wbr>Result<wbr>Gif</a></dt><dd>A link to an animated GIF file (max 1 MB).</dd><dt><a class="struct" href="struct.InlineQueryResultLocation.html" title="struct rustigram_types::inline::InlineQueryResultLocation">Inline<wbr>Query<wbr>Result<wbr>Location</a></dt><dd>A geographic location on a map.</dd><dt><a class="struct" href="struct.InlineQueryResultMpeg4Gif.html" title="struct rustigram_types::inline::InlineQueryResultMpeg4Gif">Inline<wbr>Query<wbr>Result<wbr>Mpeg4<wbr>Gif</a></dt><dd>A link to a video animation (MPEG4 without sound, max 1 MB).</dd><dt><a class="struct" href="struct.InlineQueryResultPhoto.html" title="struct rustigram_types::inline::InlineQueryResultPhoto">Inline<wbr>Query<wbr>Result<wbr>Photo</a></dt><dd>A link to a photo (JPEG, max 5 MB).
+A photo result in an inline query.</dd><dt><a class="struct" href="struct.InlineQueryResultVenue.html" title="struct rustigram_types::inline::InlineQueryResultVenue">Inline<wbr>Query<wbr>Result<wbr>Venue</a></dt><dd>A venue.</dd><dt><a class="struct" href="struct.InlineQueryResultVideo.html" title="struct rustigram_types::inline::InlineQueryResultVideo">Inline<wbr>Query<wbr>Result<wbr>Video</a></dt><dd>A link to a video file (<code>text/html</code> or <code>video/mp4</code>).</dd><dt><a class="struct" href="struct.InlineQueryResultVoice.html" title="struct rustigram_types::inline::InlineQueryResultVoice">Inline<wbr>Query<wbr>Result<wbr>Voice</a></dt><dd>A link to a voice recording in <code>.ogg</code> format encoded with OPUS.</dd><dt><a class="struct" href="struct.InlineQueryResultsButton.html" title="struct rustigram_types::inline::InlineQueryResultsButton">Inline<wbr>Query<wbr>Results<wbr>Button</a></dt><dd>A button shown above inline query results.</dd><dt><a class="struct" href="struct.InputContactMessageContent.html" title="struct rustigram_types::inline::InputContactMessageContent">Input<wbr>Contact<wbr>Message<wbr>Content</a></dt><dd>A contact message to send as an inline query result.</dd><dt><a class="struct" href="struct.InputInvoiceMessageContent.html" title="struct rustigram_types::inline::InputInvoiceMessageContent">Input<wbr>Invoice<wbr>Message<wbr>Content</a></dt><dd>An invoice message to send as an inline query result.</dd><dt><a class="struct" href="struct.InputLocationMessageContent.html" title="struct rustigram_types::inline::InputLocationMessageContent">Input<wbr>Location<wbr>Message<wbr>Content</a></dt><dd>A live location message to send as an inline query result.</dd><dt><a class="struct" href="struct.InputTextMessageContent.html" title="struct rustigram_types::inline::InputTextMessageContent">Input<wbr>Text<wbr>Message<wbr>Content</a></dt><dd>A text message to send as an inline query result.</dd><dt><a class="struct" href="struct.InputVenueMessageContent.html" title="struct rustigram_types::inline::InputVenueMessageContent">Input<wbr>Venue<wbr>Message<wbr>Content</a></dt><dd>A venue message to send as an inline query result.</dd><dt><a class="struct" href="struct.PreparedInlineMessage.html" title="struct rustigram_types::inline::PreparedInlineMessage">Prepared<wbr>Inline<wbr>Message</a></dt><dd>An inline message prepared for sending by a Mini App.</dd><dt><a class="struct" href="struct.SentGuestMessage.html" title="struct rustigram_types::inline::SentGuestMessage">Sent<wbr>Guest<wbr>Message</a></dt><dd>An inline message sent by a guest bot.</dd><dt><a class="struct" href="struct.SentWebAppMessage.html" title="struct rustigram_types::inline::SentWebAppMessage">Sent<wbr>WebApp<wbr>Message</a></dt><dd>A message sent from a Web App on behalf of the user.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.InlineQueryResult.html" title="enum rustigram_types::inline::InlineQueryResult">Inline<wbr>Query<wbr>Result</a></dt><dd>One result to show in an inline query answer.</dd><dt><a class="enum" href="enum.InputMessageContent.html" title="enum rustigram_types::inline::InputMessageContent">Input<wbr>Message<wbr>Content</a></dt><dd>The content of a message sent as the result of an inline query.</dd></dl></section></div></main></body></html>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["PassportElementError"],"struct":["EncryptedCredentials","EncryptedPassportElement","PassportData"]};

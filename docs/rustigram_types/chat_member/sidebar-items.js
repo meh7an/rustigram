@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ChatMember"],"struct":["ChatMemberAdministrator","ChatMemberBanned","ChatMemberLeft","ChatMemberMember","ChatMemberOwner","ChatMemberRestricted"]};

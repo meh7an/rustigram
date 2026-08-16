@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BotCommandScope","ChatId"],"struct":["BotAccessSettings","BotCommand","BotDescription","BotName","BotShortDescription","ChatAdministratorRights","User","UserProfileAudios","UserProfilePhotos"]};

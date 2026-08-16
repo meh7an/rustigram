@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["DeleteBusinessMessages","GetBusinessAccountStarBalance","GetBusinessConnection","ReadBusinessMessage","RemoveBusinessAccountProfilePhoto","SetBusinessAccountBio","SetBusinessAccountGiftSettings","SetBusinessAccountName","SetBusinessAccountProfilePhoto","SetBusinessAccountUsername","TransferBusinessAccountStars"]};

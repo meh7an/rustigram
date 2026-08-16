@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ChatId","ParseMode","ReplyMarkup"],"fn":["handler_fn"],"mod":["filters"],"struct":["Bot","BotClient","Context","DialogueStorage","InlineKeyboardButton","InlineKeyboardMarkup","StateStorage","WebhookConfig"],"trait":["Filter","FilterExt"],"type":["BotResult"]};

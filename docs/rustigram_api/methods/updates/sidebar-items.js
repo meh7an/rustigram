@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["DeleteWebhook","GetUpdates","GetUpdatesParams","GetWebhookInfo","SetWebhook","SetWebhookParams"]};

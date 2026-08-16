@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ConvertGiftToStars","GetAvailableGifts","GetBusinessAccountGifts","GetChatGifts","GetUserGifts","GiftPremiumSubscription","SendGift","TransferGift","UpgradeGift"]};

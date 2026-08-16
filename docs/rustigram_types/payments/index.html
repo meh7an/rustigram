@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Payment and invoice types."><title>rustigram_types::payments - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><script id="default-settings" 
+data-use_system_theme="false"
+data-theme="tg-dark"></script><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustigram_types" data-themes="tg-dark,tg-light" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="stylesheet" href="../../theme.css"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<!-- Override the mono font variable before the first paint -->
+<style>
+  :root {
+    --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+  }
+</style>
+
+<style>
+  /* Allow logo + text to sit on the same line in the sidebar crate heading */
+  .sidebar-crate h2 a {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-crate h2 a img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    /* ── 1. Redirect built-in themes to Telegram themes ── */
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        localStorage.setItem("rustdoc-theme", sysDark ? "tg-dark" : "tg-light");
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          sysDark ? "tg-dark" : "tg-light",
+        );
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+
+    /* ── 2. Favicon + sidebar tweaks (need DOM ready) ── */
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Replace rustdoc's Rust logo favicon with ours */
+      document
+        .querySelectorAll('link[rel="icon"], link[rel="alternate icon"]')
+        .forEach(function (el) {
+          el.remove();
+        });
+      var fav = document.createElement("link");
+      fav.rel = "icon";
+      fav.type = "image/svg+xml";
+      fav.href = "https://rustigram.io/logo.svg";
+      document.head.appendChild(fav);
+
+      var meta = document.querySelector('meta[name="rustdoc-vars"]');
+      if (meta && meta.getAttribute("data-current-crate") === "rustigram") {
+        var crateLink = document.querySelector(".sidebar-crate h2 a");
+        if (crateLink) {
+          crateLink.href = "https://rustigram.io";
+
+          var logo = document.createElement("img");
+          logo.src = "https://rustigram.io/logo.svg";
+          logo.alt = "rustigram";
+          logo.setAttribute("aria-hidden", "true");
+          crateLink.insertBefore(logo, crateLink.firstChild);
+        }
+      }
+    });
+  })();
+</script>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module payments</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../rustigram_types/index.html">rustigram_<wbr>types</a><span class="version">0.12.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module payments</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate rustigram_<wbr>types</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">rustigram_types</a></div><h1>Module <span>payments</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/rustigram_types/payments.rs.html#1-531">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Payment and invoice types.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AcceptedGiftTypes.html" title="struct rustigram_types::payments::AcceptedGiftTypes">Accepted<wbr>Gift<wbr>Types</a></dt><dd>Types of gifts that can be gifted to a user or chat.</dd><dt><a class="struct" href="struct.AffiliateInfo.html" title="struct rustigram_types::payments::AffiliateInfo">Affiliate<wbr>Info</a></dt><dd>Information about the affiliate that received a commission via this transaction.</dd><dt><a class="struct" href="struct.BotSubscriptionUpdated.html" title="struct rustigram_types::payments::BotSubscriptionUpdated">BotSubscription<wbr>Updated</a></dt><dd>Information about changes to a user payment subscription toward the bot.</dd><dt><a class="struct" href="struct.Invoice.html" title="struct rustigram_types::payments::Invoice">Invoice</a></dt><dd>An invoice for a payment inside a message.</dd><dt><a class="struct" href="struct.LabeledPrice.html" title="struct rustigram_types::payments::LabeledPrice">Labeled<wbr>Price</a></dt><dd>A portion of a price — label and amount in the smallest currency unit.</dd><dt><a class="struct" href="struct.OrderInfo.html" title="struct rustigram_types::payments::OrderInfo">Order<wbr>Info</a></dt><dd>Information about an order collected from the user during checkout.</dd><dt><a class="struct" href="struct.OwnedGiftRegular.html" title="struct rustigram_types::payments::OwnedGiftRegular">Owned<wbr>Gift<wbr>Regular</a></dt><dd>A regular gift owned by a user or chat.</dd><dt><a class="struct" href="struct.OwnedGiftUnique.html" title="struct rustigram_types::payments::OwnedGiftUnique">Owned<wbr>Gift<wbr>Unique</a></dt><dd>A unique gift owned by a user or chat.</dd><dt><a class="struct" href="struct.OwnedGifts.html" title="struct rustigram_types::payments::OwnedGifts">Owned<wbr>Gifts</a></dt><dd>A paginated list of gifts owned by a user or chat.</dd><dt><a class="struct" href="struct.PaidMediaInfo.html" title="struct rustigram_types::payments::PaidMediaInfo">Paid<wbr>Media<wbr>Info</a></dt><dd>Information about paid media attached to a message.</dd><dt><a class="struct" href="struct.PaidMediaLivePhoto.html" title="struct rustigram_types::payments::PaidMediaLivePhoto">Paid<wbr>Media<wbr>Live<wbr>Photo</a></dt><dd>A live photo available as paid media.</dd><dt><a class="struct" href="struct.PaidMediaPhoto.html" title="struct rustigram_types::payments::PaidMediaPhoto">Paid<wbr>Media<wbr>Photo</a></dt><dd>A photo available as paid media.</dd><dt><a class="struct" href="struct.PaidMediaPreview.html" title="struct rustigram_types::payments::PaidMediaPreview">Paid<wbr>Media<wbr>Preview</a></dt><dd>A preview shown before a user purchases paid media.</dd><dt><a class="struct" href="struct.PaidMediaVideo.html" title="struct rustigram_types::payments::PaidMediaVideo">Paid<wbr>Media<wbr>Video</a></dt><dd>A video available as paid media.</dd><dt><a class="struct" href="struct.PreCheckoutQuery.html" title="struct rustigram_types::payments::PreCheckoutQuery">PreCheckout<wbr>Query</a></dt><dd>An incoming pre-checkout query.</dd><dt><a class="struct" href="struct.RefundedPayment.html" title="struct rustigram_types::payments::RefundedPayment">Refunded<wbr>Payment</a></dt><dd>Information about a refunded payment.</dd><dt><a class="struct" href="struct.ShippingAddress.html" title="struct rustigram_types::payments::ShippingAddress">Shipping<wbr>Address</a></dt><dd>A shipping address provided by the user during checkout.</dd><dt><a class="struct" href="struct.ShippingOption.html" title="struct rustigram_types::payments::ShippingOption">Shipping<wbr>Option</a></dt><dd>One shipping option offered to the user during payment.</dd><dt><a class="struct" href="struct.ShippingQuery.html" title="struct rustigram_types::payments::ShippingQuery">Shipping<wbr>Query</a></dt><dd>An incoming shipping query from a user.</dd><dt><a class="struct" href="struct.StarAmount.html" title="struct rustigram_types::payments::StarAmount">Star<wbr>Amount</a></dt><dd>An amount of Telegram Stars.</dd><dt><a class="struct" href="struct.StarTransaction.html" title="struct rustigram_types::payments::StarTransaction">Star<wbr>Transaction</a></dt><dd>A single Telegram Star transaction.</dd><dt><a class="struct" href="struct.StarTransactions.html" title="struct rustigram_types::payments::StarTransactions">Star<wbr>Transactions</a></dt><dd>A list of Telegram Star transactions.</dd><dt><a class="struct" href="struct.SuccessfulPayment.html" title="struct rustigram_types::payments::SuccessfulPayment">Successful<wbr>Payment</a></dt><dd>Confirmation that a payment was completed successfully.</dd><dt><a class="struct" href="struct.TransactionPartnerAffiliateProgram.html" title="struct rustigram_types::payments::TransactionPartnerAffiliateProgram">Transaction<wbr>Partner<wbr>Affiliate<wbr>Program</a></dt><dd>The affiliate program that issued the commission received via this transaction.</dd><dt><a class="struct" href="struct.TransactionPartnerChat.html" title="struct rustigram_types::payments::TransactionPartnerChat">Transaction<wbr>Partner<wbr>Chat</a></dt><dd>A transaction with a chat.</dd><dt><a class="struct" href="struct.TransactionPartnerFragment.html" title="struct rustigram_types::payments::TransactionPartnerFragment">Transaction<wbr>Partner<wbr>Fragment</a></dt><dd>A withdrawal transaction with Fragment.</dd><dt><a class="struct" href="struct.TransactionPartnerTelegramApi.html" title="struct rustigram_types::payments::TransactionPartnerTelegramApi">Transaction<wbr>Partner<wbr>Telegram<wbr>Api</a></dt><dd>A transaction for paid broadcasting.</dd><dt><a class="struct" href="struct.TransactionPartnerUser.html" title="struct rustigram_types::payments::TransactionPartnerUser">Transaction<wbr>Partner<wbr>User</a></dt><dd>A transaction with a user.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.OwnedGift.html" title="enum rustigram_types::payments::OwnedGift">Owned<wbr>Gift</a></dt><dd>A gift received and owned by a user or chat.</dd><dt><a class="enum" href="enum.PaidMedia.html" title="enum rustigram_types::payments::PaidMedia">Paid<wbr>Media</a></dt><dd>One item of paid media.</dd><dt><a class="enum" href="enum.RevenueWithdrawalState.html" title="enum rustigram_types::payments::RevenueWithdrawalState">Revenue<wbr>Withdrawal<wbr>State</a></dt><dd>The state of a revenue withdrawal operation.</dd><dt><a class="enum" href="enum.TransactionPartner.html" title="enum rustigram_types::payments::TransactionPartner">Transaction<wbr>Partner</a></dt><dd>The source or recipient of a Star transaction.</dd></dl></section></div></main></body></html>

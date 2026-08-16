@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="File and media types."><title>rustigram_types::file - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-17e0aaed.css"><script id="default-settings" 
+data-use_system_theme="false"
+data-theme="tg-dark"></script><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustigram_types" data-themes="tg-dark,tg-light" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="stylesheet" href="../../theme.css"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"><!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<!-- Override the mono font variable before the first paint -->
+<style>
+  :root {
+    --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+  }
+</style>
+
+<style>
+  /* Allow logo + text to sit on the same line in the sidebar crate heading */
+  .sidebar-crate h2 a {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-crate h2 a img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    /* ── 1. Redirect built-in themes to Telegram themes ── */
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        localStorage.setItem("rustdoc-theme", sysDark ? "tg-dark" : "tg-light");
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          sysDark ? "tg-dark" : "tg-light",
+        );
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+
+    /* ── 2. Favicon + sidebar tweaks (need DOM ready) ── */
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Replace rustdoc's Rust logo favicon with ours */
+      document
+        .querySelectorAll('link[rel="icon"], link[rel="alternate icon"]')
+        .forEach(function (el) {
+          el.remove();
+        });
+      var fav = document.createElement("link");
+      fav.rel = "icon";
+      fav.type = "image/svg+xml";
+      fav.href = "https://rustigram.io/logo.svg";
+      document.head.appendChild(fav);
+
+      var meta = document.querySelector('meta[name="rustdoc-vars"]');
+      if (meta && meta.getAttribute("data-current-crate") === "rustigram") {
+        var crateLink = document.querySelector(".sidebar-crate h2 a");
+        if (crateLink) {
+          crateLink.href = "https://rustigram.io";
+
+          var logo = document.createElement("img");
+          logo.src = "https://rustigram.io/logo.svg";
+          logo.alt = "rustigram";
+          logo.setAttribute("aria-hidden", "true");
+          crateLink.insertBefore(logo, crateLink.firstChild);
+        }
+      }
+    });
+  })();
+</script>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module file</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../rustigram_types/index.html">rustigram_<wbr>types</a><span class="version">0.12.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module file</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="../index.html">In crate rustigram_<wbr>types</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">rustigram_types</a></div><h1>Module <span>file</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/rustigram_types/file.rs.html#1-659">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>File and media types.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.Animation.html" title="struct rustigram_types::file::Animation">Animation</a></dt><dd>Animation file (GIF or H.264/MPEG-4 AVC, no sound).</dd><dt><a class="struct" href="struct.Audio.html" title="struct rustigram_types::file::Audio">Audio</a></dt><dd>Audio file to be treated as music.</dd><dt><a class="struct" href="struct.Document.html" title="struct rustigram_types::file::Document">Document</a></dt><dd>General file (not photo, voice, audio, or video).</dd><dt><a class="struct" href="struct.File.html" title="struct rustigram_types::file::File">File</a></dt><dd>A file ready to be downloaded.</dd><dt><a class="struct" href="struct.InputMediaAnimation.html" title="struct rustigram_types::file::InputMediaAnimation">Input<wbr>Media<wbr>Animation</a></dt><dd>An animation (GIF or silent H.264) to include in a media group.</dd><dt><a class="struct" href="struct.InputMediaAudio.html" title="struct rustigram_types::file::InputMediaAudio">Input<wbr>Media<wbr>Audio</a></dt><dd>An audio file to include in a media group.</dd><dt><a class="struct" href="struct.InputMediaDocument.html" title="struct rustigram_types::file::InputMediaDocument">Input<wbr>Media<wbr>Document</a></dt><dd>A document (general file) to include in a media group.</dd><dt><a class="struct" href="struct.InputMediaLivePhoto.html" title="struct rustigram_types::file::InputMediaLivePhoto">Input<wbr>Media<wbr>Live<wbr>Photo</a></dt><dd>A live photo to be sent as part of a media group or to replace an existing media message.</dd><dt><a class="struct" href="struct.InputMediaLocation.html" title="struct rustigram_types::file::InputMediaLocation">Input<wbr>Media<wbr>Location</a></dt><dd>A location to be sent as poll media.</dd><dt><a class="struct" href="struct.InputMediaPhoto.html" title="struct rustigram_types::file::InputMediaPhoto">Input<wbr>Media<wbr>Photo</a></dt><dd>A photo to include in a media group or replace an existing media message.</dd><dt><a class="struct" href="struct.InputMediaSticker.html" title="struct rustigram_types::file::InputMediaSticker">Input<wbr>Media<wbr>Sticker</a></dt><dd>A sticker file to be sent as poll option media.</dd><dt><a class="struct" href="struct.InputMediaVenue.html" title="struct rustigram_types::file::InputMediaVenue">Input<wbr>Media<wbr>Venue</a></dt><dd>A venue to be sent as poll media.</dd><dt><a class="struct" href="struct.InputMediaVideo.html" title="struct rustigram_types::file::InputMediaVideo">Input<wbr>Media<wbr>Video</a></dt><dd>A video to include in a media group or replace an existing media message.</dd><dt><a class="struct" href="struct.InputMediaVoiceNote.html" title="struct rustigram_types::file::InputMediaVoiceNote">Input<wbr>Media<wbr>Voice<wbr>Note</a></dt><dd>A voice message file to be sent.</dd><dt><a class="struct" href="struct.InputPaidMediaLivePhoto.html" title="struct rustigram_types::file::InputPaidMediaLivePhoto">Input<wbr>Paid<wbr>Media<wbr>Live<wbr>Photo</a></dt><dd>A live photo to send as paid media.</dd><dt><a class="struct" href="struct.InputPaidMediaPhoto.html" title="struct rustigram_types::file::InputPaidMediaPhoto">Input<wbr>Paid<wbr>Media<wbr>Photo</a></dt><dd>A photo to send as paid media.</dd><dt><a class="struct" href="struct.InputPaidMediaVideo.html" title="struct rustigram_types::file::InputPaidMediaVideo">Input<wbr>Paid<wbr>Media<wbr>Video</a></dt><dd>A video to send as paid media.</dd><dt><a class="struct" href="struct.InputProfilePhotoAnimated.html" title="struct rustigram_types::file::InputProfilePhotoAnimated">Input<wbr>Profile<wbr>Photo<wbr>Animated</a></dt><dd>An animated profile photo in MPEG4 format.</dd><dt><a class="struct" href="struct.InputProfilePhotoStatic.html" title="struct rustigram_types::file::InputProfilePhotoStatic">Input<wbr>Profile<wbr>Photo<wbr>Static</a></dt><dd>A static profile photo in JPEG format.</dd><dt><a class="struct" href="struct.LivePhoto.html" title="struct rustigram_types::file::LivePhoto">Live<wbr>Photo</a></dt><dd>A photo with a short video (live photo).</dd><dt><a class="struct" href="struct.PassportFile.html" title="struct rustigram_types::file::PassportFile">Passport<wbr>File</a></dt><dd>Encrypted passport file.</dd><dt><a class="struct" href="struct.PhotoSize.html" title="struct rustigram_types::file::PhotoSize">Photo<wbr>Size</a></dt><dd>One size of a photo or file thumbnail.</dd><dt><a class="struct" href="struct.Video.html" title="struct rustigram_types::file::Video">Video</a></dt><dd>Video file.</dd><dt><a class="struct" href="struct.VideoNote.html" title="struct rustigram_types::file::VideoNote">Video<wbr>Note</a></dt><dd>Rounded-square MPEG4 video note.</dd><dt><a class="struct" href="struct.VideoQuality.html" title="struct rustigram_types::file::VideoQuality">Video<wbr>Quality</a></dt><dd>A video file of a specific quality.</dd><dt><a class="struct" href="struct.Voice.html" title="struct rustigram_types::file::Voice">Voice</a></dt><dd>Voice note (OGG/OPUS audio).</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.InputFile.html" title="enum rustigram_types::file::InputFile">Input<wbr>File</a></dt><dd>Represents a file to be sent.</dd><dt><a class="enum" href="enum.InputMedia.html" title="enum rustigram_types::file::InputMedia">Input<wbr>Media</a></dt><dd>The media content of a message to be sent or edited.</dd><dt><a class="enum" href="enum.InputPaidMedia.html" title="enum rustigram_types::file::InputPaidMedia">Input<wbr>Paid<wbr>Media</a></dt><dd>Paid media to send via <code>sendPaidMedia</code>.</dd><dt><a class="enum" href="enum.InputProfilePhoto.html" title="enum rustigram_types::file::InputProfilePhoto">Input<wbr>Profile<wbr>Photo</a></dt><dd>A profile photo to set via <code>setMyProfilePhoto</code> or <code>setBusinessAccountProfilePhoto</code>.</dd></dl></section></div></main></body></html>

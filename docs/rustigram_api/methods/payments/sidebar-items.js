@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["AnswerPreCheckoutQuery","AnswerShippingQuery","CreateInvoiceLink","EditUserStarSubscription","GetMyStarBalance","GetStarTransactions","RefundStarPayment","SendInvoice"]};

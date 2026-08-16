@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Server-side Telegram Mini App bridge for the rustigram framework."><title>rustigram_miniapp - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-17e0aaed.css"><script id="default-settings" 
+data-use_system_theme="false"
+data-theme="tg-dark"></script><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="rustigram_miniapp" data-themes="tg-dark,tg-light" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../static.files/storage-41dd4d93.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-f7c3ffd8.css"></noscript><link rel="stylesheet" href="../theme.css"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"><!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<!-- Override the mono font variable before the first paint -->
+<style>
+  :root {
+    --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+  }
+</style>
+
+<style>
+  /* Allow logo + text to sit on the same line in the sidebar crate heading */
+  .sidebar-crate h2 a {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-crate h2 a img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    /* ── 1. Redirect built-in themes to Telegram themes ── */
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        localStorage.setItem("rustdoc-theme", sysDark ? "tg-dark" : "tg-light");
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          sysDark ? "tg-dark" : "tg-light",
+        );
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+
+    /* ── 2. Favicon + sidebar tweaks (need DOM ready) ── */
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Replace rustdoc's Rust logo favicon with ours */
+      document
+        .querySelectorAll('link[rel="icon"], link[rel="alternate icon"]')
+        .forEach(function (el) {
+          el.remove();
+        });
+      var fav = document.createElement("link");
+      fav.rel = "icon";
+      fav.type = "image/svg+xml";
+      fav.href = "https://rustigram.io/logo.svg";
+      document.head.appendChild(fav);
+
+      var meta = document.querySelector('meta[name="rustdoc-vars"]');
+      if (meta && meta.getAttribute("data-current-crate") === "rustigram") {
+        var crateLink = document.querySelector(".sidebar-crate h2 a");
+        if (crateLink) {
+          crateLink.href = "https://rustigram.io";
+
+          var logo = document.createElement("img");
+          logo.src = "https://rustigram.io/logo.svg";
+          logo.alt = "rustigram";
+          logo.setAttribute("aria-hidden", "true");
+          crateLink.insertBefore(logo, crateLink.firstChild);
+        }
+      }
+    });
+  })();
+</script>
+
+</head><body class="rustdoc mod crate"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate rustigram_miniapp</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../rustigram_miniapp/index.html">rustigram_<wbr>miniapp</a><span class="version">0.12.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#feature-flags" title="Feature flags">Feature flags</a></li><li><a href="#deployment-modes" title="Deployment modes">Deployment modes</a><ul><li><a href="#mode-1--typescript-only" title="Mode 1 — TypeScript only">Mode 1 — TypeScript only</a></li><li><a href="#mode-2--rust-only" title="Mode 2 — Rust only">Mode 2 — Rust only</a></li><li><a href="#mode-3--rust-gateway--solidstart-bff" title="Mode 3 — Rust gateway + SolidStart BFF">Mode 3 — Rust gateway + SolidStart BFF</a></li></ul></li><li><a href="#quick-start" title="Quick start">Quick start</a></li><li><a href="#security--mini-app-origin-restriction-bot-api-102" title="Security — Mini App origin restriction (Bot API 10.2)">Security — Mini App origin restriction (Bot API 10.2)</a></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1>Crate <span>rustigram_<wbr>miniapp</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/rustigram_miniapp/lib.rs.html#1-112">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Server-side Telegram Mini App bridge for the rustigram framework.</p>
+<p>Provides initData validation, typed Axum extractors, a Tower middleware
+pipeline, and an optional ts-rs type generation pipeline so Rust structs
+stay in sync with the TypeScript <code>@rustigram/tma-*</code> packages.</p>
+<h2 id="feature-flags"><a class="doc-anchor" href="#feature-flags">§</a>Feature flags</h2><div><table><thead><tr><th>Flag</th><th>Effect</th></tr></thead><tbody>
+<tr><td><code>ts</code></td><td>Enables ts-rs derives on all public types. Required for <code>gen-types</code>.</td></tr>
+</tbody></table>
+</div><h2 id="deployment-modes"><a class="doc-anchor" href="#deployment-modes">§</a>Deployment modes</h2><h3 id="mode-1--typescript-only"><a class="doc-anchor" href="#mode-1--typescript-only">§</a>Mode 1 — TypeScript only</h3>
+<p><code>@rustigram/tma-server</code> handles validation. No Rust backend required.
+<code>BOT_TOKEN</code> lives in the TypeScript environment.</p>
+<h3 id="mode-2--rust-only"><a class="doc-anchor" href="#mode-2--rust-only">§</a>Mode 2 — Rust only</h3>
+<p>Rust is the API server. <code>@rustigram/tma-server</code> is not used on the
+backend at all. <code>@rustigram/tma-core</code> still works on the frontend.
+<code>BOT_TOKEN</code> lives in the Rust environment only.</p>
+<h3 id="mode-3--rust-gateway--solidstart-bff"><a class="doc-anchor" href="#mode-3--rust-gateway--solidstart-bff">§</a>Mode 3 — Rust gateway + SolidStart BFF</h3>
+<p>Rust validates and signs forwarded requests. SolidStart parses without
+re-validating. <code>BOT_TOKEN</code> lives in Rust only. SolidStart only needs
+<code>GATEWAY_SECRET</code>.</p>
+<p>See <a href="extract/layer/struct.BotTokenLayer.html" title="struct rustigram_miniapp::extract::layer::BotTokenLayer"><code>extract::BotTokenLayer</code></a>, <a href="extract/gateway/struct.TmaGatewayLayer.html" title="struct rustigram_miniapp::extract::gateway::TmaGatewayLayer"><code>extract::TmaGatewayLayer</code></a>, and
+<a href="extract/axum/struct.TmaInitData.html" title="struct rustigram_miniapp::extract::axum::TmaInitData"><code>extract::TmaInitData</code></a> for the full setup.</p>
+<h2 id="quick-start"><a class="doc-anchor" href="#quick-start">§</a>Quick start</h2>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>axum::{routing::post, Router};
+<span class="kw">use </span>rustigram_miniapp::{
+    extract::TmaInitData, BotToken, BotTokenLayer,
+    GatewaySecret, TmaGatewayLayer,
+};
+
+<span class="kw">async fn </span>tma_handler(TmaInitData(data): TmaInitData) {
+    <span class="macro">println!</span>(<span class="string">"user: {:?}"</span>, data.user);
+}
+
+<span class="comment">// Mode 2 — Rust only
+</span><span class="kw">let </span>app = Router::new()
+    .route(<span class="string">"/tma"</span>, post(tma_handler))
+    .layer(BotTokenLayer(BotToken(
+        std::env::var(<span class="string">"BOT_TOKEN"</span>).unwrap(),
+    )));
+
+<span class="comment">// Mode 3 — Rust gateway, add TmaGatewayLayer for the trust signal
+</span><span class="kw">let </span>app = Router::new()
+    .route(<span class="string">"/tma"</span>, post(tma_handler))
+    .layer(TmaGatewayLayer(GatewaySecret(
+        std::env::var(<span class="string">"GATEWAY_SECRET"</span>).unwrap(),
+    )))
+    .layer(BotTokenLayer(BotToken(
+        std::env::var(<span class="string">"BOT_TOKEN"</span>).unwrap(),
+    )));</code></pre></div><h2 id="security--mini-app-origin-restriction-bot-api-102"><a class="doc-anchor" href="#security--mini-app-origin-restriction-bot-api-102">§</a>Security — Mini App origin restriction (Bot API 10.2)</h2>
+<p>Telegram now disallows calling Mini App methods from an origin different
+from the Mini App’s own domain. This protection is enforced client-side by
+Telegram and rolls out automatically to all Mini Apps on July 20, 2026 —
+opt-out is via @BotFather, not via this crate. It requires <strong>no changes</strong>
+in <code>rustigram-miniapp</code>: initData validation, the Axum extractors, and the
+gateway layer all operate on data Telegram has already validated against
+the registered domain, so there is nothing for this crate to additionally
+enforce. If you opted out via @BotFather, you are responsible for ensuring
+your Mini App has no links to untrusted sites.</p>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt id="reexport.MiniAppError"><code>pub use error::<a class="enum" href="error/enum.MiniAppError.html" title="enum rustigram_miniapp::error::MiniAppError">MiniAppError</a>;</code></dt><dt id="reexport.Result"><code>pub use error::<a class="type" href="error/type.Result.html" title="type rustigram_miniapp::error::Result">Result</a>;</code></dt><dt id="reexport.BotToken"><code>pub use extract::<a class="struct" href="extract/struct.BotToken.html" title="struct rustigram_miniapp::extract::BotToken">BotToken</a>;</code></dt><dt id="reexport.BotTokenLayer"><code>pub use extract::<a class="struct" href="extract/layer/struct.BotTokenLayer.html" title="struct rustigram_miniapp::extract::layer::BotTokenLayer">BotTokenLayer</a>;</code></dt><dt id="reexport.GatewaySecret"><code>pub use extract::<a class="struct" href="extract/gateway/struct.GatewaySecret.html" title="struct rustigram_miniapp::extract::gateway::GatewaySecret">GatewaySecret</a>;</code></dt><dt id="reexport.TmaGatewayLayer"><code>pub use extract::<a class="struct" href="extract/gateway/struct.TmaGatewayLayer.html" title="struct rustigram_miniapp::extract::gateway::TmaGatewayLayer">TmaGatewayLayer</a>;</code></dt><dt id="reexport.TmaInitData"><code>pub use extract::<a class="struct" href="extract/axum/struct.TmaInitData.html" title="struct rustigram_miniapp::extract::axum::TmaInitData">TmaInitData</a>;</code></dt><dt id="reexport.ColorScheme"><code>pub use types::<a class="enum" href="types/theme/enum.ColorScheme.html" title="enum rustigram_miniapp::types::theme::ColorScheme">ColorScheme</a>;</code></dt><dt id="reexport.ContentSafeAreaInset"><code>pub use types::<a class="struct" href="types/safe_area/struct.ContentSafeAreaInset.html" title="struct rustigram_miniapp::types::safe_area::ContentSafeAreaInset">ContentSafeAreaInset</a>;</code></dt><dt id="reexport.InitDataChatType"><code>pub use types::<a class="enum" href="types/init_data/enum.InitDataChatType.html" title="enum rustigram_miniapp::types::init_data::InitDataChatType">InitDataChatType</a>;</code></dt><dt id="reexport.SafeAreaInset"><code>pub use types::<a class="struct" href="types/safe_area/struct.SafeAreaInset.html" title="struct rustigram_miniapp::types::safe_area::SafeAreaInset">SafeAreaInset</a>;</code></dt><dt id="reexport.ThemeParams"><code>pub use types::<a class="struct" href="types/theme/struct.ThemeParams.html" title="struct rustigram_miniapp::types::theme::ThemeParams">ThemeParams</a>;</code></dt><dt id="reexport.WebAppChat"><code>pub use types::<a class="struct" href="types/init_data/struct.WebAppChat.html" title="struct rustigram_miniapp::types::init_data::WebAppChat">WebAppChat</a>;</code></dt><dt id="reexport.WebAppChatType"><code>pub use types::<a class="enum" href="types/init_data/enum.WebAppChatType.html" title="enum rustigram_miniapp::types::init_data::WebAppChatType">WebAppChatType</a>;</code></dt><dt id="reexport.WebAppInitData"><code>pub use types::<a class="struct" href="types/init_data/struct.WebAppInitData.html" title="struct rustigram_miniapp::types::init_data::WebAppInitData">WebAppInitData</a>;</code></dt><dt id="reexport.WebAppUser"><code>pub use types::<a class="struct" href="types/init_data/struct.WebAppUser.html" title="struct rustigram_miniapp::types::init_data::WebAppUser">WebAppUser</a>;</code></dt><dt id="reexport.validate_ed25519"><code>pub use validate::<a class="fn" href="validate/ed25519/fn.validate_ed25519.html" title="fn rustigram_miniapp::validate::ed25519::validate_ed25519">validate_ed25519</a>;</code></dt><dt id="reexport.validate_hmac"><code>pub use validate::<a class="fn" href="validate/hmac/fn.validate_hmac.html" title="fn rustigram_miniapp::validate::hmac::validate_hmac">validate_hmac</a>;</code></dt><dt id="reexport.Ed25519ValidateOpts"><code>pub use validate::<a class="struct" href="validate/struct.Ed25519ValidateOpts.html" title="struct rustigram_miniapp::validate::Ed25519ValidateOpts">Ed25519ValidateOpts</a>;</code></dt><dt id="reexport.HmacValidateOpts"><code>pub use validate::<a class="struct" href="validate/struct.HmacValidateOpts.html" title="struct rustigram_miniapp::validate::HmacValidateOpts">HmacValidateOpts</a>;</code></dt><dt id="reexport.TelegramEnv"><code>pub use validate::<a class="enum" href="validate/enum.TelegramEnv.html" title="enum rustigram_miniapp::validate::TelegramEnv">TelegramEnv</a>;</code></dt></dl><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="error/index.html" title="mod rustigram_miniapp::error">error</a></dt><dd>Error types and result alias used across the crate.
+Error types for <code>rustigram-miniapp</code>.</dd><dt><a class="mod" href="extract/index.html" title="mod rustigram_miniapp::extract">extract</a></dt><dd>Axum extractors and Tower middleware for TMA request handling.</dd><dt><a class="mod" href="parse/index.html" title="mod rustigram_miniapp::parse">parse</a></dt><dd>initData query string parsing utilities (crate-internal).
+Raw initData query string parsing utilities.</dd><dt><a class="mod" href="types/index.html" title="mod rustigram_miniapp::types">types</a></dt><dd>Typed representations of all Telegram Mini App objects.</dd><dt><a class="mod" href="validate/index.html" title="mod rustigram_miniapp::validate">validate</a></dt><dd>initData validation — HMAC-SHA256 (<a href="validate/hmac/fn.validate_hmac.html" title="fn rustigram_miniapp::validate::hmac::validate_hmac"><code>validate::validate_hmac</code></a>) and
+Ed25519 (<a href="validate/ed25519/fn.validate_ed25519.html" title="fn rustigram_miniapp::validate::ed25519::validate_ed25519"><code>validate::validate_ed25519</code></a>).
+initData validation — HMAC-SHA256 and Ed25519.</dd></dl></section></div></main></body></html>

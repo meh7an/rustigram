@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Message and media sending methods."><title>rustigram_api::methods::sending - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-17e0aaed.css"><script id="default-settings" 
+data-use_system_theme="false"
+data-theme="tg-dark"></script><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustigram_api" data-themes="tg-dark,tg-light" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../static.files/storage-41dd4d93.js"></script><script defer src="../sidebar-items.js"></script><script defer src="../../../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="stylesheet" href="../../../theme.css"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"><!-- IBM Plex Mono — weights matching Source Code Pro usage in rustdoc -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap"
+/>
+
+<!-- Override the mono font variable before the first paint -->
+<style>
+  :root {
+    --font-family-code: "IBM Plex Mono", "Source Code Pro", monospace;
+  }
+</style>
+
+<style>
+  /* Allow logo + text to sit on the same line in the sidebar crate heading */
+  .sidebar-crate h2 a {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-crate h2 a img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  /**
+   * Redirect rustdoc's built-in theme names to our Telegram themes.
+   *
+   * Runs after storage.js (which is also in <head>) so we can:
+   *   1. Patch the localStorage keys that "Use system preference" reads.
+   *   2. Immediately correct data-theme on <html> if storage.js applied a default.
+   *
+   * Keys we patch:
+   *   rustdoc-preferred-dark-theme  → tg-dark
+   *   rustdoc-preferred-light-theme → tg-light
+   *   rustdoc-theme                 → tg-dark | tg-light (based on OS preference)
+   */
+  (function () {
+    /* ── 1. Redirect built-in themes to Telegram themes ── */
+    var BUILT_IN = { dark: 1, light: 1, ayu: 1 };
+
+    var sysDark =
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    try {
+      /* ── 1. Fix system-preference theme targets ── */
+      var dp = localStorage.getItem("rustdoc-preferred-dark-theme");
+      if (!dp || BUILT_IN[dp]) {
+        localStorage.setItem("rustdoc-preferred-dark-theme", "tg-dark");
+      }
+
+      var lp = localStorage.getItem("rustdoc-preferred-light-theme");
+      if (!lp || BUILT_IN[lp]) {
+        localStorage.setItem("rustdoc-preferred-light-theme", "tg-light");
+      }
+
+      /* ── 2. Fix the stored theme selection ── */
+      var stored = localStorage.getItem("rustdoc-theme");
+      if (!stored || BUILT_IN[stored]) {
+        localStorage.setItem("rustdoc-theme", sysDark ? "tg-dark" : "tg-light");
+      }
+
+      /* ── 3. Immediately correct the live data-theme attribute ──
+       *  storage.js already ran and may have set data-theme="dark" etc.
+       *  We fix it right now so there is no flash of the wrong theme.   */
+      var applied = document.documentElement.getAttribute("data-theme");
+      if (!applied || BUILT_IN[applied]) {
+        document.documentElement.setAttribute(
+          "data-theme",
+          sysDark ? "tg-dark" : "tg-light",
+        );
+      }
+    } catch (e) {
+      /* localStorage blocked in some private-browse contexts */
+    }
+
+    /* ── 2. Favicon + sidebar tweaks (need DOM ready) ── */
+    document.addEventListener("DOMContentLoaded", function () {
+      /* Replace rustdoc's Rust logo favicon with ours */
+      document
+        .querySelectorAll('link[rel="icon"], link[rel="alternate icon"]')
+        .forEach(function (el) {
+          el.remove();
+        });
+      var fav = document.createElement("link");
+      fav.rel = "icon";
+      fav.type = "image/svg+xml";
+      fav.href = "https://rustigram.io/logo.svg";
+      document.head.appendChild(fav);
+
+      var meta = document.querySelector('meta[name="rustdoc-vars"]');
+      if (meta && meta.getAttribute("data-current-crate") === "rustigram") {
+        var crateLink = document.querySelector(".sidebar-crate h2 a");
+        if (crateLink) {
+          crateLink.href = "https://rustigram.io";
+
+          var logo = document.createElement("img");
+          logo.src = "https://rustigram.io/logo.svg";
+          logo.alt = "rustigram";
+          logo.setAttribute("aria-hidden", "true");
+          crateLink.insertBefore(logo, crateLink.firstChild);
+        }
+      }
+    });
+  })();
+</script>
+
+</head><body class="rustdoc mod"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Module sending</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../rustigram_api/index.html">rustigram_<wbr>api</a><span class="version">0.12.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">Module sending</a></h2><h3><a href="#structs">Module Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="../index.html">In rustigram_<wbr>api::<wbr>methods</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../index.html">rustigram_api</a>::<wbr><a href="../index.html">methods</a></div><h1>Module <span>sending</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../src/rustigram_api/methods/sending.rs.html#1-3274">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Message and media sending methods.</p>
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><dl class="item-table"><dt><a class="struct" href="struct.AnswerCallbackQuery.html" title="struct rustigram_api::methods::sending::AnswerCallbackQuery">Answer<wbr>Callback<wbr>Query</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#answercallbackquery"><code>answerCallbackQuery</code></a> method.</dd><dt><a class="struct" href="struct.CopyMessage.html" title="struct rustigram_api::methods::sending::CopyMessage">Copy<wbr>Message</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#copymessage"><code>copyMessage</code></a> method.</dd><dt><a class="struct" href="struct.CopyMessages.html" title="struct rustigram_api::methods::sending::CopyMessages">Copy<wbr>Messages</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#copymessages"><code>copyMessages</code></a> method.</dd><dt><a class="struct" href="struct.DeleteEphemeralMessage.html" title="struct rustigram_api::methods::sending::DeleteEphemeralMessage">Delete<wbr>Ephemeral<wbr>Message</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#deleteephemeralmessage"><code>deleteEphemeralMessage</code></a> method.</dd><dt><a class="struct" href="struct.DeleteMessage.html" title="struct rustigram_api::methods::sending::DeleteMessage">Delete<wbr>Message</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#deletemessage"><code>deleteMessage</code></a> method.</dd><dt><a class="struct" href="struct.DeleteMessages.html" title="struct rustigram_api::methods::sending::DeleteMessages">Delete<wbr>Messages</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#deletemessages"><code>deleteMessages</code></a> method.</dd><dt><a class="struct" href="struct.ForwardMessage.html" title="struct rustigram_api::methods::sending::ForwardMessage">Forward<wbr>Message</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#forwardmessage"><code>forwardMessage</code></a> method.</dd><dt><a class="struct" href="struct.ForwardMessages.html" title="struct rustigram_api::methods::sending::ForwardMessages">Forward<wbr>Messages</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#forwardmessages"><code>forwardMessages</code></a> method.</dd><dt><a class="struct" href="struct.MediaSendOptions.html" title="struct rustigram_api::methods::sending::MediaSendOptions">Media<wbr>Send<wbr>Options</a></dt><dd>Common optional parameters shared by most media-send methods.</dd><dt><a class="struct" href="struct.SendAnimation.html" title="struct rustigram_api::methods::sending::SendAnimation">Send<wbr>Animation</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendanimation"><code>sendAnimation</code></a> method.</dd><dt><a class="struct" href="struct.SendAudio.html" title="struct rustigram_api::methods::sending::SendAudio">Send<wbr>Audio</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendaudio"><code>sendAudio</code></a> method.</dd><dt><a class="struct" href="struct.SendChatAction.html" title="struct rustigram_api::methods::sending::SendChatAction">Send<wbr>Chat<wbr>Action</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendchataction"><code>sendChatAction</code></a> method.</dd><dt><a class="struct" href="struct.SendChecklist.html" title="struct rustigram_api::methods::sending::SendChecklist">Send<wbr>Checklist</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendchecklist"><code>sendChecklist</code></a> method.</dd><dt><a class="struct" href="struct.SendContact.html" title="struct rustigram_api::methods::sending::SendContact">Send<wbr>Contact</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendcontact"><code>sendContact</code></a> method.</dd><dt><a class="struct" href="struct.SendDice.html" title="struct rustigram_api::methods::sending::SendDice">Send<wbr>Dice</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#senddice"><code>sendDice</code></a> method.</dd><dt><a class="struct" href="struct.SendDocument.html" title="struct rustigram_api::methods::sending::SendDocument">Send<wbr>Document</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#senddocument"><code>sendDocument</code></a> method.</dd><dt><a class="struct" href="struct.SendGame.html" title="struct rustigram_api::methods::sending::SendGame">Send<wbr>Game</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendgame"><code>sendGame</code></a> method.</dd><dt><a class="struct" href="struct.SendLivePhoto.html" title="struct rustigram_api::methods::sending::SendLivePhoto">Send<wbr>Live<wbr>Photo</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendlivephoto"><code>sendLivePhoto</code></a> method.</dd><dt><a class="struct" href="struct.SendLocation.html" title="struct rustigram_api::methods::sending::SendLocation">Send<wbr>Location</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendlocation"><code>sendLocation</code></a> method.</dd><dt><a class="struct" href="struct.SendMediaGroup.html" title="struct rustigram_api::methods::sending::SendMediaGroup">Send<wbr>Media<wbr>Group</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendmediagroup"><code>sendMediaGroup</code></a> method.</dd><dt><a class="struct" href="struct.SendMessage.html" title="struct rustigram_api::methods::sending::SendMessage">Send<wbr>Message</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendmessage"><code>sendMessage</code></a> method.</dd><dt><a class="struct" href="struct.SendMessageDraft.html" title="struct rustigram_api::methods::sending::SendMessageDraft">Send<wbr>Message<wbr>Draft</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendmessagedraft"><code>sendMessageDraft</code></a> method.
+Streams a partial message to the user while it is being generated (Bot API 9.5+).</dd><dt><a class="struct" href="struct.SendPaidMedia.html" title="struct rustigram_api::methods::sending::SendPaidMedia">Send<wbr>Paid<wbr>Media</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendpaidmedia"><code>sendPaidMedia</code></a> method.</dd><dt><a class="struct" href="struct.SendPhoto.html" title="struct rustigram_api::methods::sending::SendPhoto">Send<wbr>Photo</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendphoto"><code>sendPhoto</code></a> method.</dd><dt><a class="struct" href="struct.SendPoll.html" title="struct rustigram_api::methods::sending::SendPoll">Send<wbr>Poll</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendpoll"><code>sendPoll</code></a> method.</dd><dt><a class="struct" href="struct.SendRichMessage.html" title="struct rustigram_api::methods::sending::SendRichMessage">Send<wbr>Rich<wbr>Message</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendrichmessage"><code>sendRichMessage</code></a> method.</dd><dt><a class="struct" href="struct.SendRichMessageDraft.html" title="struct rustigram_api::methods::sending::SendRichMessageDraft">Send<wbr>Rich<wbr>Message<wbr>Draft</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendrichmessagedraft"><code>sendRichMessageDraft</code></a> method.</dd><dt><a class="struct" href="struct.SendSticker.html" title="struct rustigram_api::methods::sending::SendSticker">Send<wbr>Sticker</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendsticker"><code>sendSticker</code></a> method.</dd><dt><a class="struct" href="struct.SendVenue.html" title="struct rustigram_api::methods::sending::SendVenue">Send<wbr>Venue</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendvenue"><code>sendVenue</code></a> method.</dd><dt><a class="struct" href="struct.SendVideo.html" title="struct rustigram_api::methods::sending::SendVideo">Send<wbr>Video</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendvideo"><code>sendVideo</code></a> method.</dd><dt><a class="struct" href="struct.SendVideoNote.html" title="struct rustigram_api::methods::sending::SendVideoNote">Send<wbr>Video<wbr>Note</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendvideonote"><code>sendVideoNote</code></a> method.</dd><dt><a class="struct" href="struct.SendVoice.html" title="struct rustigram_api::methods::sending::SendVoice">Send<wbr>Voice</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#sendvoice"><code>sendVoice</code></a> method.</dd><dt><a class="struct" href="struct.StopPoll.html" title="struct rustigram_api::methods::sending::StopPoll">Stop<wbr>Poll</a></dt><dd>Builder for the <a href="https://core.telegram.org/bots/api#stoppoll"><code>stopPoll</code></a> method.</dd></dl><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><dl class="item-table"><dt><a class="enum" href="enum.ChatAction.html" title="enum rustigram_api::methods::sending::ChatAction">Chat<wbr>Action</a></dt><dd>The chat action to display while the bot is preparing a response.</dd></dl></section></div></main></body></html>

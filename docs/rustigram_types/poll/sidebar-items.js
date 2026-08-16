@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["InputPollMedia","InputPollOptionMedia","PollType"],"struct":["InputPollOption","Poll","PollAnswer","PollMedia","PollOption","PollOptionAdded","PollOptionDeleted"]};

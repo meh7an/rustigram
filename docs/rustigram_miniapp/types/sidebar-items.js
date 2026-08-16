@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["init_data","safe_area","theme"]};

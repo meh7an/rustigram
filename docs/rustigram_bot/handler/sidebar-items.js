@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["handler_fn"],"struct":["HandlerFn","LoggingHandler"],"trait":["Handler"],"type":["BoxHandler","HandlerFuture"]};

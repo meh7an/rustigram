@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Gift","GiftBackground","GiftInfo","Gifts","UniqueGift","UniqueGiftBackdrop","UniqueGiftBackdropColors","UniqueGiftColors","UniqueGiftInfo","UniqueGiftModel","UniqueGiftSymbol"]};
