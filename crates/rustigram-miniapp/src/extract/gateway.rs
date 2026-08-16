@@ -71,7 +71,9 @@ impl<S> Layer<S> for TmaGatewayLayer {
 
 /// Produced by [`TmaGatewayLayer`].
 ///
-/// For each request carrying an `X-Telegram-Init-Data` header, computes
+/// For each request carrying initData — in the same headers
+/// [`super::TmaInitData`] reads, `X-Tma-Init-Data` or `Authorization: tma` —
+/// computes
 /// `HMAC-SHA256(gateway_secret, raw_init_data)` and injects the result as
 /// `X-Tma-Gateway` before delegating to the inner service.
 ///
@@ -99,9 +101,10 @@ where
     fn call(&mut self, mut req: Request<ReqBody>) -> Self::Future {
         // Sign the raw initData with the gateway secret so downstream can
         // verify it without knowing the bot token.
-        if let Some(init_data) = req.headers().get("x-telegram-init-data").cloned() {
+        if let Some(init_data) = super::init_data_from_headers(req.headers()) {
             type HmacSha256 = Hmac<Sha256>;
-            let mut mac = HmacSha256::new_from_slice(self.secret.0.as_bytes()).unwrap();
+            let mut mac = HmacSha256::new_from_slice(self.secret.0.as_bytes())
+                .expect("HMAC accepts a key of any length");
             mac.update(init_data.as_bytes());
             let sig = hex::encode(mac.finalize().into_bytes());
             if let Ok(val) = HeaderValue::from_str(&sig) {
@@ -109,5 +112,95 @@ where
             }
         }
         self.inner.call(req)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::body::Body;
+    use axum::http::Request as HttpRequest;
+    use axum::routing::get;
+    use axum::Router;
+    use tower::ServiceExt;
+
+    const SECRET: &str = "gateway-secret";
+    const INIT_DATA: &str = "auth_date=1700000000&query_id=q&hash=abc";
+
+    /// Echoes back whatever `X-Tma-Gateway` the layer produced, so a test can
+    /// assert on it.
+    async fn echo(headers: axum::http::HeaderMap) -> String {
+        headers
+            .get("x-tma-gateway")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("<unsigned>")
+            .to_owned()
+    }
+
+    fn app() -> Router {
+        Router::new()
+            .route("/", get(echo))
+            .layer(TmaGatewayLayer(GatewaySecret(SECRET.to_owned())))
+    }
+
+    fn expected_signature() -> String {
+        type HmacSha256 = Hmac<Sha256>;
+        let mut mac = HmacSha256::new_from_slice(SECRET.as_bytes()).unwrap();
+        mac.update(INIT_DATA.as_bytes());
+        hex::encode(mac.finalize().into_bytes())
+    }
+
+    async fn body_of(req: HttpRequest<Body>) -> String {
+        let resp = app().oneshot(req).await.unwrap();
+        let bytes = axum::body::to_bytes(resp.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        String::from_utf8(bytes.to_vec()).unwrap()
+    }
+
+    /// The regression: the layer used to read `X-Telegram-Init-Data`, which
+    /// nothing in the crate sets, so it never signed anything.
+    #[tokio::test]
+    async fn signs_the_header_the_extractor_reads() {
+        let req = HttpRequest::builder()
+            .uri("/")
+            .header("x-tma-init-data", INIT_DATA)
+            .body(Body::empty())
+            .unwrap();
+        assert_eq!(body_of(req).await, expected_signature());
+    }
+
+    /// The `Authorization: tma` fallback must sign identically — the downstream
+    /// verifies against the raw initData, not against which header carried it.
+    #[tokio::test]
+    async fn authorization_form_signs_identically() {
+        let req = HttpRequest::builder()
+            .uri("/")
+            .header("authorization", format!("tma {INIT_DATA}"))
+            .body(Body::empty())
+            .unwrap();
+        assert_eq!(body_of(req).await, expected_signature());
+    }
+
+    /// Documented behaviour: requests without initData pass through unsigned,
+    /// and the downstream extractor is what rejects them.
+    #[tokio::test]
+    async fn requests_without_init_data_pass_through_unsigned() {
+        let req = HttpRequest::builder()
+            .uri("/")
+            .body(Body::empty())
+            .unwrap();
+        assert_eq!(body_of(req).await, "<unsigned>");
+    }
+
+    /// The old header must not be honoured, or the bug silently survives.
+    #[tokio::test]
+    async fn the_old_wrong_header_is_not_signed() {
+        let req = HttpRequest::builder()
+            .uri("/")
+            .header("x-telegram-init-data", INIT_DATA)
+            .body(Body::empty())
+            .unwrap();
+        assert_eq!(body_of(req).await, "<unsigned>");
     }
 }

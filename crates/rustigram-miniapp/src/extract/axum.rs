@@ -62,28 +62,13 @@ where
     }
 }
 
-/// Reads the raw initData string from request headers.
-///
-/// Checks `X-Tma-Init-Data` first, then `Authorization: tma <data>`.
+/// Reads the raw initData string, or reports which headers were expected.
 fn read_init_data_header(parts: &Parts) -> Result<String> {
-    if let Some(val) = parts.headers.get("x-tma-init-data") {
-        return val
-            .to_str()
-            .map(|s| s.to_owned())
-            .map_err(|_| MiniAppError::MalformedInitData("non-UTF8 X-Tma-Init-Data".into()));
-    }
-
-    if let Some(auth) = parts.headers.get("authorization") {
-        if let Ok(s) = auth.to_str() {
-            if let Some(data) = s.strip_prefix("tma ") {
-                return Ok(data.to_owned());
-            }
-        }
-    }
-
-    Err(MiniAppError::MalformedInitData(
-        "missing X-Tma-Init-Data header (or Authorization: tma <data>)".into(),
-    ))
+    super::init_data_from_headers(&parts.headers).ok_or_else(|| {
+        MiniAppError::MalformedInitData(
+            "missing X-Tma-Init-Data header (or Authorization: tma <data>)".into(),
+        )
+    })
 }
 
 /// Extracts the numeric bot ID from the bot token (`123456789:ABC...` → `123456789`).
