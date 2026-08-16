@@ -56,6 +56,12 @@ jobs:
             - uses: Swatinem/rust-cache@v2
 
             - name: Every suite ran, and nothing was skipped
+              # The workflow sets CARGO_TERM_COLOR: always, which puts an ANSI
+              # reset between "Running" and the path — so a literal grep for
+              # "Running tests/x.rs" matches locally and never in CI. Turn colour
+              # off for this step rather than parsing around it.
+              env:
+                  CARGO_TERM_COLOR: never
               run: |
                   set -o pipefail
                   cargo test --all-features --workspace --tests 2>&1 | tee out.txt
@@ -69,19 +75,21 @@ jobs:
                       exit 1
                   fi
 
-                  for suite in \
-                      conformance_discriminants conformance_untagged \
-                      conformance_surface conformance_coverage \
-                      conformance_roundtrip conformance_optionality \
-                      spec_snapshot request_construction media_send_paths \
-                      response_handling mock_harness \
-                      dispatch_routing update_sources
-                  do
-                      grep -q "Running tests/$suite.rs" out.txt || {
+                  # Derived from the filesystem, not a hand-kept list. A list
+                  # goes stale the moment someone adds a test file — three had
+                  # already drifted out of one — and a suite missing from the
+                  # list is exactly the silent skip this job exists to catch.
+                  missing=0
+                  for file in crates/*/tests/*.rs; do
+                      suite=$(basename "$file" .rs)
+                      grep -q "tests/$suite\.rs" out.txt || {
                           echo "::error::$suite did not run"
-                          exit 1
+                          missing=1
                       }
                   done
+                  if [ "$missing" -ne 0 ]; then
+                      exit 1
+                  fi
                   echo "All conformance and transport suites ran, 0 skipped."
 
     coverage:
