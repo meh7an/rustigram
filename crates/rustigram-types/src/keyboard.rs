@@ -418,3 +418,11 @@ pub enum MenuButton {
     /// No action — uses the default behavior.
     Default,
 }
+
+/// A keyboard button prepared for use by a Mini App.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct PreparedKeyboardButton {
+    /// Unique identifier of the prepared button.
+    pub id: String,
+}

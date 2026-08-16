@@ -925,3 +925,29 @@ pub struct SentGuestMessage {
     /// Identifier of the sent inline message.
     pub inline_message_id: String,
 }
+
+/// A button shown above inline query results.
+///
+/// Exactly one of `web_app` or `start_parameter` should be set.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct InlineQueryResultsButton {
+    /// Label text on the button.
+    pub text: String,
+    /// Description of the Web App launched when the button is pressed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub web_app: Option<crate::message::WebAppInfo>,
+    /// Deep-linking parameter for the /start message sent when the button is pressed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub start_parameter: Option<String>,
+}
+
+/// An inline message prepared for sending by a Mini App.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct PreparedInlineMessage {
+    /// Unique identifier of the prepared message.
+    pub id: String,
+    /// Point in time when the prepared message can no longer be used, as a Unix timestamp.
+    pub expiration_date: i64,
+}

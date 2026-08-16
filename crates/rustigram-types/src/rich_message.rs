@@ -354,6 +354,7 @@ pub struct RichTextReference {
     /// The display text (typically the footnote superscript label).
     pub text: RichText,
     /// The footnote identifier being referenced.
+    #[serde(rename = "name")]
     pub footnote_name: String,
 }
 
@@ -597,10 +598,12 @@ pub struct RichBlockDetails {
 /// An embedded map (`<tg-map>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichBlockMap {
-    /// Latitude of the map centre.
-    pub latitude: f64,
-    /// Longitude of the map centre.
-    pub longitude: f64,
+    /// Location of the map centre.
+    ///
+    /// Telegram sends this as a nested `location` object. It was previously
+    /// modelled as flat `latitude`/`longitude` fields here, which meant every
+    /// real map block failed to deserialize with "missing field `latitude`".
+    pub location: crate::chat::Location,
     /// Zoom level (13–20).
     pub zoom: u8,
     /// Expected rendered width in pixels.
@@ -617,9 +620,6 @@ pub struct RichBlockMap {
 pub struct RichBlockAnimation {
     /// The animation file.
     pub animation: Animation,
-    /// `true` if the animation should play automatically.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub need_autoplay: Option<bool>,
     /// `true` if a spoiler overlay is shown before the first tap.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_spoiler: Option<bool>,
@@ -656,12 +656,6 @@ pub struct RichBlockPhoto {
 pub struct RichBlockVideo {
     /// The video file.
     pub video: Video,
-    /// `true` if the video should play automatically.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub need_autoplay: Option<bool>,
-    /// `true` if the video loops back to the start when it ends.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub is_looped: Option<bool>,
     /// `true` if a spoiler overlay is shown before the first tap.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub has_spoiler: Option<bool>,

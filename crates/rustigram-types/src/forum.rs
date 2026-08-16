@@ -15,6 +15,10 @@ pub struct ForumTopic {
     /// Custom emoji identifier used as the topic icon.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub icon_custom_emoji_id: Option<String>,
+    /// `true` if the topic name was derived from the first message rather than
+    /// set explicitly.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_name_implicit: Option<bool>,
 }
 
 // ─── Service messages ────────────────────────────────────────────────────────

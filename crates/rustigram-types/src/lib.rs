@@ -133,10 +133,13 @@ pub use file::{
     InputPaidMediaPhoto, InputPaidMediaVideo, InputProfilePhoto, InputProfilePhotoAnimated,
     InputProfilePhotoStatic, LivePhoto, PhotoSize, VideoQuality,
 };
-pub use inline::{ChosenInlineResult, InlineQuery, InlineQueryResult, SentGuestMessage};
+pub use inline::{
+    ChosenInlineResult, InlineQuery, InlineQueryResult, InlineQueryResultsButton,
+    PreparedInlineMessage, SentGuestMessage,
+};
 pub use keyboard::{
-    ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup,
-    ReplyKeyboardRemove,
+    ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, PreparedKeyboardButton,
+    ReplyKeyboardMarkup, ReplyKeyboardRemove,
 };
 pub use managed_bot::ManagedBotCreated;
 pub use forum::{
@@ -144,9 +147,9 @@ pub use forum::{
     GeneralForumTopicHidden, GeneralForumTopicUnhidden,
 };
 pub use message::{
-    ChatOwnerChanged, ChatOwnerLeft, Message, MessageAutoDeleteTimerChanged, MessageEntity,
-    MessageEntityKind, MessageOrigin, ProximityAlertTriggered, ReactionType, ReplyParameters,
-    WriteAccessAllowed,
+    ChatOwnerChanged, ChatOwnerLeft, InaccessibleMessage, MaybeInaccessibleMessage, Message,
+    MessageAutoDeleteTimerChanged, MessageEntity, MessageEntityKind, MessageOrigin,
+    ProximityAlertTriggered, ReactionType, ReplyParameters, WriteAccessAllowed,
 };
 pub use shared::{ChatShared, SharedUser, UsersShared};
 pub use video_chat::{
@@ -197,7 +200,8 @@ pub use suggested_post::{
     SuggestedPostPaid, SuggestedPostParameters, SuggestedPostPrice, SuggestedPostRefunded,
 };
 pub use update::{
-    BusinessBotRights, CallbackQuery, ChatBoostAdded, Update, UpdateKind, UserChatBoosts,
+    BusinessBotRights, CallbackQuery, ChatBoostAdded, ChatBoostSource, ChatBoostSourceGiftCode,
+    ChatBoostSourceGiveaway, ChatBoostSourcePremium, Update, UpdateKind, UserChatBoosts,
 };
 pub use user::{
     BotAccessSettings, BotCommand, BotDescription, BotName, BotShortDescription,

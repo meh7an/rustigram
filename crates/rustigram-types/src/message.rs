@@ -936,6 +936,53 @@ pub struct WriteAccessAllowed {
     pub from_attachment_menu: Option<bool>,
 }
 
+/// A message that is no longer accessible to the bot.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct InaccessibleMessage {
+    /// Chat the message belonged to.
+    pub chat: Chat,
+    /// Unique message identifier inside the chat.
+    pub message_id: i64,
+    /// Always `0`. This is the field that marks the message inaccessible.
+    pub date: i64,
+}
+
+/// A message that may or may not still be accessible to the bot.
+///
+/// Telegram distinguishes the two cases by `date`: an inaccessible message
+/// always has `date == 0`. The variants are otherwise structurally
+/// indistinguishable — an [`InaccessibleMessage`] is a strict subset of
+/// [`Message`] — so `#[serde(untagged)]` would always pick whichever variant
+/// came first. The manual [`Deserialize`] below dispatches on `date` instead.
+#[derive(Debug, Clone, Serialize)]
+#[serde(untagged)]
+pub enum MaybeInaccessibleMessage {
+    /// A regular, still-accessible message.
+    Message(Box<Message>),
+    /// A message the bot can no longer access.
+    Inaccessible(InaccessibleMessage),
+}
+
+impl<'de> Deserialize<'de> for MaybeInaccessibleMessage {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = serde_json::Value::deserialize(deserializer)?;
+        let is_inaccessible = value.get("date").and_then(serde_json::Value::as_i64) == Some(0);
+        if is_inaccessible {
+            InaccessibleMessage::deserialize(value)
+                .map(Self::Inaccessible)
+                .map_err(serde::de::Error::custom)
+        } else {
+            Message::deserialize(value)
+                .map(|m| Self::Message(Box::new(m)))
+                .map_err(serde::de::Error::custom)
+        }
+    }
+}
+
 /// Lightweight message identifier returned by `copyMessage`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessageId {

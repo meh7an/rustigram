@@ -847,3 +847,83 @@ mod backgrounds_and_business {
         assert!(!info.accepted_gift_types.unlimited_gifts);
     }
 }
+
+#[cfg(test)]
+mod unions_and_reconciliation {
+    use rustigram_types::rich_message::{RichBlock, RichText};
+    use rustigram_types::{ChatBoostSource, MaybeInaccessibleMessage};
+
+    #[test]
+    fn chat_boost_source_resolves_by_source_tag() {
+        let premium: ChatBoostSource = serde_json::from_str(
+            r#"{"source":"premium","user":{"id":1,"is_bot":false,"first_name":"A"}}"#,
+        )
+        .unwrap();
+        assert!(matches!(premium, ChatBoostSource::Premium(ref p) if p.user.id == 1));
+
+        let giveaway: ChatBoostSource = serde_json::from_str(
+            r#"{"source":"giveaway","giveaway_message_id":12,"is_unclaimed":true}"#,
+        )
+        .unwrap();
+        match giveaway {
+            ChatBoostSource::Giveaway(g) => {
+                assert_eq!(g.giveaway_message_id, 12);
+                assert_eq!(g.is_unclaimed, Some(true));
+                assert!(g.user.is_none());
+            }
+            other => panic!("expected giveaway, got {other:?}"),
+        }
+    }
+
+    /// The two variants are structurally indistinguishable — an inaccessible
+    /// message is a strict subset of a message — so dispatch is on `date == 0`.
+    #[test]
+    fn maybe_inaccessible_dispatches_on_date() {
+        let gone: MaybeInaccessibleMessage = serde_json::from_str(
+            r#"{"chat":{"id":1,"type":"private"},"message_id":5,"date":0}"#,
+        )
+        .unwrap();
+        assert!(matches!(gone, MaybeInaccessibleMessage::Inaccessible(ref m) if m.message_id == 5));
+
+        let live: MaybeInaccessibleMessage = serde_json::from_str(
+            r#"{"chat":{"id":1,"type":"private"},"message_id":5,"date":1700000000,"text":"hi"}"#,
+        )
+        .unwrap();
+        match live {
+            MaybeInaccessibleMessage::Message(m) => assert_eq!(m.text.as_deref(), Some("hi")),
+            other => panic!("expected accessible message, got {other:?}"),
+        }
+    }
+
+    /// Regression: a map block used to fail with "missing field `latitude`",
+    /// because the crate flattened what Telegram sends as a nested `location`.
+    #[test]
+    fn rich_block_map_deserializes_from_spec_shape() {
+        let block: RichBlock = serde_json::from_str(
+            r#"{"type":"map","location":{"latitude":41.0,"longitude":29.0},
+                "zoom":15,"width":600,"height":400}"#,
+        )
+        .unwrap();
+        match block {
+            RichBlock::Map(m) => {
+                assert!((m.location.latitude - 41.0).abs() < f64::EPSILON);
+                assert_eq!(m.zoom, 15);
+            }
+            other => panic!("expected map, got {other:?}"),
+        }
+    }
+
+    /// The spec calls this field `name`; the crate exposes it as `footnote_name`
+    /// for readability, so the rename must hold on the wire in both directions.
+    #[test]
+    fn rich_text_reference_uses_the_spec_field_name() {
+        let json = serde_json::to_value(rustigram_types::rich_message::RichTextReference {
+            kind: "reference".to_owned(),
+            text: RichText::Plain("1".to_owned()),
+            footnote_name: "fn1".to_owned(),
+        })
+        .unwrap();
+        assert_eq!(json["name"], "fn1");
+        assert!(json.get("footnote_name").is_none());
+    }
+}

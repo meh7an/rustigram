@@ -226,7 +226,52 @@ pub struct ChatBoost {
     /// Unix timestamp when the boost expires.
     pub expiration_date: i64,
     /// Source of the boost.
-    pub source: serde_json::Value,
+    pub source: ChatBoostSource,
+}
+
+/// How a chat boost was obtained.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "source", rename_all = "snake_case")]
+pub enum ChatBoostSource {
+    /// The boost was obtained by subscribing to Telegram Premium or gifting it.
+    Premium(ChatBoostSourcePremium),
+    /// The boost was obtained by the creation of Telegram Premium gift codes.
+    GiftCode(ChatBoostSourceGiftCode),
+    /// The boost was obtained by the creation of a Telegram Premium or Star giveaway.
+    Giveaway(ChatBoostSourceGiveaway),
+}
+
+/// A boost obtained by subscribing to Telegram Premium or gifting it.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ChatBoostSourcePremium {
+    /// User that boosted the chat.
+    pub user: User,
+}
+
+/// A boost obtained by the creation of Telegram Premium gift codes.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ChatBoostSourceGiftCode {
+    /// User for which the gift code was created.
+    pub user: User,
+}
+
+/// A boost obtained by the creation of a giveaway.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ChatBoostSourceGiveaway {
+    /// Identifier of the message with the giveaway in the chat.
+    pub giveaway_message_id: i64,
+    /// User that won the prize in the giveaway, if any.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<User>,
+    /// Number of Telegram Stars to be split among winners; Star giveaways only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prize_star_count: Option<i64>,
+    /// `true` if the giveaway was completed but no user won the prize.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_unclaimed: Option<bool>,
 }
 
 /// Service message: the chat was boosted.
@@ -247,7 +292,7 @@ pub struct ChatBoostRemoved {
     /// Unix timestamp when the boost was removed.
     pub remove_date: i64,
     /// Source of the removed boost.
-    pub source: serde_json::Value,
+    pub source: ChatBoostSource,
 }
 
 /// A managed bot was connected or disconnected.

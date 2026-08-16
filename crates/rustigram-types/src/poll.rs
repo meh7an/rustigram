@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::message::MaybeInaccessibleMessage;
+
 use crate::chat::{Chat, Location, Venue};
 use crate::file::{Animation, Audio, Document, LivePhoto, PhotoSize, Video};
 use crate::message::MessageEntity;
@@ -241,10 +243,9 @@ pub struct PollAnswer {
 pub struct PollOptionAdded {
     /// Message containing the poll to which the option was added.
     ///
-    /// Uses `serde_json::Value` because the API returns a `MaybeInaccessibleMessage`
     /// union type here. Will not contain `reply_to_message`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub poll_message: Option<serde_json::Value>,
+    pub poll_message: Option<MaybeInaccessibleMessage>,
     /// Persistent identifier of the added option.
     pub option_persistent_id: String,
     /// Text of the added option.
@@ -259,10 +260,9 @@ pub struct PollOptionAdded {
 pub struct PollOptionDeleted {
     /// Message containing the poll from which the option was deleted.
     ///
-    /// Uses `serde_json::Value` because the API returns a `MaybeInaccessibleMessage`
     /// union type here. Will not contain `reply_to_message`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub poll_message: Option<serde_json::Value>,
+    pub poll_message: Option<MaybeInaccessibleMessage>,
     /// Persistent identifier of the deleted option.
     pub option_persistent_id: String,
     /// Text of the deleted option.
