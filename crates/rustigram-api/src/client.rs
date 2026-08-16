@@ -610,24 +610,20 @@ impl BotClient {
     }
     /// Calls `sendMediaGroup` — sends 2–10 photos, videos, documents, or audios as an album.
     ///
-    /// The `media` parameter accepts `Vec<serde_json::Value>` until the `InputMedia` enum
-    /// is defined in Priority 4.
     pub fn send_media_group(
         &self,
         chat_id: impl Into<rustigram_types::user::ChatId>,
-        media: Vec<serde_json::Value>,
+        media: Vec<rustigram_types::file::InputMedia>,
     ) -> SendMediaGroup {
         SendMediaGroup::new(self.clone(), chat_id, media)
     }
     /// Calls `sendPaidMedia` — sends paid media requiring Telegram Stars to view.
     ///
-    /// The `media` parameter accepts `Vec<serde_json::Value>` until the `InputPaidMedia` enum
-    /// is defined in Priority 4.
     pub fn send_paid_media(
         &self,
         chat_id: impl Into<rustigram_types::user::ChatId>,
         star_count: u32,
-        media: Vec<serde_json::Value>,
+        media: Vec<rustigram_types::file::InputPaidMedia>,
     ) -> SendPaidMedia {
         SendPaidMedia::new(self.clone(), chat_id, star_count, media)
     }
@@ -772,13 +768,11 @@ impl BotClient {
     }
     /// Calls `editMessageMedia` — replaces the media content of a message.
     ///
-    /// The `media` parameter accepts `serde_json::Value` until `InputMedia` is
-    /// defined in Priority 4.
     pub fn edit_message_media(
         &self,
         chat_id: impl Into<rustigram_types::user::ChatId>,
         message_id: i64,
-        media: serde_json::Value,
+        media: rustigram_types::file::InputMedia,
     ) -> EditMessageMedia {
         EditMessageMedia::in_chat(self.clone(), chat_id, message_id, media)
     }
@@ -786,7 +780,7 @@ impl BotClient {
     pub fn edit_inline_message_media(
         &self,
         inline_message_id: impl Into<String>,
-        media: serde_json::Value,
+        media: rustigram_types::file::InputMedia,
     ) -> EditMessageMedia {
         EditMessageMedia::inline(self.clone(), inline_message_id, media)
     }
@@ -1274,12 +1268,11 @@ impl BotClient {
 
     /// Calls `postStory` — posts a story on behalf of a managed business account.
     ///
-    /// `content` is `serde_json::Value` until `InputStoryContent` is defined in Priority 4.
     /// `active_period` must be one of `21600`, `43200`, `86400`, or `172800` seconds.
     pub fn post_story(
         &self,
         business_connection_id: impl Into<String>,
-        content: serde_json::Value,
+        content: rustigram_types::story::InputStoryContent,
         active_period: u32,
     ) -> PostStory {
         PostStory::new(self.clone(), business_connection_id, content, active_period)
@@ -1304,12 +1297,11 @@ impl BotClient {
     }
     /// Calls `editStory` — edits a story posted by the bot on behalf of a business account.
     ///
-    /// `content` is `serde_json::Value` until `InputStoryContent` is defined in Priority 4.
     pub fn edit_story(
         &self,
         business_connection_id: impl Into<String>,
         story_id: i64,
-        content: serde_json::Value,
+        content: rustigram_types::story::InputStoryContent,
     ) -> EditStory {
         EditStory::new(self.clone(), business_connection_id, story_id, content)
     }
@@ -1477,12 +1469,10 @@ impl BotClient {
 
     /// Calls `setPassportDataErrors` — reports errors in Telegram Passport elements.
     ///
-    /// Each error is a `serde_json::Value` — serialise from
-    /// `rustigram_types::passport::PassportElementError` variants.
     pub fn set_passport_data_errors(
         &self,
         user_id: i64,
-        errors: Vec<serde_json::Value>,
+        errors: Vec<rustigram_types::passport::PassportElementError>,
     ) -> SetPassportDataErrors {
         SetPassportDataErrors::new(self.clone(), user_id, errors)
     }
@@ -1891,7 +1881,7 @@ impl BotClient {
     pub fn set_business_account_profile_photo(
         &self,
         business_connection_id: impl Into<String>,
-        photo: serde_json::Value,
+        photo: rustigram_types::file::InputProfilePhoto,
     ) -> SetBusinessAccountProfilePhoto {
         SetBusinessAccountProfilePhoto::new(self.clone(), business_connection_id, photo)
     }

@@ -1,3 +1,5 @@
+use rustigram_types::file::InputProfilePhoto;
+
 use crate::client::BotClient;
 use crate::error::Result;
 use rustigram_types::payments::StarAmount;
@@ -347,9 +349,7 @@ struct SetBusinessAccountProfilePhotoParams {
     business_connection_id: String,
     /// The new profile photo.
     ///
-    /// Uses `serde_json::Value` — serialise from
-    /// `rustigram_types::file::InputProfilePhoto` with `serde_json::to_value`.
-    photo: serde_json::Value,
+    photo: InputProfilePhoto,
     #[serde(skip_serializing_if = "Option::is_none")]
     is_public: Option<bool>,
 }
@@ -369,7 +369,7 @@ impl SetBusinessAccountProfilePhoto {
     pub(crate) fn new(
         client: BotClient,
         business_connection_id: impl Into<String>,
-        photo: serde_json::Value,
+        photo: InputProfilePhoto,
     ) -> Self {
         Self {
             client,

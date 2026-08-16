@@ -1057,3 +1057,53 @@ mod rich_text_dispatch {
         assert_eq!(serde_json::to_string(&parsed).unwrap(), json);
     }
 }
+
+#[cfg(test)]
+mod input_message_content_dispatch {
+    use rustigram_types::inline::InputMessageContent;
+
+    /// `InputMessageContent` is untagged, so variant order decides which one
+    /// wins. `Venue` requires everything `Location` does plus title and address,
+    /// and serde ignores extra fields — so with `Location` declared first, every
+    /// venue silently deserialized as a location and lost both.
+    #[test]
+    fn every_variant_resolves_to_itself() {
+        let cases: &[(&str, &str)] = &[
+            ("Text", r#"{"message_text":"hi"}"#),
+            (
+                "Venue",
+                r#"{"latitude":41.0,"longitude":29.0,"title":"T","address":"A"}"#,
+            ),
+            ("Location", r#"{"latitude":41.0,"longitude":29.0}"#),
+            ("Contact", r#"{"phone_number":"+100","first_name":"A"}"#),
+            (
+                "Invoice",
+                r#"{"title":"T","description":"D","payload":"p","currency":"XTR",
+                    "prices":[{"label":"l","amount":1}]}"#,
+            ),
+        ];
+        for (expected, json) in cases {
+            let parsed: InputMessageContent =
+                serde_json::from_str(json).unwrap_or_else(|e| panic!("{expected}: {e}\n  {json}"));
+            let got = format!("{parsed:?}");
+            let got = got.split(['(', ' ']).next().unwrap_or_default();
+            assert_eq!(&got, expected, "{expected} resolved to {got}");
+        }
+    }
+
+    /// The specific loss: a venue must keep its title and address.
+    #[test]
+    fn venue_keeps_its_title_and_address() {
+        let parsed: InputMessageContent = serde_json::from_str(
+            r#"{"latitude":41.0,"longitude":29.0,"title":"Blue Mosque","address":"Sultanahmet"}"#,
+        )
+        .unwrap();
+        match parsed {
+            InputMessageContent::Venue(v) => {
+                assert_eq!(v.title, "Blue Mosque");
+                assert_eq!(v.address, "Sultanahmet");
+            }
+            other => panic!("expected a venue, got {other:?}"),
+        }
+    }
+}

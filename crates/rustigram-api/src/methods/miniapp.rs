@@ -1,3 +1,5 @@
+use rustigram_types::keyboard::PreparedKeyboardButton;
+
 use crate::client::BotClient;
 use crate::error::Result;
 use rustigram_types::keyboard::KeyboardButton;
@@ -32,8 +34,7 @@ struct SavePreparedKeyboardButtonParams {
 /// Stores a keyboard button that can be used by a user within a Mini App.
 /// The button must be of type `request_users`, `request_chat`, or `request_managed_bot`.
 ///
-/// Returns a `PreparedKeyboardButton` object as `serde_json::Value` until the
-/// type is formally defined in Priority 4.
+/// Returns the prepared button.
 pub struct SavePreparedKeyboardButton {
     client: BotClient,
     params: SavePreparedKeyboardButtonParams,
@@ -47,11 +48,9 @@ impl SavePreparedKeyboardButton {
         }
     }
 }
-
-// Returns `PreparedKeyboardButton` as `serde_json::Value` until the type is defined in Priority 4.
 impl_into_future!(
     SavePreparedKeyboardButton,
-    serde_json::Value,
+    PreparedKeyboardButton,
     "savePreparedKeyboardButton"
 );
 

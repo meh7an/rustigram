@@ -1,3 +1,5 @@
+use rustigram_types::passport::PassportElementError;
+
 use crate::client::BotClient;
 use crate::error::Result;
 use serde::Serialize;
@@ -11,10 +13,8 @@ struct SetPassportDataErrorsParams {
     user_id: i64,
     /// Array of `PassportElementError` objects describing the errors.
     ///
-    /// Uses `serde_json::Value` since `PassportElementError` is a complex enum
-    /// defined in `rustigram_types::passport`. Construct each error using the
-    /// appropriate variant from that module and serialise with `serde_json::to_value`.
-    errors: Vec<serde_json::Value>,
+    /// Errors describing why the submitted documents are unacceptable.
+    errors: Vec<PassportElementError>,
 }
 
 /// Builder for the [`setPassportDataErrors`](https://core.telegram.org/bots/api#setpassportdataerrors) method.
@@ -23,16 +23,13 @@ struct SetPassportDataErrorsParams {
 /// errors. The user will not be able to re-submit their Passport to the bot
 /// until the errors are fixed — the contents of the affected field must change.
 ///
-/// The `errors` parameter accepts `Vec<serde_json::Value>`. Construct each
-/// element from `rustigram_types::passport::PassportElementError` variants
-/// and serialise with `serde_json::to_value(&error)`.
 pub struct SetPassportDataErrors {
     client: BotClient,
     params: SetPassportDataErrorsParams,
 }
 
 impl SetPassportDataErrors {
-    pub(crate) fn new(client: BotClient, user_id: i64, errors: Vec<serde_json::Value>) -> Self {
+    pub(crate) fn new(client: BotClient, user_id: i64, errors: Vec<PassportElementError>) -> Self {
         Self {
             client,
             params: SetPassportDataErrorsParams { user_id, errors },

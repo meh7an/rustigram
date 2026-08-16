@@ -1,3 +1,5 @@
+use rustigram_types::story::{InputStoryContent, Story, StoryArea};
+
 use crate::client::BotClient;
 use crate::error::Result;
 use rustigram_types::message::{MessageEntity, ParseMode};
@@ -28,10 +30,9 @@ struct PostStoryParams {
     business_connection_id: String,
     /// Content of the story.
     ///
-    /// Uses `serde_json::Value` until `InputStoryContent` is defined in Priority 4.
     /// Construct with `serde_json::json!({"type":"photo","photo":"<file_id>"})` or
     /// `serde_json::to_value(&your_input_story_content)`.
-    content: serde_json::Value,
+    content: InputStoryContent,
     /// Period in seconds after which the story moves to the archive.
     ///
     /// Must be one of `21600` (6h), `43200` (12h), `86400` (24h), or `172800` (48h).
@@ -44,9 +45,8 @@ struct PostStoryParams {
     caption_entities: Option<Vec<MessageEntity>>,
     /// Clickable areas to show on the story.
     ///
-    /// Uses `serde_json::Value` until `StoryArea` is defined in Priority 4.
     #[serde(skip_serializing_if = "Option::is_none")]
-    areas: Option<Vec<serde_json::Value>>,
+    areas: Option<Vec<StoryArea>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     post_to_chat_page: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -58,7 +58,6 @@ struct PostStoryParams {
 /// Posts a story on behalf of a managed business account.
 /// Requires the `can_manage_stories` business bot right.
 ///
-/// `content` accepts `serde_json::Value` until `InputStoryContent` is defined in Priority 4.
 /// `active_period` must be one of `21600`, `43200`, `86400`, or `172800` seconds.
 pub struct PostStory {
     client: BotClient,
@@ -69,7 +68,7 @@ impl PostStory {
     pub(crate) fn new(
         client: BotClient,
         business_connection_id: impl Into<String>,
-        content: serde_json::Value,
+        content: InputStoryContent,
         active_period: u32,
     ) -> Self {
         Self {
@@ -104,8 +103,7 @@ impl PostStory {
     }
     /// Sets clickable areas on the story.
     ///
-    /// Each item is a `serde_json::Value` representing a `StoryArea` until Priority 4.
-    pub fn areas(mut self, a: Vec<serde_json::Value>) -> Self {
+    pub fn areas(mut self, a: Vec<StoryArea>) -> Self {
         self.params.areas = Some(a);
         self
     }
@@ -121,7 +119,7 @@ impl PostStory {
     }
 }
 
-impl_into_future!(PostStory, serde_json::Value, "postStory");
+impl_into_future!(PostStory, Story, "postStory");
 
 // ─── repostStory ──────────────────────────────────────────────────────────────
 
@@ -184,7 +182,7 @@ impl RepostStory {
     }
 }
 
-impl_into_future!(RepostStory, serde_json::Value, "repostStory");
+impl_into_future!(RepostStory, Story, "repostStory");
 
 // ─── editStory ────────────────────────────────────────────────────────────────
 
@@ -194,8 +192,7 @@ struct EditStoryParams {
     story_id: i64,
     /// New content of the story.
     ///
-    /// Uses `serde_json::Value` until `InputStoryContent` is defined in Priority 4.
-    content: serde_json::Value,
+    content: InputStoryContent,
     #[serde(skip_serializing_if = "Option::is_none")]
     caption: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -204,9 +201,8 @@ struct EditStoryParams {
     caption_entities: Option<Vec<MessageEntity>>,
     /// Clickable areas to show on the story.
     ///
-    /// Uses `serde_json::Value` until `StoryArea` is defined in Priority 4.
     #[serde(skip_serializing_if = "Option::is_none")]
-    areas: Option<Vec<serde_json::Value>>,
+    areas: Option<Vec<StoryArea>>,
 }
 
 /// Builder for the [`editStory`](https://core.telegram.org/bots/api#editstory) method.
@@ -214,7 +210,6 @@ struct EditStoryParams {
 /// Edits a story previously posted by the bot on behalf of a managed business account.
 /// Requires the `can_manage_stories` business bot right.
 ///
-/// `content` accepts `serde_json::Value` until `InputStoryContent` is defined in Priority 4.
 pub struct EditStory {
     client: BotClient,
     params: EditStoryParams,
@@ -225,7 +220,7 @@ impl EditStory {
         client: BotClient,
         business_connection_id: impl Into<String>,
         story_id: i64,
-        content: serde_json::Value,
+        content: InputStoryContent,
     ) -> Self {
         Self {
             client,
@@ -257,14 +252,13 @@ impl EditStory {
     }
     /// Sets clickable areas on the story.
     ///
-    /// Each item is a `serde_json::Value` representing a `StoryArea` until Priority 4.
-    pub fn areas(mut self, a: Vec<serde_json::Value>) -> Self {
+    pub fn areas(mut self, a: Vec<StoryArea>) -> Self {
         self.params.areas = Some(a);
         self
     }
 }
 
-impl_into_future!(EditStory, serde_json::Value, "editStory");
+impl_into_future!(EditStory, Story, "editStory");
 
 // ─── deleteStory ──────────────────────────────────────────────────────────────
 

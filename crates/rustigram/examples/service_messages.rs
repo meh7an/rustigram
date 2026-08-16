@@ -66,7 +66,11 @@ async fn video_chat(ctx: Context) -> BotResult<()> {
     } else if let Some(ended) = &message.video_chat_ended {
         format!("Video chat ended after {} seconds.", ended.duration)
     } else if let Some(invited) = &message.video_chat_participants_invited {
-        let names: Vec<&str> = invited.users.iter().map(|u| u.first_name.as_str()).collect();
+        let names: Vec<&str> = invited
+            .users
+            .iter()
+            .map(|u| u.first_name.as_str())
+            .collect();
         format!("Invited to the video chat: {}.", names.join(", "))
     } else {
         return Ok(());

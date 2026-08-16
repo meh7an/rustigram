@@ -284,10 +284,8 @@ struct EditMessageMediaParams {
     #[serde(flatten)]
     target: EditTarget,
     /// The new media content.
-    ///
-    /// Uses `serde_json::Value` until the `InputMedia` enum is defined in
-    /// Priority 4. Pass the result of `serde_json::to_value(&your_input_media)`.
-    media: serde_json::Value,
+    /// Pass the result of `serde_json::to_value(&your_input_media)`.
+    media: InputMedia,
     #[serde(skip_serializing_if = "Option::is_none")]
     business_connection_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -298,9 +296,6 @@ struct EditMessageMediaParams {
 ///
 /// Edits the media content of a message (animation, audio, document, photo, or video).
 ///
-/// The `media` parameter accepts `serde_json::Value` until the `InputMedia` enum is
-/// defined in Priority 4. Construct it with `serde_json::json!({...})` or
-/// `serde_json::to_value(&input_media)`.
 pub struct EditMessageMedia {
     client: BotClient,
     params: EditMessageMediaParams,
@@ -311,7 +306,7 @@ impl EditMessageMedia {
         client: BotClient,
         chat_id: impl Into<ChatId>,
         message_id: i64,
-        media: serde_json::Value,
+        media: InputMedia,
     ) -> Self {
         Self {
             client,
@@ -329,7 +324,7 @@ impl EditMessageMedia {
     pub(crate) fn inline(
         client: BotClient,
         inline_message_id: impl Into<String>,
-        media: serde_json::Value,
+        media: InputMedia,
     ) -> Self {
         Self {
             client,

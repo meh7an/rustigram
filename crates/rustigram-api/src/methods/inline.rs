@@ -1,3 +1,5 @@
+use rustigram_types::inline::{InlineQueryResultsButton, PreparedInlineMessage, SentWebAppMessage};
+
 use crate::client::BotClient;
 use rustigram_types::inline::InlineQueryResult;
 use serde::Serialize;
@@ -15,7 +17,7 @@ struct AnswerInlineQueryParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     next_offset: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    button: Option<serde_json::Value>,
+    button: Option<InlineQueryResultsButton>,
 }
 
 /// Builder for the [`answerInlineQuery`](https://core.telegram.org/bots/api#answerinlinequery) method.
@@ -104,8 +106,7 @@ impl AnswerWebAppQuery {
 }
 
 impl IntoFuture for AnswerWebAppQuery {
-    /// Returns `SentWebAppMessage` as `serde_json::Value` until the type is defined in Priority 4.
-    type Output = crate::error::Result<serde_json::Value>;
+    type Output = crate::error::Result<SentWebAppMessage>;
     type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(async move {
@@ -135,8 +136,7 @@ struct SavePreparedInlineMessageParams {
 /// Builder for the [`savePreparedInlineMessage`](https://core.telegram.org/bots/api#savepreparedinlinemessage) method.
 ///
 /// Stores a message that can be sent by a user from a Mini App.
-/// Returns a `PreparedInlineMessage` object as `serde_json::Value` until the type
-/// is defined in Priority 4.
+/// Returns the prepared message.
 pub struct SavePreparedInlineMessage {
     client: BotClient,
     params: SavePreparedInlineMessageParams,
@@ -179,8 +179,7 @@ impl SavePreparedInlineMessage {
 }
 
 impl IntoFuture for SavePreparedInlineMessage {
-    /// Returns `PreparedInlineMessage` as `serde_json::Value` until the type is defined in Priority 4.
-    type Output = crate::error::Result<serde_json::Value>;
+    type Output = crate::error::Result<PreparedInlineMessage>;
     type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(async move {

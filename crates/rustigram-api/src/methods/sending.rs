@@ -4,7 +4,7 @@ use std::pin::Pin;
 use reqwest::multipart::{Form, Part};
 use serde::Serialize;
 
-use rustigram_types::file::InputFile;
+use rustigram_types::file::{InputFile, InputMedia, InputPaidMedia};
 use rustigram_types::keyboard::ReplyMarkup;
 use rustigram_types::message::{LinkPreviewOptions, Message, ParseMode, ReplyParameters};
 use rustigram_types::poll::InputPollOption;
@@ -2428,10 +2428,8 @@ impl_into_future!(SendVenue, Message, "sendVenue");
 struct SendMediaGroupParams {
     chat_id: ChatId,
     /// Array of `InputMedia` objects (photo, video, audio, or document).
-    ///
-    /// Uses `serde_json::Value` until the `InputMedia` enum is defined in
-    /// Priority 4. Pass the result of `serde_json::to_value(&your_input_media_vec)`.
-    media: Vec<serde_json::Value>,
+    /// Pass the result of `serde_json::to_value(&your_input_media_vec)`.
+    media: Vec<InputMedia>,
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2450,9 +2448,6 @@ struct SendMediaGroupParams {
 ///
 /// Sends a group of photos, videos, documents, or audios as an album (2–10 items).
 ///
-/// The `media` parameter accepts `Vec<serde_json::Value>` until the `InputMedia`
-/// enum is defined in Priority 4. Construct items with `serde_json::json!({...})`
-/// or `serde_json::to_value(&input_media)`.
 pub struct SendMediaGroup {
     client: BotClient,
     params: SendMediaGroupParams,
@@ -2462,7 +2457,7 @@ impl SendMediaGroup {
     pub(crate) fn new(
         client: BotClient,
         chat_id: impl Into<ChatId>,
-        media: Vec<serde_json::Value>,
+        media: Vec<InputMedia>,
     ) -> Self {
         Self {
             client,
@@ -2519,10 +2514,8 @@ struct SendPaidMediaParams {
     chat_id: ChatId,
     star_count: u32,
     /// Array of `InputPaidMedia` objects (photo or video).
-    ///
-    /// Uses `serde_json::Value` until the `InputPaidMedia` enum is defined in
-    /// Priority 4. Pass the result of `serde_json::to_value(&your_paid_media_vec)`.
-    media: Vec<serde_json::Value>,
+    /// Pass the result of `serde_json::to_value(&your_paid_media_vec)`.
+    media: Vec<InputPaidMedia>,
     #[serde(skip_serializing_if = "Option::is_none")]
     business_connection_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2547,8 +2540,6 @@ struct SendPaidMediaParams {
 ///
 /// Sends paid media that users must pay Telegram Stars to view (up to 10 items).
 ///
-/// The `media` parameter accepts `Vec<serde_json::Value>` until the `InputPaidMedia`
-/// enum is defined in Priority 4.
 pub struct SendPaidMedia {
     client: BotClient,
     params: SendPaidMediaParams,
@@ -2559,7 +2550,7 @@ impl SendPaidMedia {
         client: BotClient,
         chat_id: impl Into<ChatId>,
         star_count: u32,
-        media: Vec<serde_json::Value>,
+        media: Vec<InputPaidMedia>,
     ) -> Self {
         Self {
             client,

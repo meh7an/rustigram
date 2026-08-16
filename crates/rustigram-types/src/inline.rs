@@ -751,19 +751,31 @@ pub struct InlineQueryResultCachedAudio {
 
 // ─── InputMessageContent ──────────────────────────────────────────────────────
 
-/// The content of a message to be sent as the result of an inline query.
+/// The content of a message sent as the result of an inline query.
+///
+/// # Variant order is load-bearing
+///
+/// This enum is `#[serde(untagged)]`, so serde takes the first variant that
+/// matches, and it ignores fields the variant does not declare. `Venue`
+/// requires everything `Location` requires (`latitude`, `longitude`) plus
+/// `title` and `address` — a strict superset — so `Venue` must be tried first.
+/// With `Location` first, every venue deserialized as a location and silently
+/// lost its title and address.
+///
+/// Adding a variant whose required fields are a superset of an existing one
+/// means placing it above that one. `Venue` and `Location` are the only such
+/// pair today; the others have disjoint required fields and their order is free.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
-/// The content of a message sent as the result of an inline query.
 pub enum InputMessageContent {
     /// The message text.
     Text(InputTextMessageContent),
     /// A rich formatted message.
     Rich(crate::rich_message::InputRichMessageContent),
+    /// A venue. Declared before [`Location`](Self::Location) — see the note above.
+    Venue(InputVenueMessageContent),
     /// A location on a map.
     Location(InputLocationMessageContent),
-    /// A venue.
-    Venue(InputVenueMessageContent),
     /// A contact.
     Contact(InputContactMessageContent),
     /// An invoice.

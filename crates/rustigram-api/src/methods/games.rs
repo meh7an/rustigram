@@ -87,7 +87,9 @@ impl SetGameScore {
     }
 }
 
-// Returns the edited `Message` as `serde_json::Value` to handle the union
+// The spec returns `Message` for a chat message and `True` for an inline one.
+// The crate has no such union type, so this stays `serde_json::Value` —
+// the one remaining untyped return, and a deliberate one.
 // return type (`Message | true`) until a proper enum is defined.
 impl_into_future!(SetGameScore, serde_json::Value, "setGameScore");
 
