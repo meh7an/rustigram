@@ -52,10 +52,13 @@ jobs:
                       }
                   done
 
+            # `rustigram-v<version>` matches the 49 existing tags and the
+            # compare links already in the changelogs. One tag per release is
+            # enough here — every crate shares the workspace version.
             - name: The tag must not already exist
               run: |
-                  if git rev-parse "v${{ inputs.version }}" >/dev/null 2>&1; then
-                      echo "::error::tag v${{ inputs.version }} already exists"
+                  if git rev-parse "rustigram-v${{ inputs.version }}" >/dev/null 2>&1; then
+                      echo "::error::tag rustigram-v${{ inputs.version }} already exists"
                       exit 1
                   fi
 
@@ -92,6 +95,6 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  gh release create "v${{ inputs.version }}" \
+                  gh release create "rustigram-v${{ inputs.version }}" \
                       --title "v${{ inputs.version }}" \
                       --notes-file NOTES.md
