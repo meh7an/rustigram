@@ -112,3 +112,58 @@ pub fn reply_to(message_id: i64) -> ReplyParameters {
 pub fn bot_command() -> BotCommand {
     build(json!({ "command": "start", "description": "d" }))
 }
+
+// ─── Setter arguments ────────────────────────────────────────────────────────
+//
+// Used by the sweep that calls every setter on every builder. Built from JSON
+// for the same reason as the constructor fixtures above: the wire shape is what
+// matters, and a JSON body survives a Bot API field addition.
+
+use rustigram_types::inline::InlineQueryResultsButton;
+use rustigram_types::keyboard::{InlineKeyboardMarkup, MenuButton, ReplyMarkup};
+use rustigram_types::message::ReactionType;
+use rustigram_types::poll::InputPollMedia;
+use rustigram_types::sticker::{MaskPosition, StickerType};
+use rustigram_types::suggested_post::SuggestedPostParameters;
+use rustigram_types::user::BotCommandScope;
+
+pub fn inline_keyboard() -> InlineKeyboardMarkup {
+    build(json!({ "inline_keyboard": [] }))
+}
+
+pub fn suggested_post() -> SuggestedPostParameters {
+    build(json!({}))
+}
+
+pub fn command_scope() -> BotCommandScope {
+    build(json!({ "type": "default" }))
+}
+
+pub fn menu_button() -> MenuButton {
+    build(json!({ "type": "default" }))
+}
+
+/// `ReplyMarkup` has no `From<InlineKeyboardMarkup>`, so the variant is named.
+pub fn reply_markup() -> ReplyMarkup {
+    ReplyMarkup::InlineKeyboard(inline_keyboard())
+}
+
+pub fn results_button() -> InlineQueryResultsButton {
+    build(json!({ "text": "b" }))
+}
+
+pub fn poll_media() -> InputPollMedia {
+    build(json!({ "type": "photo", "media": "test-file-id" }))
+}
+
+pub fn sticker_type() -> StickerType {
+    build(json!("regular"))
+}
+
+pub fn mask_position() -> MaskPosition {
+    build(json!({ "point": "forehead", "x_shift": 0.0, "y_shift": 0.0, "scale": 1.0 }))
+}
+
+pub fn reaction() -> ReactionType {
+    build(json!({ "type": "emoji", "emoji": "👍" }))
+}

@@ -167,7 +167,11 @@ fn builders(source: &str) -> Vec<Builder> {
     let mut from = 0;
     while let Some(at) = source[from..].find("impl_into_future!(") {
         let start = from + at + "impl_into_future!(".len();
+        // The macro is invoked both inline and across several lines, with the
+        // builder name on the next one. Reading straight from the paren gave an
+        // empty name for the multi-line form, and those builders then vanished.
         let name: String = source[start..]
+            .trim_start()
             .chars()
             .take_while(|c| c.is_alphanumeric() || *c == '_')
             .collect();
@@ -181,35 +185,58 @@ fn builders(source: &str) -> Vec<Builder> {
         from = start;
     }
 
-    let mut from = 0;
-    while let Some(at) = source[from..].find("\nimpl IntoFuture for ") {
-        let start = from + at + "\nimpl IntoFuture for ".len();
-        let name: String = source[start..]
-            .chars()
-            .take_while(|c| c.is_alphanumeric() || *c == '_')
-            .collect();
-        let body = block_at(source, start);
-        for call in ["post_json(\"", "post_multipart(\""] {
-            if let Some(m) = body.split(call).nth(1).and_then(|r| r.split('"').next()) {
-                method_of
-                    .entry(name.clone())
-                    .or_insert_with(|| m.to_owned());
-                break;
+    // Both the bare and fully-qualified spellings appear.
+    for marker in [
+        "\nimpl IntoFuture for ",
+        "\nimpl std::future::IntoFuture for ",
+    ] {
+        let mut from = 0;
+        while let Some(at) = source[from..].find(marker) {
+            let start = from + at + marker.len();
+            let name: String = source[start..]
+                .chars()
+                .take_while(|c| c.is_alphanumeric() || *c == '_')
+                .collect();
+            let body = block_at(source, start);
+            for call in ["post_json(\"", "post_multipart(\""] {
+                if let Some(m) = body.split(call).nth(1).and_then(|r| r.split('"').next()) {
+                    method_of
+                        .entry(name.clone())
+                        .or_insert_with(|| m.to_owned());
+                    break;
+                }
             }
+            from = start;
         }
-        from = start;
     }
 
-    params_of
+    let mut unmapped = Vec::new();
+    let out: Vec<Builder> = params_of
         .into_iter()
         .filter_map(|(builder, params_struct)| {
+            let Some(api_method) = method_of.get(&builder) else {
+                unmapped.push(builder);
+                return None;
+            };
             Some(Builder {
-                api_method: method_of.get(&builder)?.clone(),
+                api_method: api_method.clone(),
                 params_struct,
-                impl_body: impl_of.get(&builder)?.clone(),
+                impl_body: impl_of.get(&builder).cloned().unwrap_or_default(),
             })
         })
-        .collect()
+        .collect();
+
+    // Dropping these quietly is how `CopyMessage` went unchecked: its
+    // `impl_into_future!` is written across several lines, the name parsed as
+    // empty, and four spec parameters with no setter went unreported.
+    assert!(
+        unmapped.is_empty(),
+        "{} builder(s) hold a params struct but could not be matched to an API \
+         method, so they would be skipped silently:\n  {}",
+        unmapped.len(),
+        unmapped.join("\n  ")
+    );
+    out
 }
 
 /// The wire names of a params struct's fields, honouring `#[serde(rename)]`.

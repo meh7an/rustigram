@@ -197,6 +197,39 @@ fn builder_parameters(items: &BTreeMap<String, Item>, method: &str) -> BTreeSet<
 
 /// Method parameters that a builder takes as a constructor argument rather than
 /// as a `Params` field, so the field scan cannot see them.
+/// Methods whose builder is generated inside a macro, so no `pub struct` exists
+/// for the parser to find.
+///
+/// Their parameters are **not** unchecked — `optional_parameters.rs` in
+/// rustigram-api calls every one of them with every setter applied and asserts
+/// each optional parameter reaches the wire, which is a stronger check than this
+/// one. What this list records is that the *declaration* scan cannot see them.
+///
+/// Skipping them silently is how `thumbnail` went missing from five media
+/// methods: it was absent from the crate entirely, and this test reported 100%.
+const MACRO_GENERATED: &[&str] = &[
+    "closeForumTopic",
+    "closeGeneralForumTopic",
+    "deleteForumTopic",
+    "deleteStickerFromSet",
+    "deleteStickerSet",
+    "hideGeneralForumTopic",
+    "reopenForumTopic",
+    "reopenGeneralForumTopic",
+    "sendAnimation",
+    "sendAudio",
+    "sendDocument",
+    "sendSticker",
+    "sendVideo",
+    "sendVideoNote",
+    "sendVoice",
+    "setStickerPositionInSet",
+    "setStickerSetTitle",
+    "unhideGeneralForumTopic",
+    "unpinAllForumTopicMessages",
+    "unpinAllGeneralForumTopicMessages",
+];
+
 const CONSTRUCTOR_PARAMS: &[(&str, &str, &str)] = &[(
     "getBusinessAccountStarBalance",
     "business_connection_id",
@@ -212,9 +245,16 @@ fn every_spec_parameter_exists() {
     let mut missing = Vec::new();
     let mut checked = 0;
 
+    let mut unparsed = Vec::new();
+
     for (method, spec_params) in &spec.methods {
         let builder = format!("{}{}Params", method[..1].to_uppercase(), &method[1..]);
         if !items.contains_key(&builder) && !items.contains_key(&builder[..builder.len() - 6]) {
+            // Skipping quietly is how `thumbnail` went unnoticed on five
+            // methods: the seven media builders are generated inside
+            // `media_sender!`, so no `pub struct SendAudio` exists to parse and
+            // their parameters were never compared against the spec at all.
+            unparsed.push(method.clone());
             continue;
         }
         let declared = builder_parameters(&items, method);
@@ -231,6 +271,33 @@ fn every_spec_parameter_exists() {
             }
         }
     }
+
+    let unexpected: Vec<&String> = unparsed
+        .iter()
+        .filter(|m| !MACRO_GENERATED.contains(&m.as_str()))
+        .collect();
+    assert!(
+        unexpected.is_empty(),
+        "{} method(s) have no parsable builder and are not on the macro-generated \
+         list, so their parameters were never compared against the spec:\n  {}",
+        unexpected.len(),
+        unexpected
+            .iter()
+            .map(|m| m.as_str())
+            .collect::<Vec<_>>()
+            .join("\n  ")
+    );
+
+    let now_parsable: Vec<&&str> = MACRO_GENERATED
+        .iter()
+        .filter(|m| !unparsed.iter().any(|u| u == *m))
+        .collect();
+    assert!(
+        now_parsable.is_empty(),
+        "{} method(s) on the macro-generated list are now parsable — remove them \
+         so they are checked here rather than only by the wire sweep: {now_parsable:?}",
+        now_parsable.len()
+    );
 
     assert!(
         checked > 400,

@@ -95,6 +95,13 @@ defines neither for those methods, so anything set was discarded by Telegram.
 
 ### Added
 
+- **`thumbnail` on `sendAudio`, `sendDocument`, `sendVideo`, `sendAnimation`,
+  and `sendVideoNote`.** The parameter was absent from the crate entirely — no
+  field, no setter — while the coverage suite reported 100%, because builders
+  generated inside a macro were silently skipped by its scan.
+- **`copyMessage` gains `caption_entities`, `show_caption_above_media`,
+  `protect_content`, and `reply_parameters`.** Declared and serialised, with no
+  setter to reach them.
 - **43 parameters across 13 methods became settable.** They were declared and
   serialised but had no setter, so a caller could not reach them —
   `sendInvoice` alone accounted for 16, including `protect_content` and

@@ -435,6 +435,29 @@ impl CopyMessage {
         self.params.suggested_post_parameters = Some(v);
         self
     }
+    /// Special entities in the caption, in place of `parse_mode`.
+    pub fn caption_entities(
+        mut self,
+        entities: Vec<rustigram_types::message::MessageEntity>,
+    ) -> Self {
+        self.params.caption_entities = Some(entities);
+        self
+    }
+    /// Shows the caption above the media instead of below it.
+    pub fn show_caption_above_media(mut self, v: bool) -> Self {
+        self.params.show_caption_above_media = Some(v);
+        self
+    }
+    /// Protects the message from being forwarded or saved.
+    pub fn protect_content(mut self, v: bool) -> Self {
+        self.params.protect_content = Some(v);
+        self
+    }
+    /// Reply parameters for this message.
+    pub fn reply_parameters(mut self, rp: ReplyParameters) -> Self {
+        self.params.reply_parameters = Some(rp);
+        self
+    }
 }
 
 impl_into_future!(
@@ -1994,22 +2017,22 @@ macro_rules! media_sender {
 
 media_sender!(
     /// Builder for the [`sendAudio`](https://core.telegram.org/bots/api#sendaudio) method.
-    SendAudio,      "audio",      "sendAudio",      Message, [duration: u32, performer: String, title: String], [caption, parse_mode, caption_entities]);
+    SendAudio,      "audio",      "sendAudio",      Message, [duration: u32, performer: String, title: String, thumbnail: String], [caption, parse_mode, caption_entities]);
 media_sender!(
     /// Builder for the [`sendDocument`](https://core.telegram.org/bots/api#senddocument) method.
-    SendDocument,  "document",   "sendDocument",  Message, [disable_content_type_detection: bool], [caption, parse_mode, caption_entities]);
+    SendDocument,  "document",   "sendDocument",  Message, [disable_content_type_detection: bool, thumbnail: String], [caption, parse_mode, caption_entities]);
 media_sender!(
     /// Builder for the [`sendVideo`](https://core.telegram.org/bots/api#sendvideo) method.
-    SendVideo,      "video",      "sendVideo",      Message, [duration: u32, width: u32, height: u32, supports_streaming: bool, cover: String, start_timestamp: i64], [caption, parse_mode, caption_entities, show_caption_above_media, has_spoiler]);
+    SendVideo,      "video",      "sendVideo",      Message, [duration: u32, width: u32, height: u32, supports_streaming: bool, cover: String, start_timestamp: i64, thumbnail: String], [caption, parse_mode, caption_entities, show_caption_above_media, has_spoiler]);
 media_sender!(
     /// Builder for the [`sendAnimation`](https://core.telegram.org/bots/api#sendanimation) method.
-    SendAnimation, "animation",  "sendAnimation", Message, [duration: u32, width: u32, height: u32], [caption, parse_mode, caption_entities, show_caption_above_media, has_spoiler]);
+    SendAnimation, "animation",  "sendAnimation", Message, [duration: u32, width: u32, height: u32, thumbnail: String], [caption, parse_mode, caption_entities, show_caption_above_media, has_spoiler]);
 media_sender!(
     /// Builder for the [`sendVoice`](https://core.telegram.org/bots/api#sendvoice) method.
     SendVoice,      "voice",      "sendVoice",      Message, [duration: u32], [caption, parse_mode, caption_entities]);
 media_sender!(
     /// Builder for the [`sendVideoNote`](https://core.telegram.org/bots/api#sendvideonote) method.
-    SendVideoNote, "video_note", "sendVideoNote", Message, [duration: u32, length: u32], []);
+    SendVideoNote, "video_note", "sendVideoNote", Message, [duration: u32, length: u32, thumbnail: String], []);
 media_sender!(
     /// Builder for the [`sendSticker`](https://core.telegram.org/bots/api#sendsticker) method.
     SendSticker,   "sticker",    "sendSticker",    Message, [emoji: String], []);
