@@ -52,6 +52,8 @@ proc-macro2    = "1"
 quote          = "1"
 syn            = { version = "2", features = ["full"] }
 version-sync = "0.9.5"
+# Test-only: mock HTTP server for transport tests.
+wiremock     = "0.6.5"
 
 # miniapp
 ts-rs = { version = "10.1.0" }
