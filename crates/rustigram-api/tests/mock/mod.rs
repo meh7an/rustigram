@@ -15,6 +15,8 @@
 
 #![allow(dead_code)] // each test binary uses a different subset
 
+pub mod fixtures;
+
 use rustigram_api::{BotClient, ClientConfig};
 use serde_json::Value;
 use wiremock::matchers::{method, path};
@@ -49,6 +51,32 @@ pub async fn mount_ok(server: &MockServer, api_method: &str, result: Value) {
         })))
         .mount(server)
         .await;
+}
+
+/// Mounts a success response on every path, whatever the method.
+///
+/// For sweeps that call every builder in turn and care about the request rather
+/// than the reply. Most calls will fail to decode the empty result, which is
+/// fine and expected — the request is still recorded, and that is the subject.
+pub async fn mount_catch_all(server: &MockServer) {
+    Mock::given(method("POST"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
+            "ok": true,
+            "result": {},
+        })))
+        .mount(server)
+        .await;
+}
+
+/// The Bot API method name a recorded request was sent to.
+pub fn api_method_of(request: &Request) -> String {
+    request
+        .url
+        .path()
+        .rsplit('/')
+        .next()
+        .unwrap_or_default()
+        .to_owned()
 }
 
 /// Mounts an `ok: false` API error.

@@ -1430,6 +1430,9 @@ fn media_json_body(
     if let Some(v) = opts.allow_paid_broadcast {
         obj.insert("allow_paid_broadcast".to_owned(), serde_json::json!(v));
     }
+    if let Some(v) = &opts.message_effect_id {
+        obj.insert("message_effect_id".to_owned(), serde_json::json!(v));
+    }
     if let Some(v) = &opts.reply_parameters {
         obj.insert("reply_parameters".to_owned(), serde_json::json!(v));
     }
@@ -1810,6 +1813,8 @@ macro_rules! media_sender {
             pub fn parse_mode(mut self, m: ParseMode) -> Self { self.opts.parse_mode = Some(m); self }
             /// Sends the message silently — the recipient receives no notification sound.
             pub fn disable_notification(mut self, v: bool) -> Self { self.opts.disable_notification = Some(v); self }
+            /// Attaches a message effect (animated emoji reaction) to the message.
+            pub fn message_effect_id(mut self, id: impl Into<String>) -> Self { self.opts.message_effect_id = Some(id.into()); self }
             /// Protects the message from being forwarded or saved.
             pub fn protect_content(mut self, v: bool) -> Self { self.opts.protect_content = Some(v); self }
             /// Allows sending to large audiences at the cost of Telegram Stars.
@@ -1848,16 +1853,13 @@ macro_rules! media_sender {
                                 .map_err(|e| crate::error::Error::Decode(e.to_string()))?;
                             let mut form = Form::new().part($field, part);
                             form = form.text("chat_id", self.chat_id.to_string());
-                            if let Some(id) = &self.opts.business_connection_id { form = form.text("business_connection_id", id.clone()); }
-                            if let Some(id) = self.opts.message_thread_id { form = form.text("message_thread_id", id.to_string()); }
-                            if let Some(id) = self.opts.direct_messages_topic_id { form = form.text("direct_messages_topic_id", id.to_string()); }
-                            if let Some(c) = &self.opts.caption { form = form.text("caption", c.clone()); }
-                            if let Some(m) = &self.opts.parse_mode { form = form.text("parse_mode", format!("{m:?}")); }
-                            if let Some(v) = self.opts.disable_notification { form = form.text("disable_notification", v.to_string()); }
-                            if let Some(v) = &self.opts.reply_markup { form = form.text("reply_markup", serde_json::to_string(v).unwrap()); }
-                            if let Some(p) = &self.opts.suggested_post_parameters { form = form.text("suggested_post_parameters", serde_json::to_string(p).unwrap()); }
-                            if let Some(id) = self.opts.receiver_user_id { form = form.text("receiver_user_id", id.to_string()); }
-                            if let Some(id) = &self.opts.callback_query_id { form = form.text("callback_query_id", id.clone()); }
+                            // The shared helper, not a copy of its field list.
+                            // This block used to enumerate the options by hand
+                            // and covered ten of the seventeen, so every builder
+                            // this macro generates silently dropped the other
+                            // seven on a byte upload — protect_content and
+                            // reply_parameters among them.
+                            form = apply_media_opts(form, &self.opts);
 
                             $(
                                 if let Some(ref v) = self.$extra_field {
@@ -3118,16 +3120,26 @@ mod tests {
             "field count changed; update both send paths"
         );
 
-        let helper = source
-            .split("fn apply_media_opts(")
-            .nth(1)
-            .and_then(|s| s.split("\nfn ").next())
-            .expect("apply_media_opts body");
-        for field in &fields {
-            assert!(
-                helper.contains(&format!("opts.{field}")),
-                "`{field}` is settable but never written to the multipart form"
-            );
+        // Both helpers, not one. This guard previously read only
+        // `apply_media_opts` while its name claimed both paths, and
+        // `message_effect_id` was duly added to the multipart form and left out
+        // of the JSON body — a settable option that never reached Telegram on
+        // every send by file_id or URL.
+        for (helper, path) in [
+            ("fn apply_media_opts(", "multipart form"),
+            ("fn media_json_body(", "JSON body"),
+        ] {
+            let body = source
+                .split(helper)
+                .nth(1)
+                .and_then(|s| s.split("\nfn ").next())
+                .unwrap_or_else(|| panic!("{helper} body"));
+            for field in &fields {
+                assert!(
+                    body.contains(&format!("opts.{field}")),
+                    "`{field}` is settable but never written to the {path}"
+                );
+            }
         }
     }
 }
