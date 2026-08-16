@@ -9,7 +9,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! rustigram = "0.11.0"
+//! rustigram = "0.12.0"
 //! tokio     = { version = "1", features = ["full"] }
 //! ```
 //!
@@ -51,7 +51,7 @@
 //! | [`bot`] | Dispatcher, filters, handlers, FSM |
 //! | [`types`] | All Bot API type definitions |
 //!
-#![doc(html_root_url = "https://docs.rs/rustigram/0.11.0")]
+#![doc(html_root_url = "https://docs.rs/rustigram/0.12.0")]
 
 pub use rustigram_api as api;
 pub use rustigram_bot as bot;

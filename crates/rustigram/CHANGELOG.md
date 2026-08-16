@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Completes Bot API 10.2 coverage and adds a conformance test suite that checks the
-crate against a committed snapshot of the spec. Nine defects were found and
-fixed; four of them silently sent or dropped data with no error anywhere.
+## [0.12.0](https://github.com/meh7an/rustigram/compare/rustigram-v0.11.0...rustigram-v0.12.0) - 2026-08-16
+
+Completes Bot API 10.2 coverage and adds a conformance test suite that checks
+the crate against a committed snapshot of the spec. Twelve defects were found
+and fixed; six of them silently sent or dropped data with no error anywhere.
 
 ### Breaking
 
@@ -156,7 +158,7 @@ defines neither for those methods, so anything set was discarded by Telegram.
 ### Notes
 
 Bot API coverage is now complete: 185 of 185 methods, 388 types, 1838 fields.
-The suite grew from 119 to 256 tests and runs offline.
+The suite grew from 119 to 264 tests and runs offline.
 
 `ClientConfig::max_retries` governs JSON requests only — a byte upload is never
 retried, because the multipart form is consumed by the send. This was always the

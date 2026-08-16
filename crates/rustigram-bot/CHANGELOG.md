@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0](https://github.com/meh7an/rustigram/compare/rustigram-v0.11.0...rustigram-v0.12.0) - 2026-08-16
+
 See the [`rustigram` changelog](https://github.com/meh7an/rustigram/blob/main/crates/rustigram/CHANGELOG.md)
-for the full notes, including the four breaking changes and how to migrate.
+for the full notes, including the nine breaking changes and how to migrate.
 
 ## [0.11.0](https://github.com/meh7an/rustigram/compare/rustigram-bot-v0.10.3...rustigram-bot-v0.11.0) - 2026-07-12
 

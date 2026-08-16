@@ -1373,7 +1373,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram"
-version = "0.11.0"
+version = "0.12.0"
 dependencies = [
  "anyhow",
  "rustigram-api",
@@ -1388,7 +1388,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram-api"
-version = "0.11.0"
+version = "0.12.0"
 dependencies = [
  "bytes",
  "reqwest",
@@ -1404,7 +1404,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram-bot"
-version = "0.11.0"
+version = "0.12.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1424,7 +1424,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram-macros"
-version = "0.11.0"
+version = "0.12.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1433,7 +1433,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram-miniapp"
-version = "0.11.0"
+version = "0.12.0"
 dependencies = [
  "axum",
  "base64",
@@ -1456,7 +1456,7 @@ dependencies = [
 
 [[package]]
 name = "rustigram-types"
-version = "0.11.0"
+version = "0.12.0"
 dependencies = [
  "serde",
  "serde_json",
