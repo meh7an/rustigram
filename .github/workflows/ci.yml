@@ -41,6 +41,77 @@ jobs:
             - uses: Swatinem/rust-cache@v2
             - run: cargo test --all-features --workspace
 
+    # ── The suite must actually run, not merely pass ─────────────────────────
+    #
+    # A conformance test that stops running looks exactly like one that passes:
+    # the job is green either way. This asserts every suite executed and that
+    # nothing was skipped, so a renamed file or a stray #[ignore] fails here
+    # rather than silently shrinking what CI checks.
+    suite-integrity:
+        name: Suite Integrity
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: dtolnay/rust-toolchain@stable
+            - uses: Swatinem/rust-cache@v2
+
+            - name: Every suite ran, and nothing was skipped
+              run: |
+                  set -o pipefail
+                  cargo test --all-features --workspace --tests 2>&1 | tee out.txt
+
+                  # Doc tests are excluded above: `rust,ignore` examples are
+                  # deliberate, and counting them here would make the check
+                  # meaningless.
+                  ignored=$(grep -oE '[0-9]+ ignored' out.txt | awk '{s+=$1} END {print s+0}')
+                  if [ "$ignored" -ne 0 ]; then
+                      echo "::error::$ignored test(s) were skipped rather than run"
+                      exit 1
+                  fi
+
+                  for suite in \
+                      conformance_discriminants conformance_untagged \
+                      conformance_surface conformance_coverage \
+                      conformance_roundtrip conformance_optionality \
+                      spec_snapshot request_construction media_send_paths \
+                      response_handling mock_harness \
+                      dispatch_routing update_sources
+                  do
+                      grep -q "Running tests/$suite.rs" out.txt || {
+                          echo "::error::$suite did not run"
+                          exit 1
+                      }
+                  done
+                  echo "All conformance and transport suites ran, 0 skipped."
+
+    coverage:
+        name: Coverage
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: dtolnay/rust-toolchain@stable
+              with:
+                  components: llvm-tools-preview
+            # Version pinned by hand: taiki-e/install-action is not in the
+            # project's action-version table, so verify it on the next bump.
+            - uses: taiki-e/install-action@v2
+              with:
+                  tool: cargo-llvm-cov
+            - uses: Swatinem/rust-cache@v2
+
+            - name: Measure line coverage
+              run: cargo llvm-cov --all-features --workspace --summary-only | tee cov.txt
+
+            - name: Report per-crate coverage
+              run: |
+                  {
+                      echo "### Line coverage"
+                      echo
+                      echo '```'
+                      cat cov.txt
+                      echo '```'
+                  } >> "$GITHUB_STEP_SUMMARY"
+
     semver:
         name: Semver Check
         runs-on: ubuntu-latest
@@ -66,7 +137,7 @@ jobs:
     deploy:
         name: Deploy
         runs-on: ubuntu-latest
-        needs: [fmt, clippy, test, audit]
+        needs: [fmt, clippy, test, suite-integrity, coverage, audit]
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         permissions:
             contents: write

@@ -583,8 +583,8 @@ impl IntoFuture for SetMyProfilePhoto {
 
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(async move {
-            let photo = serde_json::to_string(&self.photo)
-                .map_err(crate::error::Error::Serialization)?;
+            let photo =
+                serde_json::to_string(&self.photo).map_err(crate::error::Error::Serialization)?;
             let part = Part::text(photo)
                 .mime_str("application/json")
                 .map_err(|e| crate::error::Error::Decode(e.to_string()))?;

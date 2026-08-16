@@ -13,13 +13,13 @@ use rustigram_types::checklist::InputChecklist;
 use rustigram_types::file::{InputFile, InputMedia, InputPaidMedia, InputProfilePhoto};
 use rustigram_types::inline::InlineQueryResult;
 use rustigram_types::keyboard::KeyboardButton;
+use rustigram_types::message::ReplyParameters;
 use rustigram_types::passport::PassportElementError;
 use rustigram_types::payments::LabeledPrice;
 use rustigram_types::poll::InputPollOption;
 use rustigram_types::rich_message::InputRichMessage;
 use rustigram_types::sticker::InputSticker;
 use rustigram_types::story::InputStoryContent;
-use rustigram_types::message::ReplyParameters;
 use rustigram_types::user::BotCommand;
 
 /// Decodes a fixture, failing loudly: a fixture that silently became something

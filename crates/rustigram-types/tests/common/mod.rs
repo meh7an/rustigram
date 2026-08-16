@@ -184,4 +184,3 @@ pub fn count_occurrences(haystack: &str, needle: &str) -> usize {
 pub fn is_ident_byte(b: u8) -> bool {
     b.is_ascii_alphanumeric() || b == b'_'
 }
-

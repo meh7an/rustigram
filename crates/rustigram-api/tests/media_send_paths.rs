@@ -58,7 +58,11 @@ macro_rules! both_paths {
 }
 
 /// Records how the two paths differ for one method, if at all.
-fn difference(method: &str, multipart: &BTreeSet<String>, json: &BTreeSet<String>) -> Option<String> {
+fn difference(
+    method: &str,
+    multipart: &BTreeSet<String>,
+    json: &BTreeSet<String>,
+) -> Option<String> {
     let dropped: Vec<&String> = json.difference(multipart).collect();
     let extra: Vec<&String> = multipart.difference(json).collect();
     (!dropped.is_empty() || !extra.is_empty()).then(|| {

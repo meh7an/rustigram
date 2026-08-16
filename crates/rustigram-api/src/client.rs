@@ -350,7 +350,13 @@ impl BotClient {
             "{}/file/bot{}/{}",
             self.inner.config.api_base_url, self.inner.config.token, file_path
         );
-        let resp = self.inner.http.get(&url).send().await.map_err(Error::Http)?;
+        let resp = self
+            .inner
+            .http
+            .get(&url)
+            .send()
+            .await
+            .map_err(Error::Http)?;
 
         // The file endpoint answers with an error envelope rather than file
         // bytes when the path has expired or the token is wrong. Reading the
@@ -370,9 +376,7 @@ impl BotClient {
                     .as_ref()
                     .and_then(|e| e.error_code)
                     .unwrap_or_else(|| status.as_u16()),
-                description: envelope
-                    .and_then(|e| e.description)
-                    .unwrap_or(body),
+                description: envelope.and_then(|e| e.description).unwrap_or(body),
                 migrate_to_chat_id: None,
                 retry_after: None,
             });

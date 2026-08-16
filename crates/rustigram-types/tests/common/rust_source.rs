@@ -91,8 +91,7 @@ pub fn parse_items() -> BTreeMap<String, Item> {
                         // written `pub struct Foo {}` — assuming a depth of one
                         // here leaves the parser permanently inside it, and it
                         // then swallows every later declaration in the file.
-                        depth = line.matches('{').count() as i32
-                            - line.matches('}').count() as i32;
+                        depth = line.matches('{').count() as i32 - line.matches('}').count() as i32;
                         current = (depth > 0).then_some(name);
                         attrs.clear();
                     }
@@ -114,10 +113,7 @@ pub fn parse_items() -> BTreeMap<String, Item> {
 
             let entry = items.entry(name).or_default();
             if entry.is_enum {
-                let is_variant = trimmed
-                    .chars()
-                    .next()
-                    .is_some_and(char::is_uppercase);
+                let is_variant = trimmed.chars().next().is_some_and(char::is_uppercase);
                 if is_variant {
                     if let Some(variant) = trimmed.split('(').next() {
                         entry
@@ -175,4 +171,3 @@ pub fn extract_quoted(haystack: &str, prefix: &str) -> Option<String> {
     let rest = &haystack[start..];
     Some(rest[..rest.find('"')?].to_owned())
 }
-

@@ -20,7 +20,7 @@ use rustigram_bot::dispatcher::Dispatcher;
 use rustigram_bot::error::BotError;
 use rustigram_bot::filter::filters;
 use rustigram_bot::update_listener::polling::LongPoller;
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 use std::time::Duration;
 use wiremock::matchers::{method, path_regex};
 use wiremock::{Mock, MockServer, Request, ResponseTemplate};
@@ -238,10 +238,7 @@ async fn a_decode_error_is_fatal() {
     let outcome = poll_until_fatal(dispatcher).await;
 
     assert!(
-        matches!(
-            outcome,
-            Err(BotError::Api(rustigram_api::Error::Decode(_)))
-        ),
+        matches!(outcome, Err(BotError::Api(rustigram_api::Error::Decode(_)))),
         "a body that cannot be decoded must end the loop, got {outcome:?}"
     );
     assert_eq!(

@@ -27,9 +27,9 @@
 
 mod common;
 
-use common::payload::{EXCLUDED, DISPATCHED, Fill, payload, round_trip_by_name};
+use common::payload::{payload, round_trip_by_name, Fill, DISPATCHED, EXCLUDED};
 use rustigram_types::rich_message;
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 
 // ─── The tests ───────────────────────────────────────────────────────────────
 
@@ -73,9 +73,7 @@ fn every_spec_type_round_trips() {
 
         let lost: Vec<&str> = fields
             .iter()
-            .filter(|(field, spec_field)| {
-                !spec_field.optional() && !object.contains_key(*field)
-            })
+            .filter(|(field, spec_field)| !spec_field.optional() && !object.contains_key(*field))
             .map(|(field, _)| field.as_str())
             .collect();
 
@@ -110,9 +108,7 @@ fn the_dispatch_table_covers_every_spec_type() {
         .types
         .keys()
         .map(String::as_str)
-        .filter(|name| {
-            !DISPATCHED.contains(name) && !EXCLUDED.iter().any(|(e, _)| e == name)
-        })
+        .filter(|name| !DISPATCHED.contains(name) && !EXCLUDED.iter().any(|(e, _)| e == name))
         .collect();
     assert!(
         missing.is_empty(),

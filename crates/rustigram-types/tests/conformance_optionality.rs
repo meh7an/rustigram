@@ -23,7 +23,7 @@
 
 mod common;
 
-use common::payload::{DISPATCHED, EXCLUDED, Fill, payload, round_trip_by_name};
+use common::payload::{payload, round_trip_by_name, Fill, DISPATCHED, EXCLUDED};
 use common::rust_source::parse_items;
 use serde_json::json;
 use std::collections::BTreeSet;

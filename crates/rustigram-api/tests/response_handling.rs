@@ -77,7 +77,14 @@ async fn a_success_with_no_result_is_an_error_not_a_panic() {
 #[tokio::test]
 async fn an_api_error_keeps_its_code_and_description() {
     let (server, client) = mock::spawn().await;
-    mock::mount_api_error(&server, "sendMessage", 400, "Bad Request: chat not found", None).await;
+    mock::mount_api_error(
+        &server,
+        "sendMessage",
+        400,
+        "Bad Request: chat not found",
+        None,
+    )
+    .await;
 
     let error = client
         .send_message(42_i64, "hello")
@@ -315,8 +322,14 @@ async fn the_error_predicates_match_real_payloads() {
 async fn the_error_predicates_reject_unrelated_errors() {
     let server = MockServer::start().await;
     let client = client_with_retries(&server, 0);
-    mock::mount_api_error(&server, "sendMessage", 400, "Bad Request: message is too long", None)
-        .await;
+    mock::mount_api_error(
+        &server,
+        "sendMessage",
+        400,
+        "Bad Request: message is too long",
+        None,
+    )
+    .await;
 
     let error = client.send_message(42_i64, "hi").await.unwrap_err();
     assert!(!error.is_blocked(), "is_blocked matched an unrelated 400");

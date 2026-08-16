@@ -21,7 +21,7 @@
 mod common;
 
 use common::library_sources;
-use common::rust_source::{Item, parse_items};
+use common::rust_source::{parse_items, Item};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Spec entries that legitimately have no Rust counterpart.
@@ -48,7 +48,9 @@ fn every_spec_type_exists() {
         .map(|(name, _)| name.clone())
         .collect();
     for (base, members) in &spec.unions {
-        let Some(item) = items.get(base) else { continue };
+        let Some(item) = items.get(base) else {
+            continue;
+        };
         for member in members {
             let short = member.strip_prefix(base).unwrap_or(member);
             if item.variants.iter().any(|v| {
@@ -211,11 +213,7 @@ fn every_spec_parameter_exists() {
     let mut checked = 0;
 
     for (method, spec_params) in &spec.methods {
-        let builder = format!(
-            "{}{}Params",
-            method[..1].to_uppercase(),
-            &method[1..]
-        );
+        let builder = format!("{}{}Params", method[..1].to_uppercase(), &method[1..]);
         if !items.contains_key(&builder) && !items.contains_key(&builder[..builder.len() - 6]) {
             continue;
         }
@@ -270,10 +268,9 @@ fn every_documented_exception_still_applies() {
     }
 
     for (method, param, reason) in CONSTRUCTOR_PARAMS {
-        let spec_method = spec
-            .methods
-            .get(*method)
-            .unwrap_or_else(|| panic!("`{method}` is no longer a spec method; drop this exception"));
+        let spec_method = spec.methods.get(*method).unwrap_or_else(|| {
+            panic!("`{method}` is no longer a spec method; drop this exception")
+        });
         assert!(
             spec_method.contains_key(*param),
             "`{method}` no longer takes `{param}`, so this exception is stale — \

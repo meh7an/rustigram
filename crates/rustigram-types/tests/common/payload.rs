@@ -9,8 +9,8 @@
 
 use super::Spec;
 use rustigram_types::*;
-use serde::{Serialize, de::DeserializeOwned};
-use serde_json::{Map, Value, json};
+use serde::{de::DeserializeOwned, Serialize};
+use serde_json::{json, Map, Value};
 
 /// Which fields a generated payload carries.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -464,4 +464,3 @@ pub const EXCLUDED: &[(&str, &str)] = &[
          callers. The coverage suite documents the same exception.",
     ),
 ];
-

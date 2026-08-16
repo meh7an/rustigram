@@ -9,13 +9,13 @@
 use rustigram_api::{BotClient, ClientConfig};
 use rustigram_bot::context::Context;
 use rustigram_bot::error::BotError;
-use rustigram_bot::handler::{BoxHandler, handler_fn};
+use rustigram_bot::handler::{handler_fn, BoxHandler};
 use rustigram_types::chat::{Chat, ChatType};
 use rustigram_types::message::Message;
 use rustigram_types::update::{Update, UpdateKind};
 use rustigram_types::user::User;
 use std::time::Duration;
-use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender, unbounded_channel};
+use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -114,7 +114,10 @@ pub fn text_update(text: &str) -> Update {
 // ─── Reporting ───────────────────────────────────────────────────────────────
 
 /// A channel handlers report through, so the test can await them.
-pub type Reports = (UnboundedSender<&'static str>, UnboundedReceiver<&'static str>);
+pub type Reports = (
+    UnboundedSender<&'static str>,
+    UnboundedReceiver<&'static str>,
+);
 
 pub fn reports() -> Reports {
     unbounded_channel()
@@ -139,7 +142,9 @@ pub fn failing(tx: &UnboundedSender<&'static str>, name: &'static str) -> BoxHan
         let tx = tx.clone();
         async move {
             let _ = tx.send(name);
-            Err(BotError::Handler(anyhow::anyhow!("handler failed on purpose")))
+            Err(BotError::Handler(anyhow::anyhow!(
+                "handler failed on purpose"
+            )))
         }
     })
 }
@@ -163,4 +168,3 @@ pub async fn assert_no_further_reports(rx: &mut UnboundedReceiver<&'static str>)
         panic!("`{extra}` also ran, but only one handler should have");
     }
 }
-

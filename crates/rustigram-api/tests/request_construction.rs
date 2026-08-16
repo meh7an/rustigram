@@ -20,9 +20,9 @@
 mod mock;
 
 use mock::fixtures;
-use rustigram_api::BotClient;
 use rustigram_api::methods::chat_management::JoinRequestResult;
 use rustigram_api::methods::sending::ChatAction;
+use rustigram_api::BotClient;
 use rustigram_types::sticker::StickerFormat;
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};

@@ -23,7 +23,7 @@ use dispatch_support::{
 };
 use rustigram_bot::context::Context;
 use rustigram_bot::dispatcher::Dispatcher;
-use rustigram_bot::filter::{FilterExt, filters};
+use rustigram_bot::filter::{filters, FilterExt};
 use rustigram_bot::handler::handler_fn;
 use rustigram_types::chat::ChatType;
 use rustigram_types::update::{Update, UpdateKind};
@@ -107,7 +107,9 @@ async fn an_unmatched_update_without_a_fallback_is_harmless() {
         .on(filters::command("start"), reporting(&tx, "route"))
         .build();
 
-    dispatcher.dispatch(text_update("nothing matches this")).await;
+    dispatcher
+        .dispatch(text_update("nothing matches this"))
+        .await;
 
     tokio::time::sleep(Duration::from_millis(50)).await;
     assert!(
@@ -331,71 +333,125 @@ fn every_update_kind() -> Vec<(&'static str, UpdateKind)> {
         kind!(EditedChannelPost, msg.clone()),
         kind!(BusinessMessage, msg.clone()),
         kind!(EditedBusinessMessage, msg.clone()),
-        kind!(InlineQuery, json!({ "id": "1", "from": from, "query": "q", "offset": "" })),
-        kind!(ChosenInlineResult, json!({ "result_id": "1", "from": from, "query": "q" })),
-        kind!(CallbackQuery, json!({ "id": "1", "from": from, "chat_instance": "c" })),
-        kind!(ShippingQuery, json!({
-            "id": "1", "from": from, "invoice_payload": "p",
-            "shipping_address": {
-                "country_code": "TR", "state": "", "city": "Istanbul",
-                "street_line1": "a", "street_line2": "", "post_code": "34000"
-            }
-        })),
-        kind!(PreCheckoutQuery, json!({
-            "id": "1", "from": from, "currency": "XTR",
-            "total_amount": 1, "invoice_payload": "p"
-        })),
-        kind!(Poll, json!({
-            "id": "1", "question": "q", "options": [], "total_voter_count": 0,
-            "is_closed": false, "is_anonymous": true, "type": "regular",
-            "allows_multiple_answers": false, "allows_revoting": false,
-            "members_only": false
-        })),
-        kind!(PollAnswer, json!({
-            "poll_id": "1", "option_ids": [0], "option_persistent_ids": ["a"]
-        })),
-        kind!(MyChatMember, json!({
-            "chat": chat_json, "from": from, "date": 1_700_000_000,
-            "old_chat_member": member, "new_chat_member": member
-        })),
-        kind!(ChatMember, json!({
-            "chat": chat_json, "from": from, "date": 1_700_000_000,
-            "old_chat_member": member, "new_chat_member": member
-        })),
-        kind!(ChatJoinRequest, json!({
-            "chat": chat_json, "from": from, "user_chat_id": 7, "date": 1_700_000_000
-        })),
-        kind!(MessageReaction, json!({
-            "chat": chat_json, "message_id": 1, "date": 1_700_000_000,
-            "old_reaction": [], "new_reaction": []
-        })),
-        kind!(MessageReactionCount, json!({
-            "chat": chat_json, "message_id": 1, "date": 1_700_000_000, "reactions": []
-        })),
-        kind!(ChatBoost, json!({
-            "chat": chat_json,
-            "boost": {
-                "boost_id": "b", "add_date": 1_700_000_000,
-                "expiration_date": 1_700_000_001, "source": boost_source
-            }
-        })),
-        kind!(RemovedChatBoost, json!({
-            "chat": chat_json, "boost_id": "b",
-            "remove_date": 1_700_000_000, "source": boost_source
-        })),
+        kind!(
+            InlineQuery,
+            json!({ "id": "1", "from": from, "query": "q", "offset": "" })
+        ),
+        kind!(
+            ChosenInlineResult,
+            json!({ "result_id": "1", "from": from, "query": "q" })
+        ),
+        kind!(
+            CallbackQuery,
+            json!({ "id": "1", "from": from, "chat_instance": "c" })
+        ),
+        kind!(
+            ShippingQuery,
+            json!({
+                "id": "1", "from": from, "invoice_payload": "p",
+                "shipping_address": {
+                    "country_code": "TR", "state": "", "city": "Istanbul",
+                    "street_line1": "a", "street_line2": "", "post_code": "34000"
+                }
+            })
+        ),
+        kind!(
+            PreCheckoutQuery,
+            json!({
+                "id": "1", "from": from, "currency": "XTR",
+                "total_amount": 1, "invoice_payload": "p"
+            })
+        ),
+        kind!(
+            Poll,
+            json!({
+                "id": "1", "question": "q", "options": [], "total_voter_count": 0,
+                "is_closed": false, "is_anonymous": true, "type": "regular",
+                "allows_multiple_answers": false, "allows_revoting": false,
+                "members_only": false
+            })
+        ),
+        kind!(
+            PollAnswer,
+            json!({
+                "poll_id": "1", "option_ids": [0], "option_persistent_ids": ["a"]
+            })
+        ),
+        kind!(
+            MyChatMember,
+            json!({
+                "chat": chat_json, "from": from, "date": 1_700_000_000,
+                "old_chat_member": member, "new_chat_member": member
+            })
+        ),
+        kind!(
+            ChatMember,
+            json!({
+                "chat": chat_json, "from": from, "date": 1_700_000_000,
+                "old_chat_member": member, "new_chat_member": member
+            })
+        ),
+        kind!(
+            ChatJoinRequest,
+            json!({
+                "chat": chat_json, "from": from, "user_chat_id": 7, "date": 1_700_000_000
+            })
+        ),
+        kind!(
+            MessageReaction,
+            json!({
+                "chat": chat_json, "message_id": 1, "date": 1_700_000_000,
+                "old_reaction": [], "new_reaction": []
+            })
+        ),
+        kind!(
+            MessageReactionCount,
+            json!({
+                "chat": chat_json, "message_id": 1, "date": 1_700_000_000, "reactions": []
+            })
+        ),
+        kind!(
+            ChatBoost,
+            json!({
+                "chat": chat_json,
+                "boost": {
+                    "boost_id": "b", "add_date": 1_700_000_000,
+                    "expiration_date": 1_700_000_001, "source": boost_source
+                }
+            })
+        ),
+        kind!(
+            RemovedChatBoost,
+            json!({
+                "chat": chat_json, "boost_id": "b",
+                "remove_date": 1_700_000_000, "source": boost_source
+            })
+        ),
         kind!(ManagedBot, json!({ "user": from, "bot": from })),
-        kind!(BusinessConnection, json!({
-            "id": "1", "user": from, "user_chat_id": 7,
-            "date": 1_700_000_000, "is_enabled": true
-        })),
-        kind!(DeletedBusinessMessages, json!({
-            "business_connection_id": "1", "chat": chat_json, "message_ids": [1]
-        })),
+        kind!(
+            BusinessConnection,
+            json!({
+                "id": "1", "user": from, "user_chat_id": 7,
+                "date": 1_700_000_000, "is_enabled": true
+            })
+        ),
+        kind!(
+            DeletedBusinessMessages,
+            json!({
+                "business_connection_id": "1", "chat": chat_json, "message_ids": [1]
+            })
+        ),
         kind!(GuestMessage, msg.clone()),
-        kind!(PurchasedPaidMedia, json!({ "from": from, "paid_media_payload": "p" })),
-        kind!(Subscription, json!({
-            "user": from, "invoice_payload": "p", "state": "active"
-        })),
+        kind!(
+            PurchasedPaidMedia,
+            json!({ "from": from, "paid_media_payload": "p" })
+        ),
+        kind!(
+            Subscription,
+            json!({
+                "user": from, "invoice_payload": "p", "state": "active"
+            })
+        ),
     ]
 }
 
@@ -408,14 +464,8 @@ fn every_update_kind() -> Vec<(&'static str, UpdateKind)> {
 async fn context_reads_a_message_from_every_kind_that_carries_one() {
     let carriers: Vec<(&str, UpdateKind)> = vec![
         ("Message", UpdateKind::Message(message("hi"))),
-        (
-            "EditedMessage",
-            UpdateKind::EditedMessage(message("hi")),
-        ),
-        (
-            "ChannelPost",
-            UpdateKind::ChannelPost(message("hi")),
-        ),
+        ("EditedMessage", UpdateKind::EditedMessage(message("hi"))),
+        ("ChannelPost", UpdateKind::ChannelPost(message("hi"))),
         (
             "EditedChannelPost",
             UpdateKind::EditedChannelPost(message("hi")),
@@ -433,7 +483,10 @@ async fn context_reads_a_message_from_every_kind_that_carries_one() {
     let mut blind = Vec::new();
     for (name, kind) in carriers {
         let ctx = Context::new(Update { update_id: 1, kind }, client());
-        if ctx.text() != Some("hi") || ctx.chat_id() != Some(ChatId::Id(42)) || ctx.from_id() != Some(7) {
+        if ctx.text() != Some("hi")
+            || ctx.chat_id() != Some(ChatId::Id(42))
+            || ctx.from_id() != Some(7)
+        {
             blind.push(format!(
                 "  {name}: text={:?} chat_id={:?} from_id={:?}",
                 ctx.text(),
