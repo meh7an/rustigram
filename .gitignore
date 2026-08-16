@@ -2,3 +2,6 @@
 .DS_Store
 extract.sh
 digest.json
+
+# Local mirror of the Telegram Bot API docs (generated)
+tdocs/
