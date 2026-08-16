@@ -84,3 +84,88 @@ pub fn load() -> Spec {
     );
     spec
 }
+
+// ─── Source-tree helpers ─────────────────────────────────────────────────────
+//
+// Two conformance properties are about the shape of the code rather than its
+// runtime behaviour — whether a type is referenced, and whether the declared
+// surface matches the spec. Neither can be answered by a running program, so
+// those tests read the tree. These helpers are shared so the walk and its
+// sanity checks exist once.
+
+use std::path::{Path, PathBuf};
+
+/// The workspace root, reached from this crate's manifest directory.
+pub fn workspace_root() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..")
+        .canonicalize()
+        .expect("workspace root resolves")
+}
+
+/// Every library source file in the workspace.
+///
+/// Tests and examples are excluded on purpose: a type referenced only by its own
+/// test is still dead weight in the library, and counting those references would
+/// hide precisely the bug this checks for.
+pub fn library_sources() -> Vec<(PathBuf, String)> {
+    fn walk(dir: &Path, out: &mut Vec<PathBuf>) {
+        let Ok(entries) = std::fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                walk(&path, out);
+            } else if path.extension().is_some_and(|e| e == "rs") {
+                out.push(path);
+            }
+        }
+    }
+
+    let crates = workspace_root().join("crates");
+    let mut files = Vec::new();
+    for entry in std::fs::read_dir(&crates)
+        .expect("crates/ exists")
+        .flatten()
+    {
+        walk(&entry.path().join("src"), &mut files);
+    }
+    assert!(
+        files.len() > 20,
+        "expected to find the workspace sources, found {} files — the layout may \
+         have changed and this test would silently check nothing",
+        files.len()
+    );
+    files
+        .into_iter()
+        .map(|p| {
+            let text = std::fs::read_to_string(&p).expect("source file is readable");
+            (p, text)
+        })
+        .collect()
+}
+
+/// Counts word-boundary occurrences of `needle` in `haystack`.
+pub fn count_occurrences(haystack: &str, needle: &str) -> usize {
+    let bytes = haystack.as_bytes();
+    let mut count = 0;
+    let mut from = 0;
+    while let Some(found) = haystack[from..].find(needle) {
+        let start = from + found;
+        let end = start + needle.len();
+        let before_ok = start == 0 || !is_ident_byte(bytes[start - 1]);
+        let after_ok = end == bytes.len() || !is_ident_byte(bytes[end]);
+        if before_ok && after_ok {
+            count += 1;
+        }
+        from = end;
+    }
+    count
+}
+
+pub fn is_ident_byte(b: u8) -> bool {
+    b.is_ascii_alphanumeric() || b == b'_'
+}
+

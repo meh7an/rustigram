@@ -2442,6 +2442,10 @@ struct SendMediaGroupParams {
     protect_content: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_parameters: Option<ReplyParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
 }
 
 /// Builder for the [`sendMediaGroup`](https://core.telegram.org/bots/api#sendmediagroup) method.
@@ -2470,6 +2474,8 @@ impl SendMediaGroup {
                 disable_notification: None,
                 protect_content: None,
                 reply_parameters: None,
+                allow_paid_broadcast: None,
+                message_effect_id: None,
             },
         }
     }
@@ -2503,6 +2509,16 @@ impl SendMediaGroup {
         self.params.reply_parameters = Some(rp);
         self
     }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, v: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(v.into());
+        self
+    }
 }
 
 impl_into_future!(SendMediaGroup, Vec<Message>, "sendMediaGroup");
@@ -2534,6 +2550,16 @@ struct SendPaidMediaParams {
     reply_parameters: Option<ReplyParameters>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<ReplyMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    caption_entities: Option<Vec<rustigram_types::message::MessageEntity>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    direct_messages_topic_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_thread_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`sendPaidMedia`](https://core.telegram.org/bots/api#sendpaidmedia) method.
@@ -2567,6 +2593,11 @@ impl SendPaidMedia {
                 protect_content: None,
                 reply_parameters: None,
                 reply_markup: None,
+                allow_paid_broadcast: None,
+                caption_entities: None,
+                direct_messages_topic_id: None,
+                message_thread_id: None,
+                suggested_post_parameters: None,
             },
         }
     }
@@ -2613,6 +2644,31 @@ impl SendPaidMedia {
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self {
         self.params.reply_markup = Some(m.into());
+        self
+    }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Special entities in the caption, in place of `parse_mode`.
+    pub fn caption_entities(mut self, v: Vec<rustigram_types::message::MessageEntity>) -> Self {
+        self.params.caption_entities = Some(v);
+        self
+    }
+    /// Identifier of a direct messages chat topic.
+    pub fn direct_messages_topic_id(mut self, v: i64) -> Self {
+        self.params.direct_messages_topic_id = Some(v);
+        self
+    }
+    /// Forum topic thread ID.
+    pub fn message_thread_id(mut self, v: i64) -> Self {
+        self.params.message_thread_id = Some(v);
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, v: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(v);
         self
     }
 }

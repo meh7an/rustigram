@@ -1,3 +1,5 @@
+use rustigram_types::file::InputProfilePhoto;
+
 use crate::client::BotClient;
 use crate::error::Result;
 use reqwest::multipart::{Form, Part};
@@ -566,16 +568,12 @@ impl IntoFuture for Close {
 /// multipart/form-data as an `InputProfilePhoto`.
 pub struct SetMyProfilePhoto {
     client: BotClient,
-    /// The serialised `InputProfilePhoto` JSON sent as the `photo` field.
-    photo_json: String,
+    photo: InputProfilePhoto,
 }
 
 impl SetMyProfilePhoto {
-    /// Creates a new builder from a pre-serialised `InputProfilePhoto` value.
-    ///
-    /// Pass the result of `serde_json::to_string(&input_profile_photo)`.
-    pub(crate) fn new(client: BotClient, photo_json: String) -> Self {
-        Self { client, photo_json }
+    pub(crate) fn new(client: BotClient, photo: InputProfilePhoto) -> Self {
+        Self { client, photo }
     }
 }
 
@@ -585,7 +583,9 @@ impl IntoFuture for SetMyProfilePhoto {
 
     fn into_future(self) -> Self::IntoFuture {
         Box::pin(async move {
-            let part = Part::text(self.photo_json)
+            let photo = serde_json::to_string(&self.photo)
+                .map_err(crate::error::Error::Serialization)?;
+            let part = Part::text(photo)
                 .mime_str("application/json")
                 .map_err(|e| crate::error::Error::Decode(e.to_string()))?;
             let form = Form::new().part("photo", part);

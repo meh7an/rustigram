@@ -648,7 +648,7 @@ pub struct InputProfilePhotoAnimated {
 
 /// A profile photo to set via `setMyProfilePhoto` or `setBusinessAccountProfilePhoto`.
 ///
-/// Serialise with `serde_json::to_string(&photo)` to pass to the relevant method.
+/// Pass this value directly; both methods serialise it themselves.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum InputProfilePhoto {

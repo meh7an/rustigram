@@ -1234,10 +1234,11 @@ impl BotClient {
         SetChatMenuButton::new(self.clone())
     }
     /// Calls `setMyProfilePhoto` — changes the bot's profile photo (Bot API 9.4).
-    ///
-    /// Pass a pre-serialised `InputProfilePhoto` JSON string.
-    pub fn set_my_profile_photo(&self, photo_json: impl Into<String>) -> SetMyProfilePhoto {
-        SetMyProfilePhoto::new(self.clone(), photo_json.into())
+    pub fn set_my_profile_photo(
+        &self,
+        photo: rustigram_types::file::InputProfilePhoto,
+    ) -> SetMyProfilePhoto {
+        SetMyProfilePhoto::new(self.clone(), photo)
     }
     /// Calls `removeMyProfilePhoto` — removes the bot's current profile photo (Bot API 9.4).
     pub fn remove_my_profile_photo(&self) -> RemoveMyProfilePhoto {
