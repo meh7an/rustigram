@@ -229,6 +229,14 @@ pub struct ChatBoost {
     pub source: serde_json::Value,
 }
 
+/// Service message: the chat was boosted.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ChatBoostAdded {
+    /// Number of boosts added by the user.
+    pub boost_count: u32,
+}
+
 /// A boost was removed from a chat.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatBoostRemoved {

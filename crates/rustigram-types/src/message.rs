@@ -7,16 +7,26 @@ use crate::direct_messages::{
     DirectMessagePriceChanged, DirectMessagesTopic, PaidMessagePriceChanged,
 };
 use crate::file::{Animation, Audio, Document, LivePhoto, PhotoSize, Video, VideoNote, Voice};
+use crate::forum::{
+    ForumTopicClosed, ForumTopicCreated, ForumTopicEdited, ForumTopicReopened,
+    GeneralForumTopicHidden, GeneralForumTopicUnhidden,
+};
 use crate::keyboard::InlineKeyboardMarkup;
 use crate::managed_bot::ManagedBotCreated;
+use crate::passport::PassportData;
 use crate::poll::{Poll, PollOptionAdded, PollOptionDeleted};
 use crate::rich_message::RichMessage;
+use crate::shared::{ChatShared, UsersShared};
 use crate::sticker::Sticker;
 use crate::suggested_post::{
     SuggestedPostApprovalFailed, SuggestedPostApproved, SuggestedPostDeclined, SuggestedPostInfo,
     SuggestedPostPaid, SuggestedPostRefunded,
 };
+use crate::update::ChatBoostAdded;
 use crate::user::User;
+use crate::video_chat::{
+    VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted,
+};
 
 /// A Telegram message.
 ///
@@ -302,7 +312,7 @@ pub struct Message {
     pub community_chat_removed: Option<CommunityChatRemoved>,
     /// Auto-delete timer changed (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub message_auto_delete_timer_changed: Option<serde_json::Value>,
+    pub message_auto_delete_timer_changed: Option<MessageAutoDeleteTimerChanged>,
     /// The group has been migrated to a supergroup with this ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub migrate_to_chat_id: Option<i64>,
@@ -336,22 +346,59 @@ pub struct Message {
     // Forum topic events
     /// Forum topic created (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub forum_topic_created: Option<serde_json::Value>,
+    pub forum_topic_created: Option<ForumTopicCreated>,
     /// Forum topic edited (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub forum_topic_edited: Option<serde_json::Value>,
+    pub forum_topic_edited: Option<ForumTopicEdited>,
     /// Forum topic closed (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub forum_topic_closed: Option<serde_json::Value>,
+    pub forum_topic_closed: Option<ForumTopicClosed>,
     /// Forum topic reopened (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub forum_topic_reopened: Option<serde_json::Value>,
+    pub forum_topic_reopened: Option<ForumTopicReopened>,
     /// General forum topic hidden (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub general_forum_topic_hidden: Option<serde_json::Value>,
+    pub general_forum_topic_hidden: Option<GeneralForumTopicHidden>,
     /// General forum topic unhidden (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub general_forum_topic_unhidden: Option<serde_json::Value>,
+    pub general_forum_topic_unhidden: Option<GeneralForumTopicUnhidden>,
+
+    // Sharing, access, and boosts
+    /// Users were shared with the bot (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub users_shared: Option<UsersShared>,
+    /// A chat was shared with the bot (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chat_shared: Option<ChatShared>,
+    /// Domain of the website the user logged in on via Telegram Login.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connected_website: Option<String>,
+    /// The user allowed the bot to write to them (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub write_access_allowed: Option<WriteAccessAllowed>,
+    /// Telegram Passport data shared with the bot.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub passport_data: Option<PassportData>,
+    /// A user came within another user's proximity radius (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub proximity_alert_triggered: Option<ProximityAlertTriggered>,
+    /// The chat was boosted (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub boost_added: Option<ChatBoostAdded>,
+
+    // Video chat events
+    /// A video chat was scheduled (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub video_chat_scheduled: Option<VideoChatScheduled>,
+    /// A video chat started (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub video_chat_started: Option<VideoChatStarted>,
+    /// A video chat ended (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub video_chat_ended: Option<VideoChatEnded>,
+    /// New participants were invited to a video chat (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub video_chat_participants_invited: Option<VideoChatParticipantsInvited>,
 
     // Managed bot events
     /// Service message: a new managed bot was created (Bot API 9.6).
@@ -795,6 +842,48 @@ pub struct WebAppData {
 pub struct WebAppInfo {
     /// HTTPS URL of the Web App.
     pub url: String,
+}
+
+/// Service message: a user came within the proximity radius set by another
+/// user's live location.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct ProximityAlertTriggered {
+    /// The user who triggered the alert.
+    pub traveler: User,
+    /// The user who set the alert.
+    pub watcher: User,
+    /// Distance between the users, in metres.
+    pub distance: u32,
+}
+
+/// Service message: the chat's auto-delete timer was changed.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct MessageAutoDeleteTimerChanged {
+    /// New auto-delete time for messages in the chat, in seconds.
+    pub message_auto_delete_time: u32,
+}
+
+/// Service message: the user allowed the bot to write to them.
+///
+/// Every field is optional, and which one is set says how access was granted:
+/// from a `requestWriteAccess` prompt, by launching a named Web App, or by
+/// adding the bot to the attachment menu.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct WriteAccessAllowed {
+    /// `true` if access was granted after the user accepted an explicit request
+    /// from a Web App sent by the method `requestWriteAccess`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub from_request: Option<bool>,
+    /// Name of the Web App, if access was granted by launching one.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub web_app_name: Option<String>,
+    /// `true` if access was granted when the bot was added to the attachment
+    /// or side menu.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub from_attachment_menu: Option<bool>,
 }
 
 /// Lightweight message identifier returned by `copyMessage`.

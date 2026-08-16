@@ -521,3 +521,130 @@ mod update_deserialization {
         }
     }
 }
+
+#[cfg(test)]
+mod service_messages {
+    use rustigram_types::message::Message;
+    use rustigram_types::{
+        ChatBoostAdded, ChatShared, ForumTopicCreated, ForumTopicEdited, ProximityAlertTriggered,
+        SharedUser, UsersShared, VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled,
+        VideoChatStarted, WriteAccessAllowed,
+    };
+
+    /// The four data-free service messages arrive as `{}`, not `null`, so they
+    /// must deserialize from an empty object.
+    #[test]
+    fn empty_service_objects_deserialize_from_empty_json() {
+        use rustigram_types::{
+            ForumTopicClosed, ForumTopicReopened, GeneralForumTopicHidden,
+            GeneralForumTopicUnhidden,
+        };
+        serde_json::from_str::<VideoChatStarted>("{}").unwrap();
+        serde_json::from_str::<ForumTopicClosed>("{}").unwrap();
+        serde_json::from_str::<ForumTopicReopened>("{}").unwrap();
+        serde_json::from_str::<GeneralForumTopicHidden>("{}").unwrap();
+        serde_json::from_str::<GeneralForumTopicUnhidden>("{}").unwrap();
+    }
+
+    #[test]
+    fn video_chat_types_round_trip() {
+        let scheduled: VideoChatScheduled =
+            serde_json::from_str(r#"{"start_date":1700000000}"#).unwrap();
+        assert_eq!(scheduled.start_date, 1_700_000_000);
+
+        let ended: VideoChatEnded = serde_json::from_str(r#"{"duration":95}"#).unwrap();
+        assert_eq!(ended.duration, 95);
+
+        let invited: VideoChatParticipantsInvited = serde_json::from_str(
+            r#"{"users":[{"id":42,"is_bot":false,"first_name":"Mehran"}]}"#,
+        )
+        .unwrap();
+        assert_eq!(invited.users.len(), 1);
+        assert_eq!(invited.users[0].id, 42);
+    }
+
+    #[test]
+    fn forum_topic_created_round_trips() {
+        let json = r#"{"name":"Bugs","icon_color":7322096,"is_name_implicit":true}"#;
+        let created: ForumTopicCreated = serde_json::from_str(json).unwrap();
+        assert_eq!(created.name, "Bugs");
+        assert_eq!(created.icon_color, 7_322_096);
+        assert_eq!(created.is_name_implicit, Some(true));
+        assert!(created.icon_custom_emoji_id.is_none());
+
+        // Optional fields must not be emitted when absent.
+        let edited: ForumTopicEdited = serde_json::from_str(r#"{"name":"Renamed"}"#).unwrap();
+        let back = serde_json::to_value(&edited).unwrap();
+        assert_eq!(back["name"], "Renamed");
+        assert!(back.get("icon_custom_emoji_id").is_none());
+    }
+
+    #[test]
+    fn shared_entities_round_trip() {
+        let shared: UsersShared = serde_json::from_str(
+            r#"{"request_id":3,"users":[{"user_id":7,"username":"mehran"}]}"#,
+        )
+        .unwrap();
+        assert_eq!(shared.request_id, 3);
+        assert_eq!(shared.users[0].user_id, 7);
+        assert_eq!(shared.users[0].username.as_deref(), Some("mehran"));
+
+        let chat: ChatShared =
+            serde_json::from_str(r#"{"request_id":4,"chat_id":-100123,"title":"Team"}"#).unwrap();
+        assert_eq!(chat.chat_id, -100_123);
+        assert_eq!(chat.title.as_deref(), Some("Team"));
+
+        let user = SharedUser::default();
+        assert_eq!(user.user_id, 0);
+    }
+
+    #[test]
+    fn proximity_boost_and_write_access_round_trip() {
+        let alert: ProximityAlertTriggered = serde_json::from_str(
+            r#"{"traveler":{"id":1,"is_bot":false,"first_name":"A"},
+                "watcher":{"id":2,"is_bot":false,"first_name":"B"},"distance":150}"#,
+        )
+        .unwrap();
+        assert_eq!(alert.distance, 150);
+        assert_eq!(alert.traveler.id, 1);
+        assert_eq!(alert.watcher.id, 2);
+
+        let boost: ChatBoostAdded = serde_json::from_str(r#"{"boost_count":4}"#).unwrap();
+        assert_eq!(boost.boost_count, 4);
+
+        let access: WriteAccessAllowed =
+            serde_json::from_str(r#"{"from_request":true}"#).unwrap();
+        assert_eq!(access.from_request, Some(true));
+        assert!(access.web_app_name.is_none());
+    }
+
+    /// The regression this test exists to prevent: these fields used to be
+    /// absent or `serde_json::Value`, so a service message deserialized into a
+    /// `Message` where everything the bot cared about was `None`.
+    #[test]
+    fn message_carries_typed_service_fields() {
+        let json = r#"{
+            "message_id": 0,
+            "date": 1700000000,
+            "chat": { "id": -100999, "type": "supergroup" },
+            "video_chat_started": {},
+            "video_chat_ended": { "duration": 60 },
+            "boost_added": { "boost_count": 2 },
+            "forum_topic_created": { "name": "General", "icon_color": 7322096 },
+            "connected_website": "example.com",
+            "proximity_alert_triggered": {
+                "traveler": { "id": 1, "is_bot": false, "first_name": "A" },
+                "watcher": { "id": 2, "is_bot": false, "first_name": "B" },
+                "distance": 20
+            }
+        }"#;
+        let msg: Message = serde_json::from_str(json).unwrap();
+
+        assert!(msg.video_chat_started.is_some());
+        assert_eq!(msg.video_chat_ended.unwrap().duration, 60);
+        assert_eq!(msg.boost_added.unwrap().boost_count, 2);
+        assert_eq!(msg.forum_topic_created.unwrap().name, "General");
+        assert_eq!(msg.connected_website.as_deref(), Some("example.com"));
+        assert_eq!(msg.proximity_alert_triggered.unwrap().distance, 20);
+    }
+}

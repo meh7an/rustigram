@@ -29,7 +29,9 @@
 //! | [`suggested_post`] | [`suggested_post::SuggestedPostInfo`], [`suggested_post::SuggestedPostParameters`], service messages |
 //! | [`inline`] | [`inline::InlineQuery`], all `InlineQueryResult` variants |
 //! | [`story`] | Story types and area definitions |
-//! | [`forum`] | [`forum::ForumTopic`] |
+//! | [`forum`] | [`forum::ForumTopic`] and the six forum service messages |
+//! | [`shared`] | [`shared::UsersShared`], [`shared::ChatShared`], [`shared::SharedUser`] |
+//! | [`video_chat`] | The four video chat service messages |
 //! | [`passport`] | Telegram Passport types and error variants |
 //! | [`games`] | [`games::GameHighScore`] |
 //! | [`gifts`] | [`gifts::Gift`], [`gifts::Gifts`] |
@@ -73,6 +75,8 @@ pub mod poll;
 pub mod reaction;
 /// Rich message types (Bot API 10.1).
 pub mod rich_message;
+/// Users and chats shared with the bot via keyboard request buttons.
+pub mod shared;
 /// Sticker types.
 pub mod sticker;
 /// Story types.
@@ -83,6 +87,8 @@ pub mod suggested_post;
 pub mod update;
 /// User and bot command types.
 pub mod user;
+/// Video chat service message types.
+pub mod video_chat;
 /// Webhook info types.
 pub mod webhook;
 
@@ -115,9 +121,18 @@ pub use keyboard::{
     ReplyKeyboardRemove,
 };
 pub use managed_bot::ManagedBotCreated;
+pub use forum::{
+    ForumTopic, ForumTopicClosed, ForumTopicCreated, ForumTopicEdited, ForumTopicReopened,
+    GeneralForumTopicHidden, GeneralForumTopicUnhidden,
+};
 pub use message::{
-    ChatOwnerChanged, ChatOwnerLeft, Message, MessageEntity, MessageEntityKind, MessageOrigin,
-    ReactionType, ReplyParameters,
+    ChatOwnerChanged, ChatOwnerLeft, Message, MessageAutoDeleteTimerChanged, MessageEntity,
+    MessageEntityKind, MessageOrigin, ProximityAlertTriggered, ReactionType, ReplyParameters,
+    WriteAccessAllowed,
+};
+pub use shared::{ChatShared, SharedUser, UsersShared};
+pub use video_chat::{
+    VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted,
 };
 pub use payments::{
     AcceptedGiftTypes, AffiliateInfo, BotSubscriptionUpdated, LabeledPrice, OrderInfo, OwnedGift,
@@ -159,7 +174,9 @@ pub use suggested_post::{
     SuggestedPostApprovalFailed, SuggestedPostApproved, SuggestedPostDeclined, SuggestedPostInfo,
     SuggestedPostPaid, SuggestedPostParameters, SuggestedPostPrice, SuggestedPostRefunded,
 };
-pub use update::{BusinessBotRights, CallbackQuery, Update, UpdateKind, UserChatBoosts};
+pub use update::{
+    BusinessBotRights, CallbackQuery, ChatBoostAdded, Update, UpdateKind, UserChatBoosts,
+};
 pub use user::{
     BotAccessSettings, BotCommand, BotDescription, BotName, BotShortDescription,
     ChatAdministratorRights, ChatId, User, UserProfileAudios, UserProfilePhotos,
