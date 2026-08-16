@@ -1,0 +1,65 @@
+name: Spec Drift
+
+# Every conformance test in this repository compares the crate against a
+# committed snapshot of the Bot API. That makes the suite deterministic and
+# offline — and it means the snapshot's correctness is the one thing nothing
+# else can check. If Telegram ships a new version, all 264 tests keep passing
+# while agreeing with a spec that is out of date.
+#
+# This is the only job that looks at the live docs. It is deliberately separate
+# from CI: it depends on an external site, so a failure here means "the world
+# moved", not "this change is broken".
+on:
+    schedule:
+        # Mondays, 07:00 UTC. Telegram ships every few weeks, so weekly is
+        # frequent enough to notice within one working week.
+        - cron: "0 7 * * 1"
+    workflow_dispatch:
+
+jobs:
+    check:
+        name: Snapshot still matches the live Bot API
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Compare the live docs against the committed snapshot
+              run: |
+                  set -euo pipefail
+                  snapshot=crates/rustigram-types/tests/spec/bot-api-10.2.json
+
+                  expected_version=$(python3 -c "
+                  import json; print(json.load(open('$snapshot'))['bot_api_version'])")
+
+                  curl -sS --compressed --max-time 60 \
+                      https://core.telegram.org/bots/api -o live.html
+
+                  # The page states its own version in a heading like
+                  # 'Bot API 10.2'. Anything else means Telegram shipped.
+                  live_version=$(grep -oE 'Bot API [0-9]+\.[0-9]+' live.html \
+                      | head -1 | sed 's/Bot API //')
+
+                  # Each type, method, and guide topic is an <h4>. The count
+                  # moves when entities are added or removed, which Telegram
+                  # sometimes does without bumping the version.
+                  live_entities=$(grep -c '<h4>' live.html)
+                  expected_entities=588
+
+                  echo "version:  snapshot $expected_version, live $live_version"
+                  echo "entities: expected $expected_entities, live $live_entities"
+
+                  fail=0
+                  if [ "$live_version" != "$expected_version" ]; then
+                      echo "::error::Bot API is now $live_version; the snapshot is $expected_version"
+                      fail=1
+                  fi
+                  if [ "$live_entities" != "$expected_entities" ]; then
+                      echo "::error::the live page has $live_entities entities, expected $expected_entities — entities were added or removed"
+                      fail=1
+                  fi
+
+                  if [ "$fail" -ne 0 ]; then
+                      echo "::notice::Regenerate with the telegram-docs-setup skill, which diffs per-entity content hashes and reports exactly what changed. Update expected_entities in this workflow afterwards."
+                      exit 1
+                  fi
+                  echo "The committed snapshot still matches the live Bot API."
