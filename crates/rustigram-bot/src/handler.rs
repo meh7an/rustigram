@@ -12,12 +12,16 @@ pub type HandlerFuture = Pin<Box<dyn Future<Output = BotResult<()>> + Send>>;
 
 /// Core trait for all update handlers.
 ///
-/// Implementors receive a [`Context`] and return a future that resolves to
-/// `BotResult<()>`. Returning `Ok(())` allows subsequent handlers to run;
-/// the dispatcher stops the chain on `Err`.
+/// Implementors receive a [`Context`] and return a future resolving to
+/// `BotResult<()>`.
+///
+/// The return value does not influence routing. The dispatcher runs only the
+/// first route whose filter matches, and an `Err` is logged rather than
+/// propagated or passed to another handler — so returning an error reports a
+/// failure, it does not hand control anywhere else.
 #[async_trait]
 pub trait Handler: Send + Sync + 'static {
-    /// Processes an incoming update and returns whether the dispatcher should continue.
+    /// Processes an incoming update.
     async fn handle(&self, ctx: Context) -> BotResult<()>;
 }
 
@@ -71,14 +75,14 @@ where
     Arc::new(HandlerFn::new(f))
 }
 
-/// A handler that logs an error and continues the chain.
+/// A handler that logs any error from the wrapped handler and swallows it.
 pub struct LoggingHandler {
     inner: BoxHandler,
 }
 
 impl LoggingHandler {
-    /// Wraps a handler in a logging layer that catches errors and logs them
-    /// instead of propagating them, allowing the dispatcher to continue.
+    /// Wraps a handler so its errors are logged with the update ID and then
+    /// discarded, leaving the outer result `Ok`.
     pub fn wrap(inner: BoxHandler) -> BoxHandler {
         Arc::new(Self { inner })
     }

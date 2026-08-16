@@ -8,3 +8,6 @@ tdocs/
 
 # Private planning documents
 plan/
+
+# ts-rs fallback output when TMA_TYPES_OUT does not resolve
+crates/rustigram-miniapp/bindings/

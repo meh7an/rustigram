@@ -23,7 +23,7 @@ struct Route {
 pub struct DispatcherBuilder {
     client: BotClient,
     routes: Vec<Route>,
-    error_handler: Option<BoxHandler>,
+    fallback: Option<BoxHandler>,
 }
 
 impl DispatcherBuilder {
@@ -31,7 +31,7 @@ impl DispatcherBuilder {
         Self {
             client,
             routes: Vec::new(),
-            error_handler: None,
+            fallback: None,
         }
     }
 
@@ -66,7 +66,7 @@ impl DispatcherBuilder {
     /// If no fallback is set, unmatched updates are silently ignored.
     #[must_use]
     pub fn fallback<H: Handler>(mut self, handler: H) -> Self {
-        self.error_handler = Some(Arc::new(handler));
+        self.fallback = Some(Arc::new(handler));
         self
     }
 
@@ -76,7 +76,7 @@ impl DispatcherBuilder {
         Dispatcher {
             client: self.client,
             routes: Arc::new(self.routes),
-            fallback: self.error_handler,
+            fallback: self.fallback,
         }
     }
 }
