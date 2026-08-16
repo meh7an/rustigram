@@ -835,6 +835,25 @@ impl BotClient {
             ephemeral_message_id,
         )
     }
+    /// Calls `editEphemeralMessageMedia` — replaces the media of an ephemeral message.
+    ///
+    /// Delivery of the edit is not guaranteed, particularly if the receiving
+    /// user is offline.
+    pub fn edit_ephemeral_message_media(
+        &self,
+        chat_id: impl Into<rustigram_types::user::ChatId>,
+        receiver_user_id: i64,
+        ephemeral_message_id: i64,
+        media: rustigram_types::file::InputMedia,
+    ) -> EditEphemeralMessageMedia {
+        EditEphemeralMessageMedia::new(
+            self.clone(),
+            chat_id,
+            receiver_user_id,
+            ephemeral_message_id,
+            media,
+        )
+    }
     /// Calls `editEphemeralMessageReplyMarkup` — replaces the inline keyboard of an
     /// ephemeral message (Bot API 10.2).
     pub fn edit_ephemeral_message_reply_markup(

@@ -4,6 +4,7 @@ use std::pin::Pin;
 use serde::Serialize;
 
 use rustigram_types::checklist::InputChecklist;
+use rustigram_types::file::InputMedia;
 use rustigram_types::keyboard::InlineKeyboardMarkup;
 use rustigram_types::message::{LinkPreviewOptions, Message, MessageEntity, ParseMode};
 use rustigram_types::rich_message::InputRichMessage;
@@ -559,6 +560,57 @@ impl_into_future!(
     EditEphemeralMessageCaption,
     bool,
     "editEphemeralMessageCaption"
+);
+
+#[derive(Serialize)]
+struct EditEphemeralMessageMediaParams {
+    chat_id: ChatId,
+    receiver_user_id: i64,
+    ephemeral_message_id: i64,
+    media: InputMedia,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+/// Builder for the [`editEphemeralMessageMedia`](https://core.telegram.org/bots/api#editephemeralmessagemedia) method.
+///
+/// Note that it is not guaranteed that the user will receive the message edit
+/// event, especially if they are offline.
+pub struct EditEphemeralMessageMedia {
+    client: BotClient,
+    params: EditEphemeralMessageMediaParams,
+}
+
+impl EditEphemeralMessageMedia {
+    pub(crate) fn new(
+        client: BotClient,
+        chat_id: impl Into<ChatId>,
+        receiver_user_id: i64,
+        ephemeral_message_id: i64,
+        media: InputMedia,
+    ) -> Self {
+        Self {
+            client,
+            params: EditEphemeralMessageMediaParams {
+                chat_id: chat_id.into(),
+                receiver_user_id,
+                ephemeral_message_id,
+                media,
+                reply_markup: None,
+            },
+        }
+    }
+    /// Attaches a reply markup (inline keyboard).
+    pub fn reply_markup(mut self, m: InlineKeyboardMarkup) -> Self {
+        self.params.reply_markup = Some(m);
+        self
+    }
+}
+
+impl_into_future!(
+    EditEphemeralMessageMedia,
+    bool,
+    "editEphemeralMessageMedia"
 );
 
 // ─── editEphemeralMessageReplyMarkup ──────────────────────────────────────────

@@ -1,10 +1,13 @@
 use std::future::{Future, IntoFuture};
 use std::pin::Pin;
 
+use reqwest::multipart::{Form, Part};
 use serde::Serialize;
 
 use rustigram_types::update::Update;
 use rustigram_types::webhook::WebhookInfo;
+
+use rustigram_types::file::InputFile;
 
 use crate::client::BotClient;
 use crate::error::Result;
@@ -99,6 +102,12 @@ pub struct SetWebhookParams {
 pub struct SetWebhook {
     client: BotClient,
     params: SetWebhookParams,
+    /// Public key certificate for a self-signed setup.
+    ///
+    /// Held outside `params` because uploading one switches the request from
+    /// JSON to multipart, and an `InputFile` is not meaningfully serialisable
+    /// into the JSON body.
+    certificate: Option<InputFile>,
 }
 
 impl SetWebhook {
@@ -113,7 +122,19 @@ impl SetWebhook {
                 drop_pending_updates: None,
                 secret_token: None,
             },
+            certificate: None,
         }
+    }
+
+    /// Uploads a public key certificate so Telegram can verify a self-signed
+    /// setup.
+    ///
+    /// Supplying one switches the request to multipart. Telegram requires the
+    /// certificate to be uploaded as a file, so `InputFile::Url` and
+    /// `InputFile::FileId` are not accepted here — use `InputFile::Bytes`.
+    pub fn certificate(mut self, certificate: InputFile) -> Self {
+        self.certificate = Some(certificate);
+        self
     }
     /// Overrides the resolved IP address of the webhook server.
     pub fn ip_address(mut self, ip: impl Into<String>) -> Self {
@@ -147,7 +168,52 @@ impl IntoFuture for SetWebhook {
     type Output = Result<bool>;
     type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send>>;
     fn into_future(self) -> Self::IntoFuture {
-        Box::pin(async move { self.client.post_json("setWebhook", &self.params).await })
+        Box::pin(async move {
+            let Some(certificate) = self.certificate else {
+                return self.client.post_json("setWebhook", &self.params).await;
+            };
+
+            let InputFile::Bytes {
+                filename,
+                data,
+                mime_type,
+            } = certificate
+            else {
+                return Err(crate::error::Error::MissingParam(
+                    "setWebhook certificate must be InputFile::Bytes — Telegram \
+                     requires the certificate to be uploaded, not referenced",
+                ));
+            };
+
+            let part = Part::bytes(data)
+                .file_name(filename)
+                .mime_str(&mime_type)
+                .map_err(|e| crate::error::Error::Decode(e.to_string()))?;
+
+            let p = &self.params;
+            let mut form = Form::new()
+                .part("certificate", part)
+                .text("url", p.url.clone());
+            if let Some(v) = &p.ip_address {
+                form = form.text("ip_address", v.clone());
+            }
+            if let Some(v) = p.max_connections {
+                form = form.text("max_connections", v.to_string());
+            }
+            if let Some(v) = &p.allowed_updates {
+                if let Ok(json) = serde_json::to_string(v) {
+                    form = form.text("allowed_updates", json);
+                }
+            }
+            if let Some(v) = p.drop_pending_updates {
+                form = form.text("drop_pending_updates", v.to_string());
+            }
+            if let Some(v) = &p.secret_token {
+                form = form.text("secret_token", v.clone());
+            }
+
+            self.client.post_multipart("setWebhook", form).await
+        })
     }
 }
 
@@ -209,5 +275,58 @@ impl IntoFuture for GetWebhookInfo {
                 .post_json("getWebhookInfo", &serde_json::json!({}))
                 .await
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::client::BotClient;
+
+    fn client() -> BotClient {
+        BotClient::from_token("123456:test-token-for-unit-tests").unwrap()
+    }
+
+    /// Without a certificate the request must stay on the JSON path, unchanged.
+    #[test]
+    fn without_certificate_the_params_serialize_as_before() {
+        let w = SetWebhook::new(client(), "https://example.com")
+            .secret_token("s3cret")
+            .max_connections(40);
+        let json = serde_json::to_value(&w.params).unwrap();
+        assert_eq!(json["url"], "https://example.com");
+        assert_eq!(json["secret_token"], "s3cret");
+        assert_eq!(json["max_connections"], 40);
+        assert!(w.certificate.is_none());
+        // The certificate is deliberately not part of the JSON body.
+        assert!(json.get("certificate").is_none());
+    }
+
+    #[test]
+    fn certificate_is_held_outside_the_json_params() {
+        let w = SetWebhook::new(client(), "https://example.com").certificate(InputFile::Bytes {
+            filename: "cert.pem".to_owned(),
+            data: b"-----BEGIN CERTIFICATE-----".to_vec(),
+            mime_type: "application/x-pem-file".to_owned(),
+        });
+        assert!(w.certificate.is_some());
+        assert!(serde_json::to_value(&w.params)
+            .unwrap()
+            .get("certificate")
+            .is_none());
+    }
+
+    /// Telegram requires the certificate to be uploaded, so a URL or file_id
+    /// reference is rejected with a clear error rather than silently ignored.
+    #[tokio::test]
+    async fn non_uploaded_certificate_is_rejected() {
+        let err = SetWebhook::new(client(), "https://example.com")
+            .certificate(InputFile::Url("https://example.com/cert.pem".to_owned()))
+            .await
+            .unwrap_err();
+        assert!(
+            matches!(err, crate::error::Error::MissingParam(m) if m.contains("must be InputFile::Bytes")),
+            "unexpected error: {err:?}"
+        );
     }
 }
