@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
 
+use crate::games::CallbackGame;
+use crate::user::ChatAdministratorRights;
+
 use crate::message::WebAppInfo;
 
 /// An inline keyboard attached to a message.
@@ -62,7 +65,7 @@ pub struct InlineKeyboardButton {
     pub copy_text: Option<CopyTextButton>,
     /// Description of the game that will be launched when the user presses the button.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub callback_game: Option<serde_json::Value>,
+    pub callback_game: Option<CallbackGame>,
     /// Specify `true` to send a Pay button (invoices only).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pay: Option<bool>,
@@ -321,10 +324,10 @@ pub struct KeyboardButtonRequestChat {
     pub chat_is_created: Option<bool>,
     /// Required administrator rights of the user in the chat.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub user_administrator_rights: Option<serde_json::Value>,
+    pub user_administrator_rights: Option<ChatAdministratorRights>,
     /// Required administrator rights of the bot in the chat.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub bot_administrator_rights: Option<serde_json::Value>,
+    pub bot_administrator_rights: Option<ChatAdministratorRights>,
     /// `true` to request a chat where the bot is a member.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bot_is_member: Option<bool>,

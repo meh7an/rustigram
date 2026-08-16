@@ -35,6 +35,7 @@
 //! | [`passport`] | Telegram Passport types and error variants |
 //! | [`games`] | [`games::GameHighScore`] |
 //! | [`gifts`] | [`gifts::Gift`], [`gifts::Gifts`] |
+//! | [`giveaway`] | [`giveaway::Giveaway`] and the three giveaway service messages |
 //! | [`reaction`] | Re-exports [`message::ReactionType`] |
 //! | [`webhook`] | [`webhook::WebhookInfo`] |
 #![warn(missing_docs)]
@@ -57,6 +58,8 @@ pub mod forum;
 pub mod games;
 /// Gift types.
 pub mod gifts;
+/// Giveaway types and service messages.
+pub mod giveaway;
 /// Inline query and result types.
 pub mod inline;
 /// Keyboard and markup types.
@@ -134,11 +137,15 @@ pub use shared::{ChatShared, SharedUser, UsersShared};
 pub use video_chat::{
     VideoChatEnded, VideoChatParticipantsInvited, VideoChatScheduled, VideoChatStarted,
 };
+pub use games::{CallbackGame, Game, GameHighScore};
+pub use gifts::{GiftInfo, UniqueGiftInfo};
+pub use giveaway::{Giveaway, GiveawayCompleted, GiveawayCreated, GiveawayWinners};
 pub use payments::{
-    AcceptedGiftTypes, AffiliateInfo, BotSubscriptionUpdated, LabeledPrice, OrderInfo, OwnedGift,
-    OwnedGiftRegular, OwnedGiftUnique, OwnedGifts, PaidMediaLivePhoto, PaidMediaPhoto,
-    PaidMediaPreview, PreCheckoutQuery, ShippingAddress, ShippingOption, ShippingQuery,
-    StarTransaction, StarTransactions, TransactionPartner,
+    AcceptedGiftTypes, AffiliateInfo, BotSubscriptionUpdated, Invoice, LabeledPrice, OrderInfo,
+    OwnedGift, OwnedGiftRegular, OwnedGiftUnique, OwnedGifts, PaidMedia, PaidMediaInfo,
+    PaidMediaLivePhoto, PaidMediaPhoto, PaidMediaPreview, PaidMediaVideo, PreCheckoutQuery,
+    RefundedPayment, ShippingAddress, ShippingOption, ShippingQuery, StarTransaction,
+    StarTransactions, SuccessfulPayment, TransactionPartner,
 };
 pub use poll::{
     InputPollMedia, InputPollOption, InputPollOptionMedia, Poll, PollAnswer, PollMedia, PollOption,

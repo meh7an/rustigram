@@ -167,3 +167,76 @@ pub struct UniqueGift {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher_chat: Option<Chat>,
 }
+
+// ─── Service messages ─────────────────────────────────────────────────────────
+
+/// Service message: a regular gift was sent or received.
+///
+/// Sealed but without [`Default`]: the required `gift` field is a [`Gift`],
+/// which has no meaningful default and would drag one through `Sticker` and the
+/// whole gift model hierarchy. Same reasoning as
+/// [`ExternalReplyInfo`](crate::message::ExternalReplyInfo) — this type is only
+/// received, never constructed.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct GiftInfo {
+    /// Information about the gift.
+    pub gift: Gift,
+    /// Identifier of the received gift for the bot; present only if the gift
+    /// can be upgraded or converted to Telegram Stars.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owned_gift_id: Option<String>,
+    /// Number of Telegram Stars the gift can be converted to by the receiver.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub convert_star_count: Option<i64>,
+    /// Number of Telegram Stars prepaid by the sender for a later upgrade.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prepaid_upgrade_star_count: Option<i64>,
+    /// `true` if the gift upgrade is sent as a separate service message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_upgrade_separate: Option<bool>,
+    /// `true` if the gift can be upgraded to a unique gift.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_be_upgraded: Option<bool>,
+    /// Text message accompanying the gift.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
+    /// Special entities appearing in the accompanying text.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entities: Option<Vec<crate::message::MessageEntity>>,
+    /// `true` if the sender and gift text are visible only to the receiver.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_private: Option<bool>,
+    /// Unique number of the upgraded gift among gifts upgraded from the same one.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unique_gift_number: Option<i64>,
+}
+
+/// Service message: a unique gift was sent or received.
+///
+/// Sealed without [`Default`] for the same reason as [`GiftInfo`].
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct UniqueGiftInfo {
+    /// Information about the gift.
+    pub gift: UniqueGift,
+    /// Origin of the gift.
+    ///
+    /// One of `"upgrade"`, `"transfer"`, or `"resale"`.
+    pub origin: String,
+    /// Currency of the last resale, if the gift was bought from another user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_resale_currency: Option<String>,
+    /// Amount paid at the last resale, in the smallest unit of the currency.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_resale_amount: Option<i64>,
+    /// Identifier of the received gift for the bot.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub owned_gift_id: Option<String>,
+    /// Number of Telegram Stars that must be paid to transfer the gift.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub transfer_star_count: Option<i64>,
+    /// Point in time when the gift can be transferred, as a Unix timestamp.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub next_transfer_date: Option<i64>,
+}

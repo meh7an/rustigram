@@ -276,7 +276,7 @@ pub struct TransactionPartnerUser {
     pub subscription_period: Option<i64>,
     /// Paid media bought by the user; available for `"paid_media_payment"` only.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub paid_media: Option<Vec<serde_json::Value>>,
+    pub paid_media: Option<Vec<PaidMedia>>,
     /// Bot-specified paid media payload; available for `"paid_media_payment"` only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub paid_media_payload: Option<String>,
@@ -491,4 +491,38 @@ pub struct PaidMediaPreview {
 pub struct PaidMediaLivePhoto {
     /// The live photo.
     pub live_photo: crate::file::LivePhoto,
+}
+
+/// A video available as paid media.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PaidMediaVideo {
+    /// The video.
+    pub video: crate::file::Video,
+}
+
+/// One item of paid media.
+///
+/// The `preview` variant is what a user sees before purchasing; the others
+/// carry the real media once it has been bought.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum PaidMedia {
+    /// A preview shown before purchase.
+    Preview(PaidMediaPreview),
+    /// A photo.
+    Photo(PaidMediaPhoto),
+    /// A video.
+    Video(PaidMediaVideo),
+    /// A live photo.
+    LivePhoto(PaidMediaLivePhoto),
+}
+
+/// Information about paid media attached to a message.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct PaidMediaInfo {
+    /// Number of Telegram Stars that must be paid to access the media.
+    pub star_count: i64,
+    /// Information about the paid media.
+    pub paid_media: Vec<PaidMedia>,
 }

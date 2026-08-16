@@ -7,6 +7,11 @@ use crate::direct_messages::{
     DirectMessagePriceChanged, DirectMessagesTopic, PaidMessagePriceChanged,
 };
 use crate::file::{Animation, Audio, Document, LivePhoto, PhotoSize, Video, VideoNote, Voice};
+use crate::games::Game;
+use crate::giveaway::{Giveaway, GiveawayCompleted, GiveawayCreated, GiveawayWinners};
+use crate::gifts::{GiftInfo, UniqueGiftInfo};
+use crate::payments::{Invoice, PaidMediaInfo, RefundedPayment, SuccessfulPayment};
+use crate::story::Story;
 use crate::forum::{
     ForumTopicClosed, ForumTopicCreated, ForumTopicEdited, ForumTopicReopened,
     GeneralForumTopicHidden, GeneralForumTopicUnhidden,
@@ -129,7 +134,7 @@ pub struct Message {
 
     /// For replies to a story, the original story.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reply_to_story: Option<serde_json::Value>,
+    pub reply_to_story: Option<Story>,
 
     /// Identifier of the checklist task being replied to.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -210,7 +215,7 @@ pub struct Message {
     pub document: Option<Document>,
     /// Paid media attached to the message.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub paid_media: Option<serde_json::Value>,
+    pub paid_media: Option<PaidMediaInfo>,
     /// Photo attached to the message (array of sizes).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub photo: Option<Vec<PhotoSize>>,
@@ -222,7 +227,7 @@ pub struct Message {
     pub sticker: Option<Sticker>,
     /// Story attached to the message.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub story: Option<serde_json::Value>,
+    pub story: Option<Story>,
     /// Video attached to the message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub video: Option<Video>,
@@ -262,7 +267,7 @@ pub struct Message {
     pub dice: Option<Dice>,
     /// Game in the message.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub game: Option<serde_json::Value>,
+    pub game: Option<Game>,
     /// Poll in the message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub poll: Option<Poll>,
@@ -330,13 +335,13 @@ pub struct Message {
     // Payment fields
     /// Invoice for a payment (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub invoice: Option<serde_json::Value>,
+    pub invoice: Option<Invoice>,
     /// Successful payment information (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub successful_payment: Option<serde_json::Value>,
+    pub successful_payment: Option<SuccessfulPayment>,
     /// Refunded payment information (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub refunded_payment: Option<serde_json::Value>,
+    pub refunded_payment: Option<RefundedPayment>,
 
     // Web app
     /// Data from the Web App.
@@ -385,6 +390,29 @@ pub struct Message {
     /// The chat was boosted (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boost_added: Option<ChatBoostAdded>,
+
+    // Gifts and giveaways
+    /// A regular gift was sent or received (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gift: Option<GiftInfo>,
+    /// A unique gift was sent or received (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unique_gift: Option<UniqueGiftInfo>,
+    /// A gift upgrade was sent as a separate service message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gift_upgrade_sent: Option<GiftInfo>,
+    /// A scheduled giveaway was created (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub giveaway_created: Option<GiveawayCreated>,
+    /// The message is a scheduled giveaway.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub giveaway: Option<Giveaway>,
+    /// Giveaway winners were selected (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub giveaway_winners: Option<GiveawayWinners>,
+    /// A giveaway without public winners completed (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub giveaway_completed: Option<GiveawayCompleted>,
 
     // Video chat events
     /// A video chat was scheduled (service message).
@@ -784,6 +812,24 @@ pub struct ExternalReplyInfo {
     /// Checklist in the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checklist: Option<Checklist>,
+    /// Paid media in the original message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub paid_media: Option<PaidMediaInfo>,
+    /// Story in the original message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub story: Option<Story>,
+    /// Game in the original message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub game: Option<Game>,
+    /// Scheduled giveaway in the original message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub giveaway: Option<Giveaway>,
+    /// Completed giveaway with public winners in the original message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub giveaway_winners: Option<GiveawayWinners>,
+    /// Invoice in the original message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub invoice: Option<Invoice>,
     /// Contact in the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contact: Option<Contact>,

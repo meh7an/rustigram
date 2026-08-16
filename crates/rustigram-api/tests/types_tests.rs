@@ -648,3 +648,108 @@ mod service_messages {
         assert_eq!(msg.proximity_alert_triggered.unwrap().distance, 20);
     }
 }
+
+#[cfg(test)]
+mod giveaways_gifts_and_paid_media {
+    use rustigram_types::message::Message;
+    use rustigram_types::{Giveaway, GiveawayCompleted, GiveawayWinners, PaidMedia, PaidMediaInfo};
+
+    /// The `PaidMedia` enum is tagged by `type`; all four variants must resolve.
+    #[test]
+    fn paid_media_variants_resolve_by_tag() {
+        let info: PaidMediaInfo = serde_json::from_str(
+            r#"{"star_count":50,"paid_media":[
+                {"type":"preview","width":640,"height":480},
+                {"type":"photo","photo":[{"file_id":"a","file_unique_id":"b","width":1,"height":1}]}
+            ]}"#,
+        )
+        .unwrap();
+        assert_eq!(info.star_count, 50);
+        assert!(matches!(info.paid_media[0], PaidMedia::Preview(_)));
+        assert!(matches!(info.paid_media[1], PaidMedia::Photo(_)));
+
+        // The tag must survive a round trip, or re-sending the value breaks.
+        let back = serde_json::to_value(&info).unwrap();
+        assert_eq!(back["paid_media"][0]["type"], "preview");
+        assert_eq!(back["paid_media"][1]["type"], "photo");
+    }
+
+    #[test]
+    fn giveaway_round_trips() {
+        let g: Giveaway = serde_json::from_str(
+            r#"{"chats":[{"id":-100,"type":"channel"}],"winners_selection_date":1700000000,
+                "winner_count":10,"only_new_members":true,"prize_star_count":500}"#,
+        )
+        .unwrap();
+        assert_eq!(g.winner_count, 10);
+        assert_eq!(g.chats.len(), 1);
+        assert_eq!(g.only_new_members, Some(true));
+        assert_eq!(g.prize_star_count, Some(500));
+        assert!(g.country_codes.is_none());
+
+        let w: GiveawayWinners = serde_json::from_str(
+            r#"{"chat":{"id":-100,"type":"channel"},"giveaway_message_id":5,
+                "winners_selection_date":1700000000,"winner_count":2,
+                "winners":[{"id":1,"is_bot":false,"first_name":"A"}]}"#,
+        )
+        .unwrap();
+        assert_eq!(w.winners.len(), 1);
+        assert_eq!(w.giveaway_message_id, 5);
+    }
+
+    /// `GiveawayCompleted.giveaway_message` is a boxed `Message`, so this
+    /// exercises the type cycle actually resolving at runtime.
+    #[test]
+    fn giveaway_completed_nests_a_message() {
+        let c: GiveawayCompleted = serde_json::from_str(
+            r#"{"winner_count":3,"giveaway_message":{
+                "message_id":9,"date":1700000000,"chat":{"id":-100,"type":"channel"}}}"#,
+        )
+        .unwrap();
+        assert_eq!(c.winner_count, 3);
+        assert_eq!(c.giveaway_message.unwrap().message_id, 9);
+    }
+
+    /// These seven fields were `Option<serde_json::Value>` until they were typed:
+    /// present in name, so the audit reported them covered, but useless to a bot.
+    #[test]
+    fn formerly_untyped_message_fields_are_typed() {
+        let json = r#"{
+            "message_id": 1,
+            "date": 1700000000,
+            "chat": { "id": 1, "type": "private" },
+            "invoice": {
+                "title": "Pro", "description": "Plan", "start_parameter": "",
+                "currency": "XTR", "total_amount": 100
+            },
+            "story": { "chat": { "id": 1, "type": "private" }, "id": 4 },
+            "paid_media": { "star_count": 5, "paid_media": [{ "type": "preview" }] },
+            "giveaway_created": { "prize_star_count": 100 }
+        }"#;
+        let msg: Message = serde_json::from_str(json).unwrap();
+
+        assert_eq!(msg.invoice.unwrap().total_amount, 100);
+        assert_eq!(msg.story.unwrap().id, 4);
+        assert_eq!(msg.paid_media.unwrap().star_count, 5);
+        assert_eq!(msg.giveaway_created.unwrap().prize_star_count, Some(100));
+    }
+
+    #[test]
+    fn external_reply_carries_giveaway_and_invoice() {
+        let json = r#"{
+            "message_id": 1,
+            "date": 1700000000,
+            "chat": { "id": 1, "type": "private" },
+            "external_reply": {
+                "origin": { "type": "hidden_user", "date": 1, "sender_user_name": "X" },
+                "giveaway": {
+                    "chats": [], "winners_selection_date": 1, "winner_count": 1
+                }
+            }
+        }"#;
+        let msg: Message = serde_json::from_str(json).unwrap();
+        let reply = msg.external_reply.unwrap();
+        assert_eq!(reply.giveaway.unwrap().winner_count, 1);
+        assert!(reply.invoice.is_none());
+    }
+}
