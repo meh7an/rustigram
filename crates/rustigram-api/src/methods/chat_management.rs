@@ -379,6 +379,8 @@ struct PinChatMessageParams {
     message_id: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
     disable_notification: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
 }
 
 /// Builder for the [`pinChatMessage`](https://core.telegram.org/bots/api#pinchatmessage) method.
@@ -395,12 +397,18 @@ impl PinChatMessage {
                 chat_id: chat_id.into(),
                 message_id,
                 disable_notification: None,
+                business_connection_id: None,
             },
         }
     }
     /// Pins the message without notifying members.
     pub fn disable_notification(mut self, v: bool) -> Self {
         self.params.disable_notification = Some(v);
+        self
+    }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
         self
     }
 }
@@ -414,6 +422,8 @@ struct UnpinChatMessageParams {
     chat_id: ChatId,
     #[serde(skip_serializing_if = "Option::is_none")]
     message_id: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
 }
 
 /// Builder for the [`unpinChatMessage`](https://core.telegram.org/bots/api#unpinchatmessage) method.
@@ -429,12 +439,18 @@ impl UnpinChatMessage {
             params: UnpinChatMessageParams {
                 chat_id: chat_id.into(),
                 message_id: None,
+                business_connection_id: None,
             },
         }
     }
     /// Unpins a specific message. Omit to unpin the most recent pinned message.
     pub fn message_id(mut self, id: i64) -> Self {
         self.params.message_id = Some(id);
+        self
+    }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
         self
     }
 }

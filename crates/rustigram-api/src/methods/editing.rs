@@ -428,6 +428,8 @@ struct EditEphemeralMessageTextParams {
     entities: Option<Vec<MessageEntity>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<InlineKeyboardMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    link_preview_options: Option<LinkPreviewOptions>,
 }
 
 /// Builder for the [`editEphemeralMessageText`](https://core.telegram.org/bots/api#editephemeralmessagetext) method.
@@ -457,6 +459,7 @@ impl EditEphemeralMessageText {
                 parse_mode: None,
                 entities: None,
                 reply_markup: None,
+                link_preview_options: None,
             },
         }
     }
@@ -473,6 +476,11 @@ impl EditEphemeralMessageText {
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: InlineKeyboardMarkup) -> Self {
         self.params.reply_markup = Some(m);
+        self
+    }
+    /// Configures link preview generation options.
+    pub fn link_preview_options(mut self, v: LinkPreviewOptions) -> Self {
+        self.params.link_preview_options = Some(v);
         self
     }
 }
@@ -755,6 +763,8 @@ struct EditMessageLiveLocationParams {
     proximity_alert_radius: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<InlineKeyboardMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
 }
 
 /// Builder for the [`editMessageLiveLocation`](https://core.telegram.org/bots/api#editmessagelivelocation) method.
@@ -785,6 +795,7 @@ impl EditMessageLiveLocation {
                 heading: None,
                 proximity_alert_radius: None,
                 reply_markup: None,
+                            business_connection_id: None,
             },
         }
     }
@@ -807,6 +818,7 @@ impl EditMessageLiveLocation {
                 heading: None,
                 proximity_alert_radius: None,
                 reply_markup: None,
+                            business_connection_id: None,
             },
         }
     }
@@ -825,6 +837,11 @@ impl EditMessageLiveLocation {
         self.params.reply_markup = Some(m);
         self
     }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
+        self
+    }
 }
 
 impl_into_future!(EditMessageLiveLocation, Message, "editMessageLiveLocation");
@@ -837,6 +854,8 @@ struct StopMessageLiveLocationParams {
     target: EditTarget,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<InlineKeyboardMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
 }
 
 /// Builder for the [`stopMessageLiveLocation`](https://core.telegram.org/bots/api#stopmessagelivelocation) method.
@@ -855,6 +874,7 @@ impl StopMessageLiveLocation {
                     message_id,
                 },
                 reply_markup: None,
+                            business_connection_id: None,
             },
         }
     }
@@ -866,12 +886,18 @@ impl StopMessageLiveLocation {
                     inline_message_id: inline_message_id.into(),
                 },
                 reply_markup: None,
+                            business_connection_id: None,
             },
         }
     }
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: InlineKeyboardMarkup) -> Self {
         self.params.reply_markup = Some(m);
+        self
+    }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
         self
     }
 }

@@ -82,6 +82,8 @@ struct SendInvoiceParams {
     reply_markup: Option<rustigram_types::keyboard::InlineKeyboardMarkup>,
     #[serde(skip_serializing_if = "Option::is_none")]
     suggested_post_parameters: Option<SuggestedPostParameters>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
 }
 
 /// Builder for the [`sendInvoice`](https://core.telegram.org/bots/api#sendinvoice) method.
@@ -133,6 +135,7 @@ impl SendInvoice {
                 reply_parameters: None,
                 reply_markup: None,
                 suggested_post_parameters: None,
+                message_effect_id: None,
             },
         }
     }
@@ -174,6 +177,11 @@ impl SendInvoice {
     /// Suggested post parameters for channel direct messages chats.
     pub fn suggested_post_parameters(mut self, params: SuggestedPostParameters) -> Self {
         self.params.suggested_post_parameters = Some(params);
+        self
+    }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, v: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(v.into());
         self
     }
 }

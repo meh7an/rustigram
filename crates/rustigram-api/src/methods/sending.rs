@@ -238,6 +238,10 @@ struct ForwardMessageParams {
     disable_notification: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     protect_content: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`forwardMessage`](https://core.telegram.org/bots/api#forwardmessage) method.
@@ -264,6 +268,8 @@ impl ForwardMessage {
                 video_start_timestamp: None,
                 disable_notification: None,
                 protect_content: None,
+                message_effect_id: None,
+                suggested_post_parameters: None,
             },
         }
     }
@@ -290,6 +296,16 @@ impl ForwardMessage {
     /// Protects the message from being forwarded or saved.
     pub fn protect_content(mut self, v: bool) -> Self {
         self.params.protect_content = Some(v);
+        self
+    }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, v: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(v.into());
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, v: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(v);
         self
     }
 }
@@ -325,6 +341,12 @@ struct CopyMessageParams {
     reply_parameters: Option<ReplyParameters>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<ReplyMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`copyMessage`](https://core.telegram.org/bots/api#copymessage) method.
@@ -357,6 +379,9 @@ impl CopyMessage {
                 protect_content: None,
                 reply_parameters: None,
                 reply_markup: None,
+                allow_paid_broadcast: None,
+                message_effect_id: None,
+                suggested_post_parameters: None,
             },
         }
     }
@@ -393,6 +418,21 @@ impl CopyMessage {
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self {
         self.params.reply_markup = Some(m.into());
+        self
+    }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, v: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(v.into());
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, v: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(v);
         self
     }
 }
@@ -494,6 +534,14 @@ struct SendDiceParams {
     reply_parameters: Option<ReplyParameters>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<ReplyMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`sendDice`](https://core.telegram.org/bots/api#senddice) method.
@@ -515,6 +563,10 @@ impl SendDice {
                 protect_content: None,
                 reply_parameters: None,
                 reply_markup: None,
+                business_connection_id: None,
+                allow_paid_broadcast: None,
+                message_effect_id: None,
+                suggested_post_parameters: None,
             },
         }
     }
@@ -541,6 +593,26 @@ impl SendDice {
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: impl Into<ReplyMarkup>) -> Self {
         self.params.reply_markup = Some(m.into());
+        self
+    }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
+        self
+    }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, v: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(v.into());
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, v: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(v);
         self
     }
 }
@@ -578,6 +650,14 @@ struct SendLocationParams {
     receiver_user_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     callback_query_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`sendLocation`](https://core.telegram.org/bots/api#sendlocation) method.
@@ -611,6 +691,10 @@ impl SendLocation {
                 reply_markup: None,
                 receiver_user_id: None,
                 callback_query_id: None,
+                business_connection_id: None,
+                allow_paid_broadcast: None,
+                message_effect_id: None,
+                suggested_post_parameters: None,
             },
         }
     }
@@ -666,6 +750,26 @@ impl SendLocation {
         self.params.callback_query_id = Some(id.into());
         self
     }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
+        self
+    }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, v: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(v.into());
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, v: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(v);
+        self
+    }
 }
 
 impl_into_future!(SendLocation, Message, "sendLocation");
@@ -697,6 +801,14 @@ struct SendContactParams {
     receiver_user_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     callback_query_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`sendContact`](https://core.telegram.org/bots/api#sendcontact) method.
@@ -728,6 +840,10 @@ impl SendContact {
                 reply_markup: None,
                 receiver_user_id: None,
                 callback_query_id: None,
+                business_connection_id: None,
+                allow_paid_broadcast: None,
+                message_effect_id: None,
+                suggested_post_parameters: None,
             },
         }
     }
@@ -769,6 +885,26 @@ impl SendContact {
     /// For outgoing ephemeral messages — the callback query that triggered it, if any.
     pub fn callback_query_id(mut self, id: impl Into<String>) -> Self {
         self.params.callback_query_id = Some(id.into());
+        self
+    }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
+        self
+    }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, v: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(v.into());
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, v: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(v);
         self
     }
 }
@@ -842,6 +978,12 @@ struct SendPollParams {
     media: Option<rustigram_types::poll::InputPollMedia>,
     #[serde(skip_serializing_if = "Option::is_none")]
     explanation_media: Option<rustigram_types::poll::InputPollMedia>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
 }
 
 /// Builder for the [`sendPoll`](https://core.telegram.org/bots/api#sendpoll) method.
@@ -893,6 +1035,9 @@ impl SendPoll {
                 country_codes: None,
                 media: None,
                 explanation_media: None,
+                business_connection_id: None,
+                allow_paid_broadcast: None,
+                message_effect_id: None,
             },
         }
     }
@@ -1034,6 +1179,21 @@ impl SendPoll {
         self.params.explanation_media = Some(m);
         self
     }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
+        self
+    }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, v: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(v.into());
+        self
+    }
 }
 
 impl_into_future!(SendPoll, Message, "sendPoll");
@@ -1044,7 +1204,11 @@ impl_into_future!(SendPoll, Message, "sendPoll");
 struct SendMessageDraftParams {
     chat_id: ChatId,
     draft_id: i64,
-    text: String,
+    /// Optional per the spec — a draft may carry only media, or none at all.
+    /// The constructor still takes text since that is the common case; use
+    /// [`SendMessageDraft::clear_text`] to send without any.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    text: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     message_thread_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1072,7 +1236,7 @@ impl SendMessageDraft {
             params: SendMessageDraftParams {
                 chat_id: chat_id.into(),
                 draft_id,
-                text: text.into(),
+                text: Some(text.into()),
                 message_thread_id: None,
                 parse_mode: None,
                 entities: None,
@@ -1089,6 +1253,11 @@ impl SendMessageDraft {
         self.params.entities = Some(e);
         self
     }
+    /// Sends the draft with no text at all, which the API permits.
+    pub fn clear_text(mut self) -> Self {
+        self.params.text = None;
+        self
+    }
 }
 
 impl_into_future!(SendMessageDraft, bool, "sendMessageDraft");
@@ -1099,6 +1268,79 @@ impl_into_future!(SendMessageDraft, bool, "sendMessageDraft");
 // similar shape but differ in field names and constraints. We use a common
 // pattern: store the InputFile and an optional Form for multipart, and build
 // the form lazily in `IntoFuture`.
+
+/// Writes every [`MediaSendOptions`] field onto a multipart form.
+///
+/// Media senders take one of two paths: an `InputFile::Bytes` upload builds a
+/// multipart form, while a file_id or URL goes through `media_json_body`. Those
+/// two were maintained by hand and had drifted — the multipart side silently
+/// dropped `protect_content`, `allow_paid_broadcast`, `reply_parameters`,
+/// `caption_entities`, and `show_caption_above_media`, so a `.reply_to(..)` on
+/// an uploaded photo never reached Telegram. Both paths now enumerate the same
+/// struct, so a field added to `MediaSendOptions` cannot go missing from one.
+fn apply_media_opts(mut form: Form, opts: &MediaSendOptions) -> Form {
+    fn json_text(form: Form, key: &'static str, value: &impl Serialize) -> Form {
+        // Plain data types; serialisation cannot realistically fail, and the
+        // guard keeps a panic out of library code.
+        match serde_json::to_string(value) {
+            Ok(json) => form.text(key, json),
+            Err(_) => form,
+        }
+    }
+
+    if let Some(v) = &opts.business_connection_id {
+        form = form.text("business_connection_id", v.clone());
+    }
+    if let Some(v) = opts.message_thread_id {
+        form = form.text("message_thread_id", v.to_string());
+    }
+    if let Some(v) = opts.direct_messages_topic_id {
+        form = form.text("direct_messages_topic_id", v.to_string());
+    }
+    if let Some(v) = &opts.caption {
+        form = form.text("caption", v.clone());
+    }
+    if let Some(v) = &opts.parse_mode {
+        form = form.text("parse_mode", format!("{v:?}"));
+    }
+    if let Some(v) = &opts.caption_entities {
+        form = json_text(form, "caption_entities", v);
+    }
+    if let Some(v) = opts.show_caption_above_media {
+        form = form.text("show_caption_above_media", v.to_string());
+    }
+    if let Some(v) = opts.has_spoiler {
+        form = form.text("has_spoiler", v.to_string());
+    }
+    if let Some(v) = opts.disable_notification {
+        form = form.text("disable_notification", v.to_string());
+    }
+    if let Some(v) = opts.protect_content {
+        form = form.text("protect_content", v.to_string());
+    }
+    if let Some(v) = opts.allow_paid_broadcast {
+        form = form.text("allow_paid_broadcast", v.to_string());
+    }
+    if let Some(v) = &opts.message_effect_id {
+        form = form.text("message_effect_id", v.clone());
+    }
+    if let Some(v) = &opts.reply_parameters {
+        form = json_text(form, "reply_parameters", v);
+    }
+    if let Some(v) = &opts.reply_markup {
+        form = json_text(form, "reply_markup", v);
+    }
+    if let Some(v) = &opts.suggested_post_parameters {
+        form = json_text(form, "suggested_post_parameters", v);
+    }
+    if let Some(v) = opts.receiver_user_id {
+        form = form.text("receiver_user_id", v.to_string());
+    }
+    if let Some(v) = &opts.callback_query_id {
+        form = form.text("callback_query_id", v.clone());
+    }
+    form
+}
 
 /// Common optional parameters shared by most media-send methods.
 #[derive(Default)]
@@ -1125,6 +1367,8 @@ pub struct MediaSendOptions {
     pub protect_content: Option<bool>,
     /// Allows sending to large audiences at the cost of Telegram Stars.
     pub allow_paid_broadcast: Option<bool>,
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub message_effect_id: Option<String>,
     /// Reply parameters for this message.
     pub reply_parameters: Option<ReplyParameters>,
     /// Reply markup attached to the message.
@@ -1303,6 +1547,11 @@ impl SendPhoto {
         self.opts.callback_query_id = Some(id.into());
         self
     }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, id: impl Into<String>) -> Self {
+        self.opts.message_effect_id = Some(id.into());
+        self
+    }
 }
 
 impl IntoFuture for SendPhoto {
@@ -1323,42 +1572,7 @@ impl IntoFuture for SendPhoto {
                         .map_err(|e| crate::error::Error::Decode(e.to_string()))?;
                     let mut form = Form::new().part("photo", part);
                     form = form.text("chat_id", self.chat_id.to_string());
-                    if let Some(id) = &self.opts.business_connection_id {
-                        form = form.text("business_connection_id", id.clone());
-                    }
-                    if let Some(id) = self.opts.message_thread_id {
-                        form = form.text("message_thread_id", id.to_string());
-                    }
-                    if let Some(id) = self.opts.direct_messages_topic_id {
-                        form = form.text("direct_messages_topic_id", id.to_string());
-                    }
-                    if let Some(c) = &self.opts.caption {
-                        form = form.text("caption", c.clone());
-                    }
-                    if let Some(m) = &self.opts.parse_mode {
-                        form = form.text("parse_mode", format!("{m:?}"));
-                    }
-                    if let Some(v) = self.opts.disable_notification {
-                        form = form.text("disable_notification", v.to_string());
-                    }
-                    if let Some(v) = self.opts.has_spoiler {
-                        form = form.text("has_spoiler", v.to_string());
-                    }
-                    if let Some(v) = &self.opts.reply_markup {
-                        form = form.text("reply_markup", serde_json::to_string(v).unwrap());
-                    }
-                    if let Some(p) = &self.opts.suggested_post_parameters {
-                        form = form.text(
-                            "suggested_post_parameters",
-                            serde_json::to_string(p).unwrap(),
-                        );
-                    }
-                    if let Some(id) = self.opts.receiver_user_id {
-                        form = form.text("receiver_user_id", id.to_string());
-                    }
-                    if let Some(id) = &self.opts.callback_query_id {
-                        form = form.text("callback_query_id", id.clone());
-                    }
+                    form = apply_media_opts(form, &self.opts);
                     self.client.post_multipart("sendPhoto", form).await
                 }
                 _ => {
@@ -1521,50 +1735,11 @@ impl IntoFuture for SendLivePhoto {
                     form = form.text("photo", self.photo.as_str().to_owned());
                 }
 
-                if let Some(id) = &self.opts.business_connection_id {
-                    form = form.text("business_connection_id", id.clone());
-                }
-                if let Some(id) = self.opts.message_thread_id {
-                    form = form.text("message_thread_id", id.to_string());
-                }
-                if let Some(id) = self.opts.direct_messages_topic_id {
-                    form = form.text("direct_messages_topic_id", id.to_string());
-                }
-                if let Some(c) = &self.opts.caption {
-                    form = form.text("caption", c.clone());
-                }
-                if let Some(m) = &self.opts.parse_mode {
-                    form = form.text("parse_mode", format!("{m:?}"));
-                }
-                if let Some(v) = self.opts.show_caption_above_media {
-                    form = form.text("show_caption_above_media", v.to_string());
-                }
-                if let Some(v) = self.has_spoiler {
-                    form = form.text("has_spoiler", v.to_string());
-                }
-                if let Some(v) = self.opts.disable_notification {
-                    form = form.text("disable_notification", v.to_string());
-                }
-                if let Some(v) = self.opts.protect_content {
-                    form = form.text("protect_content", v.to_string());
-                }
-                if let Some(v) = self.opts.allow_paid_broadcast {
-                    form = form.text("allow_paid_broadcast", v.to_string());
-                }
+                form = apply_media_opts(form, &self.opts);
+                // SendLivePhoto carries its own effect id rather than using the
+                // shared options struct.
                 if let Some(id) = &self.message_effect_id {
                     form = form.text("message_effect_id", id.clone());
-                }
-                if let Some(v) = &self.opts.reply_parameters {
-                    form = form.text("reply_parameters", serde_json::to_string(v).unwrap());
-                }
-                if let Some(v) = &self.opts.reply_markup {
-                    form = form.text("reply_markup", serde_json::to_string(v).unwrap());
-                }
-                if let Some(p) = &self.opts.suggested_post_parameters {
-                    form = form.text(
-                        "suggested_post_parameters",
-                        serde_json::to_string(p).unwrap(),
-                    );
                 }
 
                 self.client.post_multipart("sendLivePhoto", form).await
@@ -1829,6 +2004,8 @@ struct StopPollParams {
     message_id: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<rustigram_types::keyboard::InlineKeyboardMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
 }
 
 /// Builder for the [`stopPoll`](https://core.telegram.org/bots/api#stoppoll) method.
@@ -1844,12 +2021,18 @@ impl StopPoll {
                 chat_id: chat_id.into(),
                 message_id,
                 reply_markup: None,
+                business_connection_id: None,
             },
         }
     }
     /// Attaches a reply markup (inline keyboard, reply keyboard, etc.).
     pub fn reply_markup(mut self, m: rustigram_types::keyboard::InlineKeyboardMarkup) -> Self {
         self.params.reply_markup = Some(m);
+        self
+    }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
         self
     }
 }
@@ -2103,6 +2286,14 @@ struct SendVenueParams {
     receiver_user_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     callback_query_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    business_connection_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    suggested_post_parameters: Option<SuggestedPostParameters>,
 }
 
 /// Builder for the [`sendVenue`](https://core.telegram.org/bots/api#sendvenue) method.
@@ -2140,6 +2331,10 @@ impl SendVenue {
                 reply_markup: None,
                 receiver_user_id: None,
                 callback_query_id: None,
+                business_connection_id: None,
+                allow_paid_broadcast: None,
+                message_effect_id: None,
+                suggested_post_parameters: None,
             },
         }
     }
@@ -2201,6 +2396,26 @@ impl SendVenue {
     /// For outgoing ephemeral messages — the callback query that triggered it, if any.
     pub fn callback_query_id(mut self, id: impl Into<String>) -> Self {
         self.params.callback_query_id = Some(id.into());
+        self
+    }
+    /// Business connection ID for acting on behalf of a business account.
+    pub fn business_connection_id(mut self, v: impl Into<String>) -> Self {
+        self.params.business_connection_id = Some(v.into());
+        self
+    }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, v: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(v.into());
+        self
+    }
+    /// Suggested post parameters for channel direct messages chats.
+    pub fn suggested_post_parameters(mut self, v: SuggestedPostParameters) -> Self {
+        self.params.suggested_post_parameters = Some(v);
         self
     }
 }
@@ -2433,6 +2648,10 @@ struct SendGameParams {
     reply_parameters: Option<ReplyParameters>,
     #[serde(skip_serializing_if = "Option::is_none")]
     reply_markup: Option<rustigram_types::keyboard::InlineKeyboardMarkup>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    allow_paid_broadcast: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message_effect_id: Option<String>,
 }
 
 /// Builder for the [`sendGame`](https://core.telegram.org/bots/api#sendgame) method.
@@ -2458,6 +2677,8 @@ impl SendGame {
                 protect_content: None,
                 reply_parameters: None,
                 reply_markup: None,
+                allow_paid_broadcast: None,
+                message_effect_id: None,
             },
         }
     }
@@ -2494,6 +2715,16 @@ impl SendGame {
     /// Attaches an inline keyboard. The first button must launch the game.
     pub fn reply_markup(mut self, m: rustigram_types::keyboard::InlineKeyboardMarkup) -> Self {
         self.params.reply_markup = Some(m);
+        self
+    }
+    /// Allows sending to large audiences at the cost of Telegram Stars.
+    pub fn allow_paid_broadcast(mut self, v: bool) -> Self {
+        self.params.allow_paid_broadcast = Some(v);
+        self
+    }
+    /// Attaches a message effect (animated emoji reaction) to the message.
+    pub fn message_effect_id(mut self, v: impl Into<String>) -> Self {
+        self.params.message_effect_id = Some(v.into());
         self
     }
 }
@@ -2753,3 +2984,93 @@ impl SendRichMessageDraft {
 }
 
 impl_into_future!(SendRichMessageDraft, bool, "sendRichMessageDraft");
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::client::BotClient;
+
+    fn client() -> BotClient {
+        BotClient::from_token("123456:test-token-for-unit-tests").unwrap()
+    }
+
+    /// The four parameters Telegram added API-wide had only ever been applied to
+    /// `send_message`; these are the siblings that were missing them.
+    #[test]
+    fn api_wide_parameters_serialize_on_the_json_path() {
+        let contact = SendContact::new(client(), 1_i64, "+100", "A")
+            .business_connection_id("biz")
+            .allow_paid_broadcast(true)
+            .message_effect_id("effect")
+            .suggested_post_parameters(SuggestedPostParameters {
+                price: None,
+                send_date: Some(1_700_000_000),
+            });
+        let json = serde_json::to_value(&contact.params).unwrap();
+
+        assert_eq!(json["business_connection_id"], "biz");
+        assert_eq!(json["allow_paid_broadcast"], true);
+        assert_eq!(json["message_effect_id"], "effect");
+        assert!(json.get("suggested_post_parameters").is_some());
+    }
+
+    /// Unset optional parameters must stay off the wire entirely.
+    #[test]
+    fn unset_parameters_are_omitted() {
+        let dice = SendDice::new(client(), 1_i64);
+        let json = serde_json::to_value(&dice.params).unwrap();
+        for key in [
+            "business_connection_id",
+            "allow_paid_broadcast",
+            "message_effect_id",
+            "suggested_post_parameters",
+        ] {
+            assert!(json.get(key).is_none(), "{key} should be omitted when unset");
+        }
+    }
+
+    /// The spec marks this optional; it used to be a bare `String`, so a draft
+    /// carrying only media could not be expressed.
+    #[test]
+    fn message_draft_text_can_be_cleared() {
+        let draft = SendMessageDraft::new(client(), 1_i64, 7, "hello");
+        assert_eq!(
+            serde_json::to_value(&draft.params).unwrap()["text"],
+            "hello"
+        );
+
+        let empty = SendMessageDraft::new(client(), 1_i64, 7, "hello").clear_text();
+        assert!(serde_json::to_value(&empty.params).unwrap().get("text").is_none());
+    }
+
+    /// Regression guard for the multipart path. Both send paths must enumerate
+    /// the same options struct: the hand-written form used to drop five fields,
+    /// so `.reply_to(..)` on an uploaded photo silently never reached Telegram.
+    #[test]
+    fn multipart_and_json_paths_cover_the_same_options() {
+        let source = include_str!("sending.rs");
+        let struct_body = source
+            .split("pub struct MediaSendOptions {")
+            .nth(1)
+            .and_then(|s| s.split("\n}").next())
+            .expect("MediaSendOptions struct");
+        let fields: Vec<&str> = struct_body
+            .lines()
+            .filter_map(|l| l.trim().strip_prefix("pub "))
+            .filter_map(|l| l.split(':').next())
+            .collect();
+        assert_eq!(fields.len(), 17, "field count changed; update both send paths");
+
+        let helper = source
+            .split("fn apply_media_opts(")
+            .nth(1)
+            .and_then(|s| s.split("\nfn ").next())
+            .expect("apply_media_opts body");
+        for field in &fields {
+            assert!(
+                helper.contains(&format!("opts.{field}")),
+                "`{field}` is settable but never written to the multipart form"
+            );
+        }
+    }
+}
