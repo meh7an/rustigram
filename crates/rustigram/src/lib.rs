@@ -51,6 +51,8 @@
 //! | [`bot`] | Dispatcher, filters, handlers, FSM |
 //! | [`types`] | All Bot API type definitions |
 //!
+#![doc(html_root_url = "https://docs.rs/rustigram/0.11.0")]
+
 pub use rustigram_api as api;
 pub use rustigram_bot as bot;
 pub use rustigram_types as types;

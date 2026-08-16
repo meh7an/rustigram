@@ -52,9 +52,13 @@ jobs:
                       }
                   done
 
-            # `rustigram-v<version>` matches the 49 existing tags and the
-            # compare links already in the changelogs. One tag per release is
-            # enough here — every crate shares the workspace version.
+            # `rustigram-v<version>` continues the facade's own tag series —
+            # 9 of the 49 existing tags; the other 40 are per-crate tags
+            # release-plz created and nothing creates now. One tag per release is
+            # enough, since every crate shares the workspace version. Compare
+            # links in the changelogs must use this shared tag: a per-crate link
+            # like `rustigram-types-v0.12.0...` would point at a tag that is
+            # never created.
             - name: The tag must not already exist
               run: |
                   if git rev-parse "rustigram-v${{ inputs.version }}" >/dev/null 2>&1; then
