@@ -13,8 +13,54 @@ fixed; four of them silently sent or dropped data with no error anywhere.
 
 ### Breaking
 
-Four changes require edits at the call site. Each fixes behaviour that was
-already broken.
+Nine changes require edits at the call site. The first affects every user; the
+rest apply only if you touch the named API.
+
+**Response types are now `#[non_exhaustive]`.** Fifty-two types — `Message`,
+`Chat`, `ChatFullInfo`, `User`, and most other things Telegram sends you — can no
+longer be built with a struct literal from outside the crate. This is deliberate:
+Telegram adds fields constantly, and it means a future Bot API addition is no
+longer a breaking change for you. Note that `..Default::default()` does **not**
+rescue a struct literal here; build the value and assign instead.
+
+```rust
+// before
+let msg = Message { message_id: 1, date: 0, chat, ..Default::default() };
+// after
+let mut msg = Message::default();
+msg.message_id = 1;
+msg.chat = chat;
+```
+
+If you only ever *receive* these types — which is the common case — nothing
+changes.
+
+**`RichText` is three shapes, not twenty-seven.** It was an enum of 27 variants
+mixing the three wire forms with the 25 node kinds. Those kinds moved into a new
+`RichTextNode`, leaving `RichText` as `Plain`, `Array`, and `Node`. The old shape
+could not decode correctly at all — every value resolved to the first variant —
+so any code matching on it was matching on something that never happened.
+
+```rust
+// before
+match rich { RichText::Bold(b) => …, RichText::Italic(i) => …, … }
+// after
+match rich {
+    RichText::Node(node) => match *node {
+        RichTextNode::Bold(b) => …, RichTextNode::Italic(i) => …, …
+    },
+    RichText::Plain(s) => …,
+    RichText::Array(items) => …,
+}
+```
+
+**`Chat::guard_bot` moved to `ChatFullInfo`.** The Bot API only ever returns it
+from `getChat`, and `Chat` is the summary form embedded in updates — it was never
+populated there.
+
+**Three public items were removed**: `RichTextFootnote` (Bot API 10.2 has no
+`footnote` discriminant), `update::Updates` (an unused response wrapper), and the
+`UpdateListener` / `UpdateStream` pair, which nothing implemented or consumed.
 
 **`set_my_profile_photo` takes a typed value.** It previously required a
 pre-serialised JSON string, so callers had to know the wire format.
@@ -49,9 +95,12 @@ defines neither for those methods, so anything set was discarded by Telegram.
 
 ### Added
 
-- `send_video` and `send_animation` gain `.show_caption_above_media()` and
-  `.has_spoiler()`; the five captioned media builders gain `.caption_entities()`.
-  All are parameters the Bot API accepts and no setter reached.
+- **Every media builder now matches the Bot API's parameter list exactly.**
+  `send_video` and `send_animation` gain `.show_caption_above_media()` and
+  `.has_spoiler()`; the five captioned builders gain `.caption_entities()`;
+  `send_photo` gains `.caption_entities()`; `send_live_photo` gains
+  `.caption_entities()`, `.receiver_user_id()`, and `.callback_query_id()`. All
+  are parameters the spec defines and no setter reached.
 - `.message_effect_id()` on every media builder. It was written to the wire and
   settable from nowhere.
 - `sendMediaGroup` gains `allow_paid_broadcast` and `message_effect_id`;
@@ -71,6 +120,10 @@ defines neither for those methods, so anything set was discarded by Telegram.
   `file_id`. The call succeeded and Telegram never saw them.
 - **`message_effect_id` dropped on JSON sends.** The inverse of the above, for
   media sent by `file_id` or URL.
+- **`send_live_photo(...).has_spoiler(true)` dropped on byte uploads.** The
+  builder kept its own copy of the flag rather than using the shared options, so
+  the multipart encoder never saw it. The photo arrived unblurred and the call
+  reported success.
 - **Failed downloads returned as file contents.** `download_file` did not check
   the HTTP status, so an expired `file_path` produced `Ok` carrying the error
   page instead of an error.
@@ -89,8 +142,8 @@ defines neither for those methods, so anything set was discarded by Telegram.
 
 ### Notes
 
-Bot API coverage is now complete: 185 of 185 methods, 388 types, 1740 fields.
-The suite grew from 119 to 254 tests and runs offline.
+Bot API coverage is now complete: 185 of 185 methods, 388 types, 1838 fields.
+The suite grew from 119 to 256 tests and runs offline.
 
 `ClientConfig::max_retries` governs JSON requests only — a byte upload is never
 retried, because the multipart form is consumed by the send. This was always the

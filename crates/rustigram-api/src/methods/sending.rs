@@ -1505,6 +1505,14 @@ impl SendPhoto {
         self.opts.has_spoiler = Some(v);
         self
     }
+    /// Special entities in the caption, in place of `parse_mode`.
+    pub fn caption_entities(
+        mut self,
+        entities: Vec<rustigram_types::message::MessageEntity>,
+    ) -> Self {
+        self.opts.caption_entities = Some(entities);
+        self
+    }
     /// Shows the caption above the media instead of below it.
     pub fn show_caption_above_media(mut self, v: bool) -> Self {
         self.opts.show_caption_above_media = Some(v);
@@ -1652,6 +1660,24 @@ impl SendLivePhoto {
     /// Covers the live photo with a spoiler animation.
     pub fn has_spoiler(mut self, v: bool) -> Self {
         self.opts.has_spoiler = Some(v);
+        self
+    }
+    /// Special entities in the caption, in place of `parse_mode`.
+    pub fn caption_entities(
+        mut self,
+        entities: Vec<rustigram_types::message::MessageEntity>,
+    ) -> Self {
+        self.opts.caption_entities = Some(entities);
+        self
+    }
+    /// Sends the message as ephemeral, visible only to this user.
+    pub fn receiver_user_id(mut self, id: i64) -> Self {
+        self.opts.receiver_user_id = Some(id);
+        self
+    }
+    /// Identifier of the callback query this ephemeral message answers.
+    pub fn callback_query_id(mut self, id: impl Into<String>) -> Self {
+        self.opts.callback_query_id = Some(id.into());
         self
     }
     /// Sends the message silently.
