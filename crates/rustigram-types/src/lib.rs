@@ -12,6 +12,8 @@
 //!
 //! | Module | Contents |
 //! |---|---|
+//! | [`background`] | [`background::BackgroundFill`], [`background::BackgroundType`], [`background::ChatBackground`] |
+//! | [`business`] | Business profile types, [`business::Birthdate`], [`business::UserRating`] |
 //! | [`chat`] | [`chat::Chat`], [`chat::ChatFullInfo`], [`chat::ChatPermissions`], locations, venues |
 //! | [`chat_member`] | All six [`chat_member::ChatMember`] variants |
 //! | [`checklist`] | [`checklist::Checklist`], [`checklist::ChecklistTask`], [`checklist::InputChecklist`], service messages |
@@ -40,6 +42,10 @@
 //! | [`webhook`] | [`webhook::WebhookInfo`] |
 #![warn(missing_docs)]
 
+/// Chat background types.
+pub mod background;
+/// Business account profile types.
+pub mod business;
 /// Chat and location types.
 pub mod chat;
 /// Chat member status types.
@@ -95,6 +101,15 @@ pub mod video_chat;
 /// Webhook info types.
 pub mod webhook;
 
+pub use background::{
+    BackgroundFill, BackgroundFillFreeformGradient, BackgroundFillGradient, BackgroundFillSolid,
+    BackgroundType, BackgroundTypeChatTheme, BackgroundTypeFill, BackgroundTypePattern,
+    BackgroundTypeWallpaper, ChatBackground,
+};
+pub use business::{
+    Birthdate, BusinessIntro, BusinessLocation, BusinessOpeningHours, BusinessOpeningHoursInterval,
+    UserRating,
+};
 pub use chat::{
     Chat, ChatFullInfo, ChatInviteLink, ChatJoinRequest, ChatPermissions, ChatType, InputMediaLink,
     Link,

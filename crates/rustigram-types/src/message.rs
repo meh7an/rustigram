@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::background::ChatBackground;
 use crate::chat::{Chat, Location, Venue};
 use crate::checklist::{Checklist, ChecklistTasksAdded, ChecklistTasksDone};
 use crate::community::{CommunityChatAdded, CommunityChatRemoved};
@@ -390,6 +391,9 @@ pub struct Message {
     /// The chat was boosted (service message).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boost_added: Option<ChatBoostAdded>,
+    /// The chat background was changed (service message).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chat_background_set: Option<ChatBackground>,
 
     // Gifts and giveaways
     /// A regular gift was sent or received (service message).

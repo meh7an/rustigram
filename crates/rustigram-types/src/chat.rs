@@ -1,7 +1,11 @@
 use serde::{Deserialize, Serialize};
 
+use crate::business::{Birthdate, BusinessIntro, BusinessLocation, BusinessOpeningHours, UserRating};
 use crate::community::Community;
-use crate::message::Message;
+use crate::file::Audio;
+use crate::gifts::UniqueGiftColors;
+use crate::message::{Message, ReactionType};
+use crate::payments::AcceptedGiftTypes;
 use crate::user::User;
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -60,11 +64,6 @@ pub struct Chat {
     /// `true` if the chat is the direct messages chat of a channel.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_direct_messages: Option<bool>,
-    /// The bot that processes join request queries in the chat.
-    ///
-    /// Only available to chat administrators.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub guard_bot: Option<User>,
 }
 
 impl Chat {
@@ -122,12 +121,75 @@ pub struct ChatFullInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_direct_messages: Option<bool>,
     /// Identifier of the accent color for the chat name and backgrounds.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub accent_color_id: Option<u32>,
+    ///
+    /// Required by the spec, but kept defaulted rather than bare so that a
+    /// response from an older Bot API server still decodes.
+    #[serde(default)]
+    pub accent_color_id: u32,
 
     /// Maximum number of reactions that can be set on a message.
+    #[serde(default)]
+    pub max_reaction_count: u32,
+
+    /// The bot that processes join request queries in the chat.
+    ///
+    /// Only available to chat administrators.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_reaction_count: Option<u32>,
+    pub guard_bot: Option<User>,
+    /// Birthdate of a private chat's user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub birthdate: Option<Birthdate>,
+    /// Intro of a private chat with a business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub business_intro: Option<BusinessIntro>,
+    /// Location of a private chat with a business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub business_location: Option<BusinessLocation>,
+    /// Opening hours of a private chat with a business account.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub business_opening_hours: Option<BusinessOpeningHours>,
+    /// The personal channel of a private chat's user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub personal_chat: Option<Box<Chat>>,
+    /// The chat this direct messages chat belongs to.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent_chat: Option<Box<Chat>>,
+    /// Reactions allowed in the chat. Absent means every emoji reaction is allowed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub available_reactions: Option<Vec<ReactionType>>,
+    /// Custom emoji identifier of the emoji chosen by the chat for its reply
+    /// header and link preview background.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub background_custom_emoji_id: Option<String>,
+    /// Identifier of the accent color for the chat's profile background.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub profile_accent_color_id: Option<u32>,
+    /// Custom emoji identifier of the emoji chosen by the chat for its profile
+    /// background.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub profile_background_custom_emoji_id: Option<String>,
+    /// Custom emoji identifier of the emoji status of the chat or the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub emoji_status_custom_emoji_id: Option<String>,
+    /// Expiration date of the emoji status, as a Unix timestamp.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub emoji_status_expiration_date: Option<i64>,
+    /// Types of gifts accepted by the chat.
+    #[serde(default)]
+    pub accepted_gift_types: AcceptedGiftTypes,
+    /// Rating of a private chat's user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rating: Option<UserRating>,
+    /// The audio shown first on the user's profile.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub first_profile_audio: Option<Audio>,
+    /// Colour scheme used for the chat's name, replies, and link previews,
+    /// taken from a unique gift.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unique_gift_colors: Option<UniqueGiftColors>,
+    /// Number of Telegram Stars a user must pay to send one message to the chat.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub paid_message_star_count: Option<i64>,
 
     /// Chat photo.
     #[serde(skip_serializing_if = "Option::is_none")]

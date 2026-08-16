@@ -753,3 +753,97 @@ mod giveaways_gifts_and_paid_media {
         assert!(reply.invoice.is_none());
     }
 }
+
+#[cfg(test)]
+mod backgrounds_and_business {
+    use rustigram_types::chat::ChatFullInfo;
+    use rustigram_types::{BackgroundFill, BackgroundType, Birthdate, BusinessOpeningHours};
+
+    #[test]
+    fn background_fill_variants_resolve_by_tag() {
+        let solid: BackgroundFill =
+            serde_json::from_str(r#"{"type":"solid","color":16777215}"#).unwrap();
+        assert!(matches!(solid, BackgroundFill::Solid(ref s) if s.color == 16_777_215));
+
+        let freeform: BackgroundFill =
+            serde_json::from_str(r#"{"type":"freeform_gradient","colors":[1,2,3]}"#).unwrap();
+        assert!(matches!(freeform, BackgroundFill::FreeformGradient(ref f) if f.colors.len() == 3));
+
+        // The tag must survive serialisation, including the snake_case form.
+        assert_eq!(serde_json::to_value(&freeform).unwrap()["type"], "freeform_gradient");
+    }
+
+    /// `BackgroundTypePattern` nests a `BackgroundFill`, so this covers a tagged
+    /// enum inside a tagged enum.
+    #[test]
+    fn background_type_nests_a_fill() {
+        let bg: BackgroundType = serde_json::from_str(
+            r#"{"type":"pattern",
+                "document":{"file_id":"a","file_unique_id":"b"},
+                "fill":{"type":"gradient","top_color":1,"bottom_color":2,"rotation_angle":45},
+                "intensity":50}"#,
+        )
+        .unwrap();
+        match bg {
+            BackgroundType::Pattern(p) => {
+                assert_eq!(p.intensity, 50);
+                assert!(matches!(p.fill, BackgroundFill::Gradient(g) if g.rotation_angle == 45));
+            }
+            other => panic!("expected pattern, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn business_and_birthdate_round_trip() {
+        let hours: BusinessOpeningHours = serde_json::from_str(
+            r#"{"time_zone_name":"Europe/Istanbul",
+                "opening_hours":[{"opening_minute":540,"closing_minute":1080}]}"#,
+        )
+        .unwrap();
+        assert_eq!(hours.time_zone_name, "Europe/Istanbul");
+        assert_eq!(hours.opening_hours[0].opening_minute, 540);
+
+        let bd: Birthdate = serde_json::from_str(r#"{"day":14,"month":7}"#).unwrap();
+        assert_eq!((bd.day, bd.month), (14, 7));
+        assert!(bd.year.is_none());
+        // Absent optional fields must not be emitted.
+        assert!(serde_json::to_value(&bd).unwrap().get("year").is_none());
+    }
+
+    /// `ChatFullInfo` was missing 18 of its 54 fields.
+    #[test]
+    fn chat_full_info_carries_the_business_block() {
+        let json = r#"{
+            "id": 1, "type": "private",
+            "accent_color_id": 3, "max_reaction_count": 11,
+            "accepted_gift_types": {
+                "unlimited_gifts": true, "limited_gifts": false, "unique_gifts": false,
+                "premium_subscription": false, "gifts_from_channels": false
+            },
+            "birthdate": { "day": 1, "month": 2, "year": 1990 },
+            "business_location": { "address": "Somewhere" },
+            "paid_message_star_count": 25,
+            "guard_bot": { "id": 9, "is_bot": true, "first_name": "Guard" }
+        }"#;
+        let info: ChatFullInfo = serde_json::from_str(json).unwrap();
+
+        assert_eq!(info.accent_color_id, 3);
+        assert_eq!(info.max_reaction_count, 11);
+        assert!(info.accepted_gift_types.unlimited_gifts);
+        assert_eq!(info.birthdate.unwrap().year, Some(1990));
+        assert_eq!(info.business_location.unwrap().address, "Somewhere");
+        assert_eq!(info.paid_message_star_count, Some(25));
+        // guard_bot lives on ChatFullInfo, matching the spec — it used to be on Chat.
+        assert_eq!(info.guard_bot.unwrap().id, 9);
+    }
+
+    /// An older Bot API server may omit fields the current spec marks required;
+    /// `#[serde(default)]` keeps those responses decodable.
+    #[test]
+    fn chat_full_info_tolerates_missing_required_scalars() {
+        let info: ChatFullInfo = serde_json::from_str(r#"{"id":1,"type":"private"}"#).unwrap();
+        assert_eq!(info.accent_color_id, 0);
+        assert_eq!(info.max_reaction_count, 0);
+        assert!(!info.accepted_gift_types.unlimited_gifts);
+    }
+}

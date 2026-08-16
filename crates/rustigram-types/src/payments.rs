@@ -355,7 +355,10 @@ pub struct StarTransaction {
 // Gifts
 
 /// Types of gifts that can be gifted to a user or chat.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+///
+/// [`Default`] is every field `false` — accepting nothing — which is the safe
+/// reading when a server omits the object entirely.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AcceptedGiftTypes {
     /// `true` if unlimited regular gifts are accepted.
     pub unlimited_gifts: bool,
