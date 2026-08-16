@@ -1,7 +1,11 @@
 use serde::{Deserialize, Serialize};
 
 /// Represents a Telegram user or bot.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+///
+/// `#[non_exhaustive]`: build one with [`Default::default`] and assign the
+/// fields you need, so that Bot API field additions stay non-breaking.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct User {
     /// Unique identifier for this user or bot.
     pub id: i64,

@@ -4,11 +4,16 @@ use crate::community::Community;
 use crate::message::Message;
 use crate::user::User;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 /// Type of a Telegram chat.
 #[serde(rename_all = "snake_case")]
 pub enum ChatType {
     /// One-on-one conversation.
+    ///
+    /// The default, so that [`Chat`] and [`ChatFullInfo`] can derive
+    /// [`Default`]. A private chat is the simplest case and the only variant
+    /// that needs no additional context to be coherent.
+    #[default]
     Private,
     /// Group chat.
     Group,
@@ -18,8 +23,13 @@ pub enum ChatType {
     Channel,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 /// Minimal chat descriptor — used in messages and updates.
+///
+/// Telegram adds fields to this object regularly, so it is `#[non_exhaustive]`:
+/// build one with [`Default::default`] and assign the fields you need, and
+/// future Bot API additions stay non-breaking.
+#[non_exhaustive]
 pub struct Chat {
     /// Unique identifier for this chat.
     pub id: i64,
@@ -75,8 +85,12 @@ impl Chat {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 /// Full chat information — returned by `getChat`.
+///
+/// `#[non_exhaustive]` for the same reason as [`Chat`] — this is the
+/// fastest-growing object in the Bot API.
+#[non_exhaustive]
 pub struct ChatFullInfo {
     /// Unique identifier for this chat.
     pub id: i64,

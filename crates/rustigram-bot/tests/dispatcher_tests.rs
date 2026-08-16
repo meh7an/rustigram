@@ -7,148 +7,35 @@ use rustigram_types::message::Message;
 use rustigram_types::update::{Update, UpdateKind};
 use rustigram_types::user::User;
 
+// The core types are `#[non_exhaustive]`, so a struct literal is not available
+// from another crate -- `..Default::default()` included. Assigning after
+// `default()` is the only form left. The upside is that these fixtures no
+// longer enumerate every field, so a Bot API field addition stops being a
+// compile error here.
 fn make_user(id: i64) -> User {
-    User {
-        id,
-        is_bot: false,
-        first_name: "Test".into(),
-        last_name: None,
-        username: None,
-        language_code: None,
-        is_premium: None,
-        added_to_attachment_menu: None,
-        can_join_groups: None,
-        can_read_all_group_messages: None,
-        supports_inline_queries: None,
-        can_connect_to_business: None,
-        has_main_web_app: None,
-        can_manage_bots: None,
-        has_topics_enabled: None,
-        allows_users_to_create_topics: None,
-        supports_guest_queries: None,
-        supports_join_request_queries: None,
-    }
+    let mut user = User::default();
+    user.id = id;
+    user.first_name = "Test".into();
+    user
 }
 
 fn make_chat(id: i64, kind: ChatType) -> Chat {
-    Chat {
-        id,
-        kind,
-        title: None,
-        username: None,
-        first_name: None,
-        last_name: None,
-        is_forum: None,
-        is_direct_messages: None,
-        guard_bot: None,
-    }
+    let mut chat = Chat::default();
+    chat.id = id;
+    chat.kind = kind;
+    chat
 }
 
 fn make_text_update(text: &str, chat_type: ChatType) -> Update {
+    let mut message = Message::default();
+    message.message_id = 1;
+    message.from = Some(make_user(42));
+    message.chat = make_chat(100, chat_type);
+    message.text = Some(text.to_owned());
+
     Update {
         update_id: 1,
-        kind: UpdateKind::Message(Message {
-            message_id: 1,
-            message_thread_id: None,
-            from: Some(make_user(42)),
-            sender_chat: None,
-            sender_boost_count: None,
-            sender_business_bot: None,
-            sender_tag: None,
-            date: 0,
-            business_connection_id: None,
-            chat: make_chat(100, chat_type),
-            forward_origin: None,
-            is_topic_message: None,
-            is_automatic_forward: None,
-            reply_to_message: None,
-            reply_to_checklist_task_id: None,
-            reply_to_poll_option_id: None,
-            external_reply: None,
-            quote: None,
-            reply_to_story: None,
-            via_bot: None,
-            edit_date: None,
-            has_protected_content: None,
-            is_from_offline: None,
-            media_group_id: None,
-            author_signature: None,
-            text: Some(text.to_owned()),
-            entities: None,
-            link_preview_options: None,
-            effect_id: None,
-            animation: None,
-            audio: None,
-            document: None,
-            paid_media: None,
-            photo: None,
-            sticker: None,
-            story: None,
-            video: None,
-            video_note: None,
-            voice: None,
-            caption: None,
-            caption_entities: None,
-            show_caption_above_media: None,
-            has_media_spoiler: None,
-            contact: None,
-            dice: None,
-            game: None,
-            poll: None,
-            venue: None,
-            location: None,
-            new_chat_members: None,
-            left_chat_member: None,
-            new_chat_title: None,
-            new_chat_photo: None,
-            delete_chat_photo: None,
-            group_chat_created: None,
-            supergroup_chat_created: None,
-            channel_chat_created: None,
-            message_auto_delete_timer_changed: None,
-            migrate_to_chat_id: None,
-            migrate_from_chat_id: None,
-            pinned_message: None,
-            reply_markup: None,
-            invoice: None,
-            successful_payment: None,
-            refunded_payment: None,
-            web_app_data: None,
-            forum_topic_created: None,
-            forum_topic_edited: None,
-            forum_topic_closed: None,
-            forum_topic_reopened: None,
-            general_forum_topic_hidden: None,
-            general_forum_topic_unhidden: None,
-            direct_messages_topic: None,
-            is_paid_post: None,
-            paid_star_count: None,
-            suggested_post_info: None,
-            checklist: None,
-            chat_owner_left: None,
-            chat_owner_changed: None,
-            managed_bot_created: None,
-            poll_option_added: None,
-            poll_option_deleted: None,
-            checklist_tasks_done: None,
-            checklist_tasks_added: None,
-            direct_message_price_changed: None,
-            paid_message_price_changed: None,
-            suggested_post_approved: None,
-            suggested_post_approval_failed: None,
-            suggested_post_declined: None,
-            suggested_post_paid: None,
-            suggested_post_refunded: None,
-            guest_bot_caller_chat: None,
-            guest_bot_caller_user: None,
-            guest_query_id: None,
-            live_photo: None,
-            rich_message: None,
-            receiver_user: None,
-            ephemeral_message_id: None,
-            community_chat_added: None,
-            community_chat_removed: None,
-        }),
+        kind: UpdateKind::Message(message),
     }
 }
 

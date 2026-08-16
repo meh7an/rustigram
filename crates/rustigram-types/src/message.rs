@@ -22,7 +22,19 @@ use crate::user::User;
 ///
 /// Only fields that were actually sent will be `Some`. Consult the
 /// official Bot API documentation for field availability rules.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+///
+/// This is the largest and most frequently extended object in the Bot API, so
+/// it is `#[non_exhaustive]`. Construct one with [`Default::default`] and
+/// assign the fields you need; every future field Telegram adds then arrives
+/// as a non-breaking change rather than a major version bump.
+///
+/// ```rust,ignore
+/// let mut msg = Message::default();
+/// msg.message_id = 1;
+/// msg.text = Some("hello".to_owned());
+/// ```
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct Message {
     /// Unique message identifier inside this chat; `0` for ephemeral messages.
     /// In specific instances (e.g. a video sent to a large chat), the server
@@ -671,7 +683,15 @@ pub struct TextQuote {
 }
 
 /// Information about a message that is being replied to from outside the thread.
+///
+/// `#[non_exhaustive]` but deliberately without [`Default`]: its required
+/// `origin` field is a [`MessageOrigin`], and every variant of that enum
+/// describes a distinct real forwarding situation. Nominating one as the
+/// default would manufacture a message origin that never occurs. This type is
+/// only ever received from the API, never built by callers, so sealing alone
+/// gives the non-breaking guarantee without inventing that value.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
 pub struct ExternalReplyInfo {
     /// Origin of the message being replied to.
     pub origin: MessageOrigin,
