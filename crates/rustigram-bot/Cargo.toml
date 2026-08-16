@@ -28,6 +28,7 @@ tokio              = { workspace = true }
 tracing-subscriber = { workspace = true }
 # Test-only: drives the webhook router via ServiceExt::oneshot without binding a port.
 tower              = { workspace = true, features = ["util"] }
+serde_json.workspace = true
 
 [features]
 tma = ["dep:rustigram-miniapp"]

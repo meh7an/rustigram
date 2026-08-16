@@ -1413,6 +1413,7 @@ dependencies = [
  "rustigram-api",
  "rustigram-miniapp",
  "rustigram-types",
+ "serde_json",
  "thiserror",
  "tokio",
  "tower",
