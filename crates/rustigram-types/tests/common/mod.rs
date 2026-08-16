@@ -14,6 +14,9 @@
 
 #![allow(dead_code)] // each test binary uses a different subset
 
+pub mod payload;
+pub mod rust_source;
+
 use std::collections::BTreeMap;
 
 use serde::Deserialize;
