@@ -1775,8 +1775,56 @@ impl IntoFuture for SendLivePhoto {
 
 // ─── Macro for simpler media senders (Audio, Document, Video, Animation, Voice, VideoNote, Sticker)
 
+/// One caption-family setter, emitted only for the methods the spec allows it on.
+///
+/// These five are not universal: `sendVideoNote` and `sendSticker` take no
+/// caption at all, and only `sendVideo` and `sendAnimation` accept a spoiler or
+/// a caption above the media. Exposing them uniformly gave callers two setters
+/// Telegram ignores and withheld three it honours.
+macro_rules! caption_setter {
+    (caption) => {
+        /// Sets the caption (0–1024 characters).
+        pub fn caption(mut self, c: impl Into<String>) -> Self {
+            self.opts.caption = Some(c.into());
+            self
+        }
+    };
+    (parse_mode) => {
+        /// Parse mode for the caption.
+        pub fn parse_mode(mut self, m: ParseMode) -> Self {
+            self.opts.parse_mode = Some(m);
+            self
+        }
+    };
+    (caption_entities) => {
+        /// Special entities in the caption, in place of `parse_mode`.
+        pub fn caption_entities(
+            mut self,
+            entities: Vec<rustigram_types::message::MessageEntity>,
+        ) -> Self {
+            self.opts.caption_entities = Some(entities);
+            self
+        }
+    };
+    (show_caption_above_media) => {
+        /// Shows the caption above the media instead of below it.
+        pub fn show_caption_above_media(mut self, v: bool) -> Self {
+            self.opts.show_caption_above_media = Some(v);
+            self
+        }
+    };
+    (has_spoiler) => {
+        /// Marks the media as a spoiler — blurs it until the user taps to reveal.
+        pub fn has_spoiler(mut self, v: bool) -> Self {
+            self.opts.has_spoiler = Some(v);
+            self
+        }
+    };
+}
+
 macro_rules! media_sender {
-    ($(#[$doc:meta])* $name:ident, $field:literal, $method:literal, $return_ty:ty, [$($extra_field:ident: $extra_ty:ty),*]) => {
+    ($(#[$doc:meta])* $name:ident, $field:literal, $method:literal, $return_ty:ty,
+     [$($extra_field:ident: $extra_ty:ty),*], [$($caption_opt:ident),*]) => {
         $(#[$doc])*
         pub struct $name {
             /// The API client to use for sending the request.
@@ -1808,9 +1856,8 @@ macro_rules! media_sender {
             /// Identifier of a direct messages chat topic.
             pub fn direct_messages_topic_id(mut self, id: i64) -> Self { self.opts.direct_messages_topic_id = Some(id); self }
             /// Sets the caption (0–1024 characters) for media messages.
-            pub fn caption(mut self, c: impl Into<String>) -> Self { self.opts.caption = Some(c.into()); self }
+            $(caption_setter!($caption_opt);)*
             /// Sets the caption parse mode (`MarkdownV2`, `HTML`, or `Markdown`).
-            pub fn parse_mode(mut self, m: ParseMode) -> Self { self.opts.parse_mode = Some(m); self }
             /// Sends the message silently — the recipient receives no notification sound.
             pub fn disable_notification(mut self, v: bool) -> Self { self.opts.disable_notification = Some(v); self }
             /// Attaches a message effect (animated emoji reaction) to the message.
@@ -1888,25 +1935,25 @@ macro_rules! media_sender {
 
 media_sender!(
     /// Builder for the [`sendAudio`](https://core.telegram.org/bots/api#sendaudio) method.
-    SendAudio,      "audio",      "sendAudio",      Message, [duration: u32, performer: String, title: String]);
+    SendAudio,      "audio",      "sendAudio",      Message, [duration: u32, performer: String, title: String], [caption, parse_mode, caption_entities]);
 media_sender!(
     /// Builder for the [`sendDocument`](https://core.telegram.org/bots/api#senddocument) method.
-    SendDocument,  "document",   "sendDocument",  Message, [disable_content_type_detection: bool]);
+    SendDocument,  "document",   "sendDocument",  Message, [disable_content_type_detection: bool], [caption, parse_mode, caption_entities]);
 media_sender!(
     /// Builder for the [`sendVideo`](https://core.telegram.org/bots/api#sendvideo) method.
-    SendVideo,      "video",      "sendVideo",      Message, [duration: u32, width: u32, height: u32, supports_streaming: bool, cover: String, start_timestamp: i64]);
+    SendVideo,      "video",      "sendVideo",      Message, [duration: u32, width: u32, height: u32, supports_streaming: bool, cover: String, start_timestamp: i64], [caption, parse_mode, caption_entities, show_caption_above_media, has_spoiler]);
 media_sender!(
     /// Builder for the [`sendAnimation`](https://core.telegram.org/bots/api#sendanimation) method.
-    SendAnimation, "animation",  "sendAnimation", Message, [duration: u32, width: u32, height: u32]);
+    SendAnimation, "animation",  "sendAnimation", Message, [duration: u32, width: u32, height: u32], [caption, parse_mode, caption_entities, show_caption_above_media, has_spoiler]);
 media_sender!(
     /// Builder for the [`sendVoice`](https://core.telegram.org/bots/api#sendvoice) method.
-    SendVoice,      "voice",      "sendVoice",      Message, [duration: u32]);
+    SendVoice,      "voice",      "sendVoice",      Message, [duration: u32], [caption, parse_mode, caption_entities]);
 media_sender!(
     /// Builder for the [`sendVideoNote`](https://core.telegram.org/bots/api#sendvideonote) method.
-    SendVideoNote, "video_note", "sendVideoNote", Message, [duration: u32, length: u32]);
+    SendVideoNote, "video_note", "sendVideoNote", Message, [duration: u32, length: u32], []);
 media_sender!(
     /// Builder for the [`sendSticker`](https://core.telegram.org/bots/api#sendsticker) method.
-    SendSticker,   "sticker",    "sendSticker",    Message, [emoji: String]);
+    SendSticker,   "sticker",    "sendSticker",    Message, [emoji: String], []);
 
 // ─── deleteMessage / deleteMessages ──────────────────────────────────────────
 

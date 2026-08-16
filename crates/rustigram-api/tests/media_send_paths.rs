@@ -313,82 +313,138 @@ fn fixtures_match_the_builder_signatures(client: &BotClient) {
     let _ = client.send_photo(1_i64, fixtures::input_file());
 }
 
-/// Every option the media builders share is settable, or listed as not being.
+/// Each generated media builder exposes exactly the options its method takes.
 ///
-/// `MediaSendOptions` is written to both send paths in full, so a field there
-/// with no setter is dead weight the caller cannot reach — and a setter for a
-/// parameter the spec does not define for that method is surface the caller can
-/// reach and Telegram will not honour. The coverage suite sees neither: it
-/// resolves a builder's parameters through the shared options struct, so a field
-/// present there counts as covered whether or not any setter exposes it.
+/// Two failures this replaces, both of which the coverage suite is blind to
+/// because it resolves a builder's parameters through `MediaSendOptions` — a
+/// field there counts as covered whether or not any setter reaches it:
 ///
-/// The macro that generates seven of these builders is uniform while the methods
-/// are not, which is where both mismatches come from. The exceptions below
-/// record the current state precisely so it cannot widen unnoticed; narrowing it
-/// is a decision about the builder surface rather than a fix.
+/// - A setter for a parameter the spec does not define for that method is
+///   surface the caller can reach and Telegram will not honour.
+/// - A field written to both send paths with no setter anywhere is dead weight
+///   the caller cannot use.
+///
+/// Driven by the committed snapshot rather than by a hand-maintained exception
+/// list, so a Bot API version that adds a caption to `sendSticker` shows up here
+/// instead of quietly widening the gap.
 #[test]
-fn the_shared_media_options_are_reachable_or_listed() {
+fn each_media_builder_exposes_exactly_the_options_its_method_takes() {
     let source = include_str!("../src/methods/sending.rs");
+    let spec: SpecMethods = serde_json::from_str(SNAPSHOT).expect("the snapshot parses");
 
-    let fields: Vec<&str> = source
-        .split("pub struct MediaSendOptions {")
-        .nth(1)
-        .and_then(|s| s.split("\n}").next())
-        .expect("MediaSendOptions struct")
-        .lines()
-        .filter_map(|l| l.trim().strip_prefix("pub "))
-        .filter_map(|l| l.split(':').next())
-        .collect();
-
-    let macro_body = source
-        .split("macro_rules! media_sender {")
-        .nth(1)
-        .and_then(|s| s.split("\nmedia_sender!(").next())
-        .expect("the media_sender macro body");
-
-    /// Shared options the generated builders deliberately do not expose, and why.
-    const UNEXPOSED: &[(&str, &str)] = &[
-        (
-            "caption_entities",
-            "Valid for five of the seven generated methods but not sendVideoNote \
-             or sendSticker, which take no caption at all. Exposing it uniformly \
-             would add surface Telegram ignores.",
-        ),
-        (
-            "show_caption_above_media",
-            "Only sendVideo and sendAnimation accept it.",
-        ),
-        ("has_spoiler", "Only sendVideo and sendAnimation accept it."),
+    /// Shared options every generated builder exposes, and every one of these
+    /// seven methods accepts. Asserted against the spec below rather than
+    /// trusted.
+    const UNIVERSAL: &[&str] = &[
+        "business_connection_id",
+        "message_thread_id",
+        "direct_messages_topic_id",
+        "disable_notification",
+        "message_effect_id",
+        "protect_content",
+        "allow_paid_broadcast",
+        "reply_parameters",
+        "reply_markup",
+        "suggested_post_parameters",
+        "receiver_user_id",
+        "callback_query_id",
     ];
 
-    let mut unreachable = Vec::new();
-    for field in &fields {
-        let settable = macro_body.contains(&format!("self.opts.{field} = Some("));
-        let listed = UNEXPOSED.iter().any(|(name, _)| name == field);
-        if !settable && !listed {
-            unreachable.push(format!(
-                "  {field}: written to both send paths, but no setter reaches it"
-            ));
+    let mut wrong = Vec::new();
+
+    for (builder, api_method, caption_opts) in media_sender_invocations(source) {
+        let Some(params) = spec.methods.get(&api_method) else {
+            wrong.push(format!("  {builder}: `{api_method}` is not in the spec"));
+            continue;
+        };
+
+        let exposed: Vec<&str> = UNIVERSAL
+            .iter()
+            .copied()
+            .chain(caption_opts.iter().map(String::as_str))
+            .collect();
+
+        for option in &exposed {
+            if !params.contains_key(*option) {
+                wrong.push(format!(
+                    "  {api_method}: exposes `{option}`, which the spec does not \
+                     define for it — a caller can set it and Telegram ignores it"
+                ));
+            }
+        }
+        for option in CAPTION_FAMILY {
+            if params.contains_key(*option) && !exposed.contains(option) {
+                wrong.push(format!(
+                    "  {api_method}: the spec takes `{option}` and no setter \
+                     reaches it"
+                ));
+            }
         }
     }
-    assert!(
-        unreachable.is_empty(),
-        "{} shared media option(s) can never be set by a caller:\n{}",
-        unreachable.len(),
-        unreachable.join("\n")
-    );
 
-    let stale: Vec<&str> = UNEXPOSED
-        .iter()
-        .map(|(name, _)| *name)
-        .filter(|name| {
-            !fields.contains(name) || macro_body.contains(&format!("self.opts.{name} = Some("))
-        })
-        .collect();
     assert!(
-        stale.is_empty(),
-        "{} exception(s) no longer describe anything — the option is gone or is \
-         now exposed, so remove them: {stale:?}",
-        stale.len()
+        wrong.is_empty(),
+        "{} media builder surface mismatch(es):\n{}",
+        wrong.len(),
+        wrong.join("\n")
     );
+}
+
+/// The options that vary per method; the rest are universal.
+const CAPTION_FAMILY: &[&str] = &[
+    "caption",
+    "parse_mode",
+    "caption_entities",
+    "show_caption_above_media",
+    "has_spoiler",
+];
+
+const SNAPSHOT: &str = include_str!("../../rustigram-types/tests/spec/bot-api-10.2.json");
+
+#[derive(serde::Deserialize)]
+struct SpecMethods {
+    methods:
+        std::collections::BTreeMap<String, std::collections::BTreeMap<String, serde_json::Value>>,
+}
+
+/// Every `media_sender!` invocation, as (builder, API method, caption options).
+fn media_sender_invocations(source: &str) -> Vec<(String, String, Vec<String>)> {
+    let mut found = Vec::new();
+    for block in source.split("media_sender!(").skip(1) {
+        let head = block.split(");").next().unwrap_or_default();
+        // `SendAudio, "audio", "sendAudio", Message, [..], [caption, ..]` —
+        // written on one line after the doc attribute, so the builder name is
+        // the first `Send*` token rather than a line of its own.
+        let Some(builder) = head
+            .split(|c: char| !c.is_alphanumeric() && c != '_')
+            .find(|token| token.starts_with("Send"))
+            .map(str::to_owned)
+        else {
+            continue;
+        };
+        let quoted: Vec<&str> = head.split('"').skip(1).step_by(2).collect();
+        let Some(api_method) = quoted.get(1) else {
+            continue;
+        };
+        let caption_opts = head
+            .rsplit_once('[')
+            .and_then(|(_, tail)| tail.split(']').next())
+            .map(|list| {
+                list.split(',')
+                    .map(str::trim)
+                    .filter(|s| !s.is_empty())
+                    .map(str::to_owned)
+                    .collect()
+            })
+            .unwrap_or_default();
+        found.push((builder, (*api_method).to_owned(), caption_opts));
+    }
+    assert_eq!(
+        found.len(),
+        7,
+        "expected seven generated media builders, parsed {} — the macro's shape \
+         changed and this test would check almost nothing",
+        found.len()
+    );
+    found
 }

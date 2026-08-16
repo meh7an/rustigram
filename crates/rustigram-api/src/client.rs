@@ -73,6 +73,8 @@ pub struct ClientConfig {
     /// Per-request HTTP timeout.
     pub timeout: Duration,
     /// Maximum number of automatic retries on flood control responses.
+    ///
+    /// Applies to JSON requests only — see [`ClientConfig::max_retries`].
     pub max_retries: u8,
 }
 
@@ -104,6 +106,22 @@ impl ClientConfig {
     }
 
     /// Sets the maximum number of retries on HTTP 429 (flood control) errors (default 3).
+    ///
+    /// # Uploads are not retried
+    ///
+    /// This budget governs requests sent as JSON, which is every call that does
+    /// not upload file bytes — including media sent by `file_id` or URL. A
+    /// **byte upload is never retried**, whatever this is set to: the multipart
+    /// form is consumed when the request is sent and cannot be rebuilt for a
+    /// second attempt.
+    ///
+    /// So `max_retries(5)` means five attempts for
+    /// [`send_message`](BotClient::send_message), and one for a
+    /// [`send_photo`](BotClient::send_photo) carrying
+    /// [`InputFile::Bytes`](rustigram_types::file::InputFile::Bytes). A bot that
+    /// uploads under load should expect [`Error::RateLimit`](crate::Error::RateLimit)
+    /// on the first flood-control response and back off itself, using
+    /// [`Error::retry_after`](crate::Error::retry_after).
     #[must_use]
     pub fn max_retries(mut self, n: u8) -> Self {
         self.max_retries = n;
@@ -207,6 +225,9 @@ impl BotClient {
     /// Automatically retries on HTTP 429 (flood control) up to `max_retries`
     /// times, waiting the `retry_after` duration between attempts.
     ///
+    /// Byte uploads take [`post_multipart`](BotClient::post_multipart) instead,
+    /// which does not retry.
+    ///
     /// # Errors
     ///
     /// Returns an error on network failure, API error (`ok: false`), or
@@ -282,6 +303,12 @@ impl BotClient {
     }
 
     /// Sends a multipart/form-data POST request to a Bot API method and deserialises the result.
+    ///
+    /// Unlike [`post_json`](BotClient::post_json) this does **not** retry on
+    /// flood control, regardless of
+    /// [`ClientConfig::max_retries`](crate::ClientConfig::max_retries): the form
+    /// is consumed by the send and cannot be rebuilt for another attempt. A 429
+    /// surfaces immediately as [`Error::RateLimit`](crate::Error::RateLimit).
     pub async fn post_multipart<R>(&self, method: &str, form: Form) -> Result<R>
     where
         R: DeserializeOwned,

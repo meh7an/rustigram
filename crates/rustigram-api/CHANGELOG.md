@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+See the [`rustigram` changelog](https://github.com/meh7an/rustigram/blob/main/crates/rustigram/CHANGELOG.md)
+for the full notes, including the four breaking changes and how to migrate.
+
 ## [0.11.0](https://github.com/meh7an/rustigram/compare/rustigram-api-v0.10.3...rustigram-api-v0.11.0) - 2026-07-12
 
 ### Added
