@@ -1602,8 +1602,6 @@ pub struct SendLivePhoto {
     live_photo: InputFile,
     photo: InputFile,
     opts: MediaSendOptions,
-    has_spoiler: Option<bool>,
-    message_effect_id: Option<String>,
 }
 
 impl SendLivePhoto {
@@ -1619,8 +1617,6 @@ impl SendLivePhoto {
             live_photo,
             photo,
             opts: MediaSendOptions::default(),
-            has_spoiler: None,
-            message_effect_id: None,
         }
     }
     /// Business connection ID for sending on behalf of a business account.
@@ -1655,7 +1651,7 @@ impl SendLivePhoto {
     }
     /// Covers the live photo with a spoiler animation.
     pub fn has_spoiler(mut self, v: bool) -> Self {
-        self.has_spoiler = Some(v);
+        self.opts.has_spoiler = Some(v);
         self
     }
     /// Sends the message silently.
@@ -1675,7 +1671,7 @@ impl SendLivePhoto {
     }
     /// Attaches a message effect (private chats only).
     pub fn message_effect_id(mut self, id: impl Into<String>) -> Self {
-        self.message_effect_id = Some(id.into());
+        self.opts.message_effect_id = Some(id.into());
         self
     }
     /// Reply parameters for this message.
@@ -1739,30 +1735,15 @@ impl IntoFuture for SendLivePhoto {
                 }
 
                 form = apply_media_opts(form, &self.opts);
-                // SendLivePhoto carries its own effect id rather than using the
-                // shared options struct.
-                if let Some(id) = &self.message_effect_id {
-                    form = form.text("message_effect_id", id.clone());
-                }
 
                 self.client.post_multipart("sendLivePhoto", form).await
             } else {
-                let extra = {
-                    let mut m = serde_json::json!({});
-                    if let Some(v) = self.has_spoiler {
-                        m["has_spoiler"] = serde_json::json!(v);
-                    }
-                    if let Some(id) = &self.message_effect_id {
-                        m["message_effect_id"] = serde_json::json!(id);
-                    }
-                    m
-                };
                 let mut body = media_json_body(
                     &self.chat_id,
                     "live_photo",
                     self.live_photo.as_str(),
                     &self.opts,
-                    extra,
+                    serde_json::json!({}),
                 );
                 body.as_object_mut()
                     .unwrap()
@@ -1855,9 +1836,11 @@ macro_rules! media_sender {
             pub fn message_thread_id(mut self, id: i64) -> Self { self.opts.message_thread_id = Some(id); self }
             /// Identifier of a direct messages chat topic.
             pub fn direct_messages_topic_id(mut self, id: i64) -> Self { self.opts.direct_messages_topic_id = Some(id); self }
-            /// Sets the caption (0–1024 characters) for media messages.
+            // The caption-family setters this method actually takes. Each
+            // carries its own doc comment inside `caption_setter!` — a doc
+            // comment out here would attach to the macro invocation, which
+            // rustdoc drops, and clippy rejects under `-D warnings`.
             $(caption_setter!($caption_opt);)*
-            /// Sets the caption parse mode (`MarkdownV2`, `HTML`, or `Markdown`).
             /// Sends the message silently — the recipient receives no notification sound.
             pub fn disable_notification(mut self, v: bool) -> Self { self.opts.disable_notification = Some(v); self }
             /// Attaches a message effect (animated emoji reaction) to the message.

@@ -40,8 +40,11 @@ struct Spec {
     methods: BTreeMap<String, BTreeMap<String, SpecParam>>,
 }
 
+/// The spec's `["Integer", 0]` tuple. Only the optionality flag is read here,
+/// but the type text has to be deserialised for the tuple to line up — hence
+/// the allow rather than replacing it with `()`, which would break decoding.
 #[derive(serde::Deserialize)]
-struct SpecParam(String, u8);
+struct SpecParam(#[allow(dead_code)] String, u8);
 
 impl SpecParam {
     fn optional(&self) -> bool {

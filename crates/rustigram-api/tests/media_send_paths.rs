@@ -197,6 +197,16 @@ async fn media_builders_send_the_same_options_on_both_paths() {
         .callback_query_id("cq"));
     differences.extend(difference("sendSticker", &multipart, &json));
 
+    let (multipart, json) = both_paths!(|c, f| c
+        .send_live_photo(1_i64, f, fixtures::input_file())
+        .caption("cap")
+        .has_spoiler(true)
+        .show_caption_above_media(true)
+        .protect_content(true)
+        .message_effect_id("effect")
+        .reply_parameters(fixtures::reply_to(7)));
+    differences.extend(difference("sendLivePhoto", &multipart, &json));
+
     let (multipart, json) = both_paths!(|c, f| c.set_chat_photo(1_i64, f));
     differences.extend(difference("setChatPhoto", &multipart, &json));
 
@@ -447,4 +457,70 @@ fn media_sender_invocations(source: &str) -> Vec<(String, String, Vec<String>)> 
         found.len()
     );
     found
+}
+
+/// No media builder keeps its own copy of a shared option.
+///
+/// `SendLivePhoto` declared `has_spoiler` and `message_effect_id` as builder
+/// fields while `MediaSendOptions` already held both. The two shared encoders
+/// only ever see `opts`, so each send path had to remember to hand-patch the
+/// locals in — and the multipart one remembered only one of the two. The result
+/// was `.has_spoiler(true)` silently dropped on byte uploads.
+///
+/// Every other check in this file was blind to it by construction: the parity
+/// sweep had no `sendLivePhoto` case, the source scan enumerates
+/// `MediaSendOptions` and so cannot see a field that is not in it, and
+/// [`each_media_builder_exposes_exactly_the_options_its_method_takes`] parses
+/// only `media_sender!` invocations. A shadowed field is invisible to all three,
+/// which is what makes this worth checking directly.
+#[test]
+fn no_media_builder_shadows_a_shared_option() {
+    let source = include_str!("../src/methods/sending.rs");
+
+    let shared: Vec<&str> = source
+        .split("pub struct MediaSendOptions {")
+        .nth(1)
+        .and_then(|s| s.split("\n}").next())
+        .expect("the MediaSendOptions declaration")
+        .lines()
+        .filter_map(|l| l.trim().strip_prefix("pub "))
+        .filter_map(|l| l.split(':').next())
+        .collect();
+    assert!(
+        shared.len() > 10,
+        "parsed only {} shared options — the struct's shape changed and this \
+         test would check almost nothing",
+        shared.len()
+    );
+
+    // Builders are the structs that hold a `MediaSendOptions`.
+    let mut shadowed = Vec::new();
+    for block in source.split("\npub struct ").skip(1) {
+        let name = block.split_whitespace().next().unwrap_or_default();
+        let Some(body) = block.split("\n}").next() else {
+            continue;
+        };
+        if !body.contains("opts: MediaSendOptions") {
+            continue;
+        }
+        for line in body.lines() {
+            let Some((field, _)) = line.trim().trim_start_matches("pub ").split_once(':') else {
+                continue;
+            };
+            let field = field.trim();
+            if shared.contains(&field) {
+                shadowed.push(format!("  {name}.{field} shadows MediaSendOptions.{field}"));
+            }
+        }
+    }
+
+    assert!(
+        shadowed.is_empty(),
+        "{} builder field(s) duplicate a shared option. The shared encoders read \
+         `opts` only, so a local copy reaches the wire only where some send path \
+         remembers to add it by hand — route it through `self.opts` \
+         instead:\n{}",
+        shadowed.len(),
+        shadowed.join("\n")
+    );
 }
