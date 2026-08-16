@@ -29,6 +29,19 @@ pub struct Spec {
     pub methods: BTreeMap<String, SpecMethod>,
     /// Type name to the literal value of its `type`/`source`/`status` field.
     pub discriminants: BTreeMap<String, String>,
+    /// Type name to the field that carries its discriminant.
+    ///
+    /// Not inferable from the literal alone: the passport error types have both
+    /// a `type` (the document kind) and a `source` (the error kind), and only
+    /// one of them is the tag.
+    pub discriminant_fields: BTreeMap<String, String>,
+    /// `Type.field` to the literal string values the docs list for that field.
+    ///
+    /// Telegram documents string enums in prose rather than in a schema, so
+    /// these are the only machine-readable record of which values a field
+    /// accepts. Without them a generated payload has to invent a string, serde
+    /// rejects it, and the failure looks like a decode bug in the crate.
+    pub enum_values: BTreeMap<String, Vec<String>>,
     /// Union base name to the list of type names that can inhabit it.
     pub unions: BTreeMap<String, Vec<String>>,
 }

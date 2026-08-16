@@ -32,8 +32,10 @@ pub struct StoryAreaPosition {
 pub enum StoryAreaType {
     /// An area pointing to a geographic location.
     Location {
-        /// The geographic location.
-        location: crate::chat::Location,
+        /// Location latitude in degrees.
+        latitude: f64,
+        /// Location longitude in degrees.
+        longitude: f64,
         /// Optional human-readable address.
         #[serde(skip_serializing_if = "Option::is_none")]
         address: Option<LocationAddress>,

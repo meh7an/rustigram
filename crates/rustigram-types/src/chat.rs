@@ -486,11 +486,14 @@ pub struct Link {
 }
 
 /// An HTTP link to be used as [`InputPollOptionMedia`](crate::poll::InputPollOptionMedia).
+///
+/// The `type` discriminant belongs to the enclosing
+/// [`InputPollOptionMedia`](crate::poll::InputPollOptionMedia), which is
+/// internally tagged. Declaring it here as well made the value serialise
+/// correctly but never decode, since serde consumes the tag to select the
+/// variant and the inner struct then found no `type` field of its own.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InputMediaLink {
-    /// Always `"link"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The HTTP(S) URL of the link.
     pub url: String,
 }
@@ -498,9 +501,6 @@ pub struct InputMediaLink {
 impl InputMediaLink {
     /// Creates a new `InputMediaLink` from a URL.
     pub fn new(url: impl Into<String>) -> Self {
-        Self {
-            kind: "link".to_owned(),
-            url: url.into(),
-        }
+        Self { url: url.into() }
     }
 }
