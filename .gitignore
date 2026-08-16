@@ -5,3 +5,6 @@ digest.json
 
 # Local mirror of the Telegram Bot API docs (generated)
 tdocs/
+
+# Private planning documents
+plan/
