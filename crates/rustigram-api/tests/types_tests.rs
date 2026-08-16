@@ -918,12 +918,104 @@ mod unions_and_reconciliation {
     #[test]
     fn rich_text_reference_uses_the_spec_field_name() {
         let json = serde_json::to_value(rustigram_types::rich_message::RichTextReference {
-            kind: "reference".to_owned(),
             text: RichText::Plain("1".to_owned()),
             footnote_name: "fn1".to_owned(),
         })
         .unwrap();
         assert_eq!(json["name"], "fn1");
         assert!(json.get("footnote_name").is_none());
+    }
+}
+
+#[cfg(test)]
+mod rich_text_dispatch {
+    use rustigram_types::rich_message::{RichText, RichTextNode};
+
+    /// Every `type` discriminant Telegram can send, paired with the variant it
+    /// must produce and the extra required fields that variant needs.
+    ///
+    /// This is the test whose absence let the bug ship: with `RichText` fully
+    /// untagged, all 26 of these deserialized as `Bold` and nothing complained.
+    const CASES: &[(&str, &str, &str)] = &[
+        ("bold", "Bold", ""),
+        ("italic", "Italic", ""),
+        ("underline", "Underline", ""),
+        ("strikethrough", "Strikethrough", ""),
+        ("spoiler", "Spoiler", ""),
+        ("subscript", "Subscript", ""),
+        ("superscript", "Superscript", ""),
+        ("marked", "Marked", ""),
+        ("code", "Code", ""),
+        ("anchor", "Anchor", r#","name":"a""#),
+        ("anchor_link", "AnchorLink", r#","anchor_name":"a""#),
+        ("date_time", "DateTime", r#","unix_time":1,"date_time_format":"f""#),
+        ("text_mention", "TextMention", r#","user":{"id":1,"is_bot":false,"first_name":"A"}"#),
+        ("custom_emoji", "CustomEmoji", r#","custom_emoji_id":"e","alternative_text":"x""#),
+        ("mathematical_expression", "MathematicalExpression", r#","expression":"x^2""#),
+        ("url", "Url", r#","url":"https://example.com""#),
+        ("email_address", "EmailAddress", r#","email_address":"a@b.c""#),
+        ("phone_number", "PhoneNumber", r#","phone_number":"+100""#),
+        ("bank_card_number", "BankCardNumber", r#","bank_card_number":"4000""#),
+        ("mention", "Mention", r#","username":"me""#),
+        ("hashtag", "Hashtag", r#","hashtag":"tag""#),
+        ("cashtag", "Cashtag", r#","cashtag":"USD""#),
+        ("bot_command", "BotCommand", r#","bot_command":"/start""#),
+        ("footnote", "Footnote", r#","name":"fn1""#),
+        ("reference", "Reference", r#","name":"fn1""#),
+        ("reference_link", "ReferenceLink", r#","reference_name":"r1""#),
+    ];
+
+    fn variant_of(node: &RichTextNode) -> String {
+        let debug = format!("{node:?}");
+        debug.split(['(', ' ']).next().unwrap_or_default().to_owned()
+    }
+
+    #[test]
+    fn every_discriminant_resolves_to_its_own_variant() {
+        for (tag, expected, extra) in CASES {
+            let json = format!(r#"{{"type":"{tag}","text":"t"{extra}}}"#);
+            let parsed: RichText = serde_json::from_str(&json)
+                .unwrap_or_else(|e| panic!("{tag}: failed to deserialize: {e}\n  {json}"));
+            match parsed {
+                RichText::Node(node) => assert_eq!(
+                    &variant_of(&node),
+                    expected,
+                    "{tag} resolved to the wrong variant"
+                ),
+                other => panic!("{tag}: expected a node, got {other:?}"),
+            }
+        }
+    }
+
+    /// The scalar shapes are why this enum cannot simply be `#[serde(tag)]`.
+    #[test]
+    fn scalar_shapes_still_work() {
+        assert!(matches!(
+            serde_json::from_str::<RichText>(r#""just text""#).unwrap(),
+            RichText::Plain(ref s) if s == "just text"
+        ));
+        assert!(matches!(
+            serde_json::from_str::<RichText>(r#"["a","b"]"#).unwrap(),
+            RichText::Array(ref v) if v.len() == 2
+        ));
+    }
+
+    #[test]
+    fn nested_rich_text_resolves_at_every_level() {
+        let json = r#"{"type":"bold","text":{"type":"italic","text":"deep"}}"#;
+        let parsed: RichText = serde_json::from_str(json).unwrap();
+        let RichText::Node(outer) = parsed else { panic!("expected node") };
+        assert_eq!(variant_of(&outer), "Bold");
+        let RichTextNode::Bold(bold) = *outer else { panic!("expected bold") };
+        let RichText::Node(inner) = bold.text else { panic!("expected nested node") };
+        assert_eq!(variant_of(&inner), "Italic");
+    }
+
+    /// The send path must be untouched: the wire form is what it always was.
+    #[test]
+    fn serialization_is_unchanged() {
+        let json = r#"{"type":"italic","text":"hi"}"#;
+        let parsed: RichText = serde_json::from_str(json).unwrap();
+        assert_eq!(serde_json::to_string(&parsed).unwrap(), json);
     }
 }

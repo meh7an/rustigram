@@ -188,7 +188,7 @@ pub use rich_message::{
     RichTextDateTime, RichTextEmailAddress, RichTextFootnote, RichTextHashtag, RichTextItalic,
     RichTextMarked, RichTextMathematicalExpression, RichTextMention, RichTextPhoneNumber,
     RichTextReference, RichTextSpoiler, RichTextStrikethrough, RichTextSubscript,
-    RichTextSuperscript, RichTextTextMention, RichTextUnderline, RichTextUrl,
+    RichTextSuperscript, RichTextTextMention, RichTextNode, RichTextReferenceLink, RichTextUnderline, RichTextUrl,
 };
 pub use sticker::{MaskPosition, Sticker, StickerSet, StickerType};
 pub use story::{

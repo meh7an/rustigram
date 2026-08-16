@@ -15,7 +15,15 @@ use crate::user::User;
 /// A `RichText` value is either:
 /// - a plain [`String`] (leaf node),
 /// - an [`Array`](RichText::Array) of nested `RichText` values, or
-/// - one of the typed inline-formatting variants listed below.
+/// - a single formatted [`Node`](RichText::Node).
+///
+/// These three untagged variants only ever have to tell a string from an array
+/// from an object, which serde does reliably. The choice *between* formatted
+/// node kinds is made by [`RichTextNode`]'s `type` tag.
+///
+/// This split matters: when all 25 node kinds were untagged variants of this
+/// enum they were structurally identical, so serde matched the first one and
+/// every kind of formatted text deserialized as bold.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum RichText {
@@ -23,64 +31,101 @@ pub enum RichText {
     Plain(String),
     /// A sequence of rich-text nodes rendered consecutively.
     Array(Vec<RichText>),
+    /// A single formatted node.
+    Node(Box<RichTextNode>),
+}
+
+/// A single formatted rich-text node, dispatched on its `type` discriminant.
+///
+/// An unrecognised `type` is a deserialization error rather than a silent
+/// fallback. That is deliberate — silently mistyping formatted text is the bug
+/// this enum exists to fix — but it does mean a rich-text kind introduced by a
+/// future Bot API version will fail to parse until it is added here.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum RichTextNode {
+
     /// Bold formatting.
-    Bold(Box<RichTextBold>),
+    Bold(RichTextBold),
+
     /// Italic formatting.
-    Italic(Box<RichTextItalic>),
+    Italic(RichTextItalic),
+
     /// Underline formatting.
-    Underline(Box<RichTextUnderline>),
+    Underline(RichTextUnderline),
+
     /// Strikethrough formatting.
-    Strikethrough(Box<RichTextStrikethrough>),
+    Strikethrough(RichTextStrikethrough),
+
     /// Spoiler — text hidden until tapped.
-    Spoiler(Box<RichTextSpoiler>),
+    Spoiler(RichTextSpoiler),
+
     /// A date/time entity.
-    DateTime(Box<RichTextDateTime>),
+    DateTime(RichTextDateTime),
+
     /// A mention by user object.
-    TextMention(Box<RichTextTextMention>),
+    TextMention(RichTextTextMention),
+
     /// Subscript text.
-    Subscript(Box<RichTextSubscript>),
+    Subscript(RichTextSubscript),
+
     /// Superscript text.
-    Superscript(Box<RichTextSuperscript>),
+    Superscript(RichTextSuperscript),
+
     /// Highlighted/marked text.
-    Marked(Box<RichTextMarked>),
+    Marked(RichTextMarked),
+
     /// Inline monospace code.
-    Code(Box<RichTextCode>),
+    Code(RichTextCode),
+
     /// A custom emoji.
-    CustomEmoji(Box<RichTextCustomEmoji>),
+    CustomEmoji(RichTextCustomEmoji),
+
     /// An inline LaTeX mathematical expression.
-    MathematicalExpression(Box<RichTextMathematicalExpression>),
+    MathematicalExpression(RichTextMathematicalExpression),
+
     /// A hyperlink.
-    Url(Box<RichTextUrl>),
+    Url(RichTextUrl),
+
     /// An e-mail address link.
-    EmailAddress(Box<RichTextEmailAddress>),
+    EmailAddress(RichTextEmailAddress),
+
     /// A telephone number link.
-    PhoneNumber(Box<RichTextPhoneNumber>),
+    PhoneNumber(RichTextPhoneNumber),
+
     /// A bank card number.
-    BankCardNumber(Box<RichTextBankCardNumber>),
+    BankCardNumber(RichTextBankCardNumber),
+
     /// A `@username` mention.
-    Mention(Box<RichTextMention>),
+    Mention(RichTextMention),
+
     /// A `#hashtag`.
-    Hashtag(Box<RichTextHashtag>),
+    Hashtag(RichTextHashtag),
+
     /// A `$cashtag`.
-    Cashtag(Box<RichTextCashtag>),
+    Cashtag(RichTextCashtag),
+
     /// A `/bot_command`.
-    BotCommand(Box<RichTextBotCommand>),
+    BotCommand(RichTextBotCommand),
+
     /// An in-document anchor definition.
-    Anchor(Box<RichTextAnchor>),
+    Anchor(RichTextAnchor),
+
     /// A link targeting an in-document anchor.
-    AnchorLink(Box<RichTextAnchorLink>),
+    AnchorLink(RichTextAnchorLink),
+
     /// A footnote body.
-    Footnote(Box<RichTextFootnote>),
+    Footnote(RichTextFootnote),
+
     /// A reference to a footnote.
-    Reference(Box<RichTextReference>),
+    Reference(RichTextReference),
+    /// A link to a reference.
+    ReferenceLink(RichTextReferenceLink),
 }
 
 /// Bold text (`**text**` / `<b>text</b>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextBold {
-    /// Always `"bold"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The contained rich text.
     pub text: RichText,
 }
@@ -88,9 +133,6 @@ pub struct RichTextBold {
 /// Italic text (`*text*` / `<i>text</i>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextItalic {
-    /// Always `"italic"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The contained rich text.
     pub text: RichText,
 }
@@ -98,9 +140,6 @@ pub struct RichTextItalic {
 /// Underlined text (`<u>text</u>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextUnderline {
-    /// Always `"underline"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The contained rich text.
     pub text: RichText,
 }
@@ -108,9 +147,6 @@ pub struct RichTextUnderline {
 /// Strikethrough text (`~~text~~` / `<s>text</s>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextStrikethrough {
-    /// Always `"strikethrough"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The contained rich text.
     pub text: RichText,
 }
@@ -118,9 +154,6 @@ pub struct RichTextStrikethrough {
 /// Spoiler text (`||text||` / `<tg-spoiler>text</tg-spoiler>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextSpoiler {
-    /// Always `"spoiler"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The contained rich text.
     pub text: RichText,
 }
@@ -128,9 +161,6 @@ pub struct RichTextSpoiler {
 /// A date/time entity rendered according to the client's locale.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextDateTime {
-    /// Always `"date_time"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The Unix timestamp associated with the entity.
@@ -142,9 +172,6 @@ pub struct RichTextDateTime {
 /// A mention of a Telegram user by their `User` object.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextTextMention {
-    /// Always `"text_mention"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The mentioned user.
@@ -154,9 +181,6 @@ pub struct RichTextTextMention {
 /// Subscript text (`<sub>text</sub>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextSubscript {
-    /// Always `"subscript"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The contained rich text.
     pub text: RichText,
 }
@@ -164,9 +188,6 @@ pub struct RichTextSubscript {
 /// Superscript text (`<sup>text</sup>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextSuperscript {
-    /// Always `"superscript"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The contained rich text.
     pub text: RichText,
 }
@@ -174,9 +195,6 @@ pub struct RichTextSuperscript {
 /// Highlighted/marked text (`==text==` / `<mark>text</mark>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextMarked {
-    /// Always `"marked"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The contained rich text.
     pub text: RichText,
 }
@@ -184,9 +202,6 @@ pub struct RichTextMarked {
 /// Inline monospace/code text (`` `text` `` / `<code>text</code>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextCode {
-    /// Always `"code"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The contained rich text.
     pub text: RichText,
 }
@@ -194,9 +209,6 @@ pub struct RichTextCode {
 /// A custom emoji (`![alt](tg://emoji?id=...)`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextCustomEmoji {
-    /// Always `"custom_emoji"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// Unique identifier of the custom emoji.
     pub custom_emoji_id: String,
     /// Fallback emoji string for clients that do not support custom emoji.
@@ -206,9 +218,6 @@ pub struct RichTextCustomEmoji {
 /// An inline LaTeX mathematical expression (`$expr$` / `<tg-math>expr</tg-math>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextMathematicalExpression {
-    /// Always `"mathematical_expression"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The LaTeX source of the expression.
     pub expression: String,
 }
@@ -216,9 +225,6 @@ pub struct RichTextMathematicalExpression {
 /// A hyperlink (`[text](url)` / `<a href="url">text</a>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextUrl {
-    /// Always `"url"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The target URL.
@@ -228,9 +234,6 @@ pub struct RichTextUrl {
 /// An e-mail address link (`[text](mailto:addr)` / `<a href="mailto:addr">text</a>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextEmailAddress {
-    /// Always `"email_address"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The raw e-mail address.
@@ -240,9 +243,6 @@ pub struct RichTextEmailAddress {
 /// A telephone number link (`[text](tel:+nnn)` / `<a href="tel:+nnn">text</a>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextPhoneNumber {
-    /// Always `"phone_number"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The raw phone number.
@@ -252,9 +252,6 @@ pub struct RichTextPhoneNumber {
 /// A bank card number.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextBankCardNumber {
-    /// Always `"bank_card_number"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The raw bank card number.
@@ -264,9 +261,6 @@ pub struct RichTextBankCardNumber {
 /// A `@username` mention.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextMention {
-    /// Always `"mention"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The target username (without the leading `@`).
@@ -276,9 +270,6 @@ pub struct RichTextMention {
 /// A `#hashtag`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextHashtag {
-    /// Always `"hashtag"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The hashtag value (without the leading `#`).
@@ -288,9 +279,6 @@ pub struct RichTextHashtag {
 /// A `$cashtag`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextCashtag {
-    /// Always `"cashtag"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The cashtag value (without the leading `$`).
@@ -300,9 +288,6 @@ pub struct RichTextCashtag {
 /// A bot command (e.g. `/start`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextBotCommand {
-    /// Always `"bot_command"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The command string including the leading `/`.
@@ -312,9 +297,6 @@ pub struct RichTextBotCommand {
 /// An in-document anchor definition (`<a name="id"></a>`).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextAnchor {
-    /// Always `"anchor"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The anchor name.
     pub name: String,
 }
@@ -324,9 +306,6 @@ pub struct RichTextAnchor {
 /// If `anchor_name` is empty the link scrolls back to the top of the message.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextAnchorLink {
-    /// Always `"anchor_link"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text.
     pub text: RichText,
     /// The target anchor name; empty string scrolls to the top.
@@ -336,21 +315,24 @@ pub struct RichTextAnchorLink {
 /// The body of a footnote.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextFootnote {
-    /// Always `"footnote"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The footnote content.
     pub text: RichText,
     /// The footnote identifier.
     pub name: String,
 }
 
+/// A link to a reference.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RichTextReferenceLink {
+    /// The link text.
+    pub text: RichText,
+    /// The name of the reference.
+    pub reference_name: String,
+}
+
 /// A reference to a previously defined footnote.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RichTextReference {
-    /// Always `"reference"`.
-    #[serde(rename = "type")]
-    pub kind: String,
     /// The display text (typically the footnote superscript label).
     pub text: RichText,
     /// The footnote identifier being referenced.
