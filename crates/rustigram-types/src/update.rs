@@ -400,12 +400,3 @@ pub struct PaidMediaPurchased {
     /// Bot-specified paid media payload.
     pub paid_media_payload: String,
 }
-
-/// A list of updates returned by `getUpdates`. Internal deserialization wrapper.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Updates {
-    /// `true` if the request was successful.
-    pub ok: bool,
-    /// The list of updates.
-    pub result: Vec<Update>,
-}

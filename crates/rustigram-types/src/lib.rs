@@ -225,7 +225,7 @@ pub use update::{
     ChatBoostAdded, ChatBoostRemoved, ChatBoostSource, ChatBoostSourceGiftCode,
     ChatBoostSourceGiveaway, ChatBoostSourcePremium, ChatBoostUpdated, ChatMemberUpdated,
     ManagedBotUpdated, MessageReactionCountUpdated, MessageReactionUpdated, PaidMediaPurchased,
-    ReactionCount, Update, UpdateKind, Updates, UserChatBoosts,
+    ReactionCount, Update, UpdateKind, UserChatBoosts,
 };
 pub use user::{
     BotAccessSettings, BotCommand, BotCommandScope, BotDescription, BotName, BotShortDescription,
