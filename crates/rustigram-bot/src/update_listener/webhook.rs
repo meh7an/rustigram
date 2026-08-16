@@ -249,4 +249,134 @@ mod tests {
         assert_eq!(configured.secret_token.as_deref(), Some(SECRET));
         assert_eq!(configured.addr, addr);
     }
+
+    /// A handler that reports through a channel, so a test can prove an update
+    /// arrived rather than only that the status code was right.
+    fn reporting_dispatcher(
+        client: BotClient,
+        tx: tokio::sync::mpsc::UnboundedSender<&'static str>,
+    ) -> Dispatcher {
+        Dispatcher::builder(client)
+            .on(
+                crate::filter::filters::message(),
+                crate::handler::handler_fn(move |_ctx| {
+                    let tx = tx.clone();
+                    async move {
+                        let _ = tx.send("dispatched");
+                        Ok(())
+                    }
+                }),
+            )
+            .build()
+    }
+
+    /// A valid webhook body, as the literal JSON Telegram would POST.
+    const A_MESSAGE_UPDATE: &str = r#"{"update_id":10,"message":{
+        "message_id":1,"date":1700000000,
+        "chat":{"id":42,"type":"private"},
+        "from":{"id":7,"is_bot":false,"first_name":"T"},
+        "text":"hi"}}"#;
+
+    /// A valid POST reaches a handler, not just a 200.
+    ///
+    /// The secret-token tests above assert the status code. A webhook that
+    /// answers `200` and drops every body satisfies all of them and looks
+    /// entirely healthy to Telegram, which retries nothing because nothing
+    /// failed.
+    #[tokio::test]
+    async fn a_valid_post_reaches_a_handler() {
+        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+        let client = BotClient::from_token("123456:test-token-for-unit-tests").unwrap();
+        let app = router(AppState {
+            dispatcher: reporting_dispatcher(client, tx),
+            secret_token: None,
+        });
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/")
+                    .header("content-type", "application/json")
+                    .body(Body::from(A_MESSAGE_UPDATE))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let arrived = tokio::time::timeout(std::time::Duration::from_secs(5), rx.recv())
+            .await
+            .expect("a handler should have run within five seconds");
+        assert_eq!(
+            arrived,
+            Some("dispatched"),
+            "the webhook answered 200 but the update never reached a handler"
+        );
+    }
+
+    /// A body that is not an `Update` is rejected and dispatches nothing.
+    #[tokio::test]
+    async fn a_malformed_body_is_rejected_and_dispatches_nothing() {
+        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+        let client = BotClient::from_token("123456:test-token-for-unit-tests").unwrap();
+        let app = router(AppState {
+            dispatcher: reporting_dispatcher(client, tx),
+            secret_token: None,
+        });
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/")
+                    .header("content-type", "application/json")
+                    .body(Body::from(r#"{"not":"an update"}"#))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_ne!(
+            response.status(),
+            StatusCode::OK,
+            "a body that is not an Update must not be accepted"
+        );
+
+        tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+        assert!(rx.try_recv().is_err(), "a malformed body reached a handler");
+    }
+
+    /// A rejected token dispatches nothing, not merely returns 401.
+    ///
+    /// The consequence rather than the status: an unauthorised caller must not
+    /// be able to drive the bot, whatever they are told.
+    #[tokio::test]
+    async fn a_rejected_token_dispatches_nothing() {
+        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+        let client = BotClient::from_token("123456:test-token-for-unit-tests").unwrap();
+        let app = router(AppState {
+            dispatcher: reporting_dispatcher(client, tx),
+            secret_token: Some("expected".to_owned()),
+        });
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/")
+                    .header("content-type", "application/json")
+                    .header("X-Telegram-Bot-Api-Secret-Token", "wrong")
+                    .body(Body::from(A_MESSAGE_UPDATE))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+
+        tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+        assert!(
+            rx.try_recv().is_err(),
+            "an unauthorised request still drove the dispatcher"
+        );
+    }
 }
