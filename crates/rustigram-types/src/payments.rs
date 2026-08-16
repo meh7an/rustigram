@@ -449,7 +449,7 @@ pub struct OwnedGiftUnique {
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum OwnedGift {
     /// A regular owned gift.
-    Regular(Box<OwnedGiftUnique>),
+    Regular(Box<OwnedGiftRegular>),
     /// A unique owned gift.
     Unique(Box<OwnedGiftUnique>),
 }

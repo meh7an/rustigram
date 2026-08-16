@@ -1107,3 +1107,39 @@ mod input_message_content_dispatch {
         }
     }
 }
+
+#[cfg(test)]
+mod owned_gifts {
+    use rustigram_types::payments::OwnedGift;
+
+    /// `OwnedGift::Regular` used to hold `OwnedGiftUnique`, so every regular
+    /// owned gift failed to decode with "missing field `gift_id`". Nothing
+    /// referenced `OwnedGiftRegular` at all, which is how the copy-paste
+    /// survived: the type existed, so the coverage audit scored it as covered.
+    #[test]
+    fn regular_and_unique_gifts_both_decode() {
+        let regular = r#"{"type":"regular","send_date":1700000000,
+            "gift":{"id":"g1","star_count":50,
+                    "sticker":{"file_id":"f","file_unique_id":"u","type":"regular",
+                               "width":1,"height":1,"is_animated":false,"is_video":false}}}"#;
+        match serde_json::from_str::<OwnedGift>(regular).unwrap() {
+            OwnedGift::Regular(g) => assert_eq!(g.send_date, 1_700_000_000),
+            other => panic!("expected a regular gift, got {other:?}"),
+        }
+
+        let unique = r#"{"type":"unique","send_date":1700000001,
+            "gift":{"gift_id":"g1","base_name":"b","name":"n","number":1,
+                    "model":{"name":"m","sticker":{"file_id":"f","file_unique_id":"u",
+                             "type":"regular","width":1,"height":1,
+                             "is_animated":false,"is_video":false},"rarity_per_mille":1},
+                    "symbol":{"name":"s","sticker":{"file_id":"f2","file_unique_id":"u2",
+                              "type":"regular","width":1,"height":1,
+                              "is_animated":false,"is_video":false},"rarity_per_mille":1},
+                    "backdrop":{"name":"bd","colors":{"center_color":1,"edge_color":2,
+                                "symbol_color":3,"text_color":4},"rarity_per_mille":1}}}"#;
+        match serde_json::from_str::<OwnedGift>(unique).unwrap() {
+            OwnedGift::Unique(g) => assert_eq!(g.send_date, 1_700_000_001),
+            other => panic!("expected a unique gift, got {other:?}"),
+        }
+    }
+}
