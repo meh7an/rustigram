@@ -22,7 +22,7 @@ fn snapshot_loads_with_the_expected_shape() {
     assert_eq!(spec.bot_api_version, "10.2");
     assert_eq!(spec.types.len(), 388, "spec type count");
     assert_eq!(spec.methods.len(), 185, "spec method count");
-    assert_eq!(spec.discriminants.len(), 111, "discriminant count");
+    assert_eq!(spec.discriminants.len(), 168, "discriminant count");
     assert_eq!(spec.unions.len(), 26, "union count");
 }
 

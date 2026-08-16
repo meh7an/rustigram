@@ -44,7 +44,7 @@ pub struct ChosenInlineResult {
     pub query: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 /// One result to show in an inline query answer.
 ///
@@ -52,6 +52,14 @@ pub struct ChosenInlineResult {
 /// Each variant corresponds to a different content type (article, photo,
 /// video, etc.). Cached variants re-use a previously uploaded Telegram
 /// `file_id` rather than a URL.
+///
+/// # Why two variants share a discriminant
+///
+/// Telegram gives a cached result the *same* `type` as its non-cached
+/// counterpart — a cached photo is `"photo"`, not `"cached_photo"` — and tells
+/// them apart by whether the payload carries `photo_file_id` or `photo_url`.
+/// So the tag alone cannot select a variant, which is why [`Deserialize`] is
+/// implemented by hand below rather than derived.
 pub enum InlineQueryResult {
     /// A link to an article or web page.
     Article(InlineQueryResultArticle),
@@ -78,24 +86,100 @@ pub enum InlineQueryResult {
     /// A game.
     Game(InlineQueryResultGame),
     /// A photo from a Telegram `file_id`.
+    #[serde(rename = "photo")]
     CachedPhoto(InlineQueryResultCachedPhoto),
     /// A GIF from a Telegram `file_id`.
+    #[serde(rename = "gif")]
     CachedGif(InlineQueryResultCachedGif),
     /// An MPEG4 GIF from a Telegram `file_id`.
+    #[serde(rename = "mpeg4_gif")]
     CachedMpeg4Gif(InlineQueryResultCachedMpeg4Gif),
     /// A sticker from a Telegram `file_id`.
+    #[serde(rename = "sticker")]
     CachedSticker(InlineQueryResultCachedSticker),
     /// A document from a Telegram `file_id`.
+    #[serde(rename = "document")]
     CachedDocument(InlineQueryResultCachedDocument),
     /// A video from a Telegram `file_id`.
+    #[serde(rename = "video")]
     CachedVideo(InlineQueryResultCachedVideo),
     /// A voice message from a Telegram `file_id`.
+    #[serde(rename = "voice")]
     CachedVoice(InlineQueryResultCachedVoice),
     /// An audio file from a Telegram `file_id`.
+    #[serde(rename = "audio")]
     CachedAudio(InlineQueryResultCachedAudio),
 }
 
 // ─── URL-based results ────────────────────────────────────────────────────────
+
+impl<'de> Deserialize<'de> for InlineQueryResult {
+    /// Selects a variant from the `type` tag, disambiguating cached results by
+    /// the presence of their `*_file_id` field.
+    ///
+    /// A derived `#[serde(tag = "type")]` implementation cannot do this: seven
+    /// discriminants map to two variants each, and serde would silently take
+    /// whichever was declared first. That is the same failure mode as an
+    /// untagged enum matching the wrong variant — it decodes successfully and
+    /// hands back the wrong thing.
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use serde::de::Error as _;
+
+        let value = serde_json::Value::deserialize(deserializer)?;
+        let tag = value
+            .get("type")
+            .and_then(serde_json::Value::as_str)
+            .ok_or_else(|| D::Error::custom("InlineQueryResult is missing its `type` field"))?
+            .to_owned();
+        let cached = |field: &str| value.get(field).is_some();
+
+        macro_rules! into {
+            ($variant:ident, $ty:ty) => {
+                <$ty>::deserialize(value)
+                    .map(InlineQueryResult::$variant)
+                    .map_err(D::Error::custom)
+            };
+        }
+
+        match tag.as_str() {
+            "article" => into!(Article, InlineQueryResultArticle),
+            "location" => into!(Location, InlineQueryResultLocation),
+            "venue" => into!(Venue, InlineQueryResultVenue),
+            "contact" => into!(Contact, InlineQueryResultContact),
+            "game" => into!(Game, InlineQueryResultGame),
+            // Cached-only: Telegram has no URL-based sticker result.
+            "sticker" => into!(CachedSticker, InlineQueryResultCachedSticker),
+
+            "photo" if cached("photo_file_id") => into!(CachedPhoto, InlineQueryResultCachedPhoto),
+            "photo" => into!(Photo, InlineQueryResultPhoto),
+            "gif" if cached("gif_file_id") => into!(CachedGif, InlineQueryResultCachedGif),
+            "gif" => into!(Gif, InlineQueryResultGif),
+            "mpeg4_gif" if cached("mpeg4_file_id") => {
+                into!(CachedMpeg4Gif, InlineQueryResultCachedMpeg4Gif)
+            }
+            "mpeg4_gif" => into!(Mpeg4Gif, InlineQueryResultMpeg4Gif),
+            "video" if cached("video_file_id") => into!(CachedVideo, InlineQueryResultCachedVideo),
+            "video" => into!(Video, InlineQueryResultVideo),
+            "audio" if cached("audio_file_id") => into!(CachedAudio, InlineQueryResultCachedAudio),
+            "audio" => into!(Audio, InlineQueryResultAudio),
+            "voice" if cached("voice_file_id") => into!(CachedVoice, InlineQueryResultCachedVoice),
+            "voice" => into!(Voice, InlineQueryResultVoice),
+            "document" if cached("document_file_id") => {
+                into!(CachedDocument, InlineQueryResultCachedDocument)
+            }
+            "document" => into!(Document, InlineQueryResultDocument),
+
+            // Phrased as serde phrases it, so tooling that matches on
+            // "unknown variant" keeps working across the manual impl.
+            other => Err(D::Error::custom(format!(
+                "unknown variant `{other}`, expected a valid InlineQueryResult type"
+            ))),
+        }
+    }
+}
 
 /// A link to an article or web page.
 #[derive(Debug, Clone, Serialize, Deserialize)]

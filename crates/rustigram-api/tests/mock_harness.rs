@@ -106,7 +106,10 @@ async fn multipart_uploads_are_observable() {
         "byte uploads must use multipart, got {content_type}"
     );
 
-    mock::assert_multipart_fields(&request, &["caption", "chat_id", "photo", "protect_content"]);
+    mock::assert_multipart_fields(
+        &request,
+        &["caption", "chat_id", "photo", "protect_content"],
+    );
 }
 
 /// `only_request` must fail when the call count is wrong, or a body assertion
@@ -145,7 +148,11 @@ async fn servers_are_isolated_from_each_other() {
     mock::mount_ok(&server_a, "sendMessage", message_result()).await;
     mock::mount_ok(&server_b, "sendMessage", message_result()).await;
 
-    assert_ne!(server_a.uri(), server_b.uri(), "each server gets its own port");
+    assert_ne!(
+        server_a.uri(),
+        server_b.uri(),
+        "each server gets its own port"
+    );
 
     client_a.send_message(1_i64, "a").await.unwrap();
     client_b.send_message(2_i64, "b").await.unwrap();
