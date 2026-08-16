@@ -91,7 +91,7 @@ fn reachable(impl_body: &str, field: &str) -> bool {
         if let Some(value) = rest.strip_prefix(':') {
             let value = value
                 .trim_start()
-                .split(|c| c == ',' || c == '\n' || c == '}')
+                .split([',', '\n', '}'])
                 .next()
                 .unwrap_or("")
                 .trim();
