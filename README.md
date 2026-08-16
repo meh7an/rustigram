@@ -165,23 +165,28 @@ The poller automatically advances the offset after each batch, so updates are ne
 ### Webhook
 
 ```rust
+let addr = "0.0.0.0:8443".parse()?;
+let secret = "change_me";
+
 // Register the webhook URL with Telegram once
 bot.client
     .set_webhook("https://example.com/")
-    .secret_token("change_me")
+    .secret_token(secret)
     .await?;
 
-// Start the axum-based server
+// Start the axum-based server, validating the same secret
 bot.dispatcher()
     .on(filters::message(), handler_fn(my_handler))
     .build()
-    .webhook("0.0.0.0:8443".parse()?)
+    .webhook(WebhookConfig::new(addr).secret_token(secret))
     .await?;
 ```
 
 Supported Telegram webhook ports: **443, 80, 88, 8443**.
 
-The secret token is validated on every incoming request. Requests with a missing or incorrect `X-Telegram-Bot-Api-Secret-Token` header are rejected with HTTP 401.
+When a secret is configured, it is validated on every incoming request: a missing or incorrect `X-Telegram-Bot-Api-Secret-Token` header is rejected with HTTP 401. The secret must be given to **both** sides — `set_webhook` tells Telegram to send the header, `WebhookConfig` makes the server check it.
+
+Passing a bare address instead — `.webhook(addr)` — skips the check entirely, which is only appropriate when the port is unreachable from the public internet. The server logs a warning at startup in that case.
 
 ---
 
@@ -608,7 +613,7 @@ async fn main() -> anyhow::Result<()> {
         .on(filters::command("start"), handler_fn(start_handler))
         .on(filters::message(),        handler_fn(echo_handler))
         .build()
-        .webhook(bind_addr.parse()?)
+        .webhook(WebhookConfig::new(bind_addr.parse()?).secret_token(&secret))
         .await?;
 
     Ok(())

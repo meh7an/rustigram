@@ -30,6 +30,10 @@ async fn main() -> anyhow::Result<()> {
 
     let addr: std::net::SocketAddr = "0.0.0.0:8443".parse()?;
 
+    // The same secret must be given to both sides: `set_webhook` tells Telegram
+    // to send it, and `WebhookConfig` makes the server check it. Passing a bare
+    // address here would register the token and then never validate it.
+
     bot.dispatcher()
         .on(
             filters::command("start"),
@@ -52,7 +56,7 @@ async fn main() -> anyhow::Result<()> {
             }),
         )
         .build()
-        .webhook(addr)
+        .webhook(WebhookConfig::new(addr).secret_token(secret))
         .await?;
 
     Ok(())

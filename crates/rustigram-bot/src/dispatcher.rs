@@ -193,18 +193,39 @@ impl Dispatcher {
         }
     }
 
-    /// Starts an axum-based webhook server on `addr`, blocking until shutdown.
+    /// Starts an axum-based webhook server, blocking until shutdown.
     ///
-    /// Telegram must already be configured to deliver updates to your server.
-    /// Call [`rustigram_api::BotClient::set_webhook`] once before starting this server, or
-    /// use `update_listener::webhook::WebhookServer` directly for more control.
+    /// Accepts a bare [`SocketAddr`](std::net::SocketAddr) or a
+    /// [`WebhookConfig`](crate::update_listener::webhook::WebhookConfig).
+    /// Pass the config form to have Telegram's
+    /// `X-Telegram-Bot-Api-Secret-Token` header validated on every request —
+    /// with a bare address the header is not checked, and anything that can
+    /// reach the port can post updates.
+    ///
+    /// Telegram must already be configured to deliver updates to your server:
+    /// call [`rustigram_api::BotClient::set_webhook`] once beforehand with the
+    /// same secret.
+    ///
+    /// ```rust,ignore
+    /// dispatcher
+    ///     .webhook(WebhookConfig::new(addr).secret_token(&secret))
+    ///     .await?;
+    /// ```
     ///
     /// # Errors
     ///
     /// Returns a [`BotError`] if the TCP listener cannot be bound.
-    pub async fn webhook(self, addr: std::net::SocketAddr) -> BotResult<()> {
+    pub async fn webhook(
+        self,
+        config: impl Into<crate::update_listener::webhook::WebhookConfig>,
+    ) -> BotResult<()> {
         use crate::update_listener::webhook::WebhookServer;
-        info!("Starting webhook dispatcher on {}", addr);
-        WebhookServer::new(addr, self).serve().await
+        let config = config.into();
+        info!("Starting webhook dispatcher on {}", config.addr);
+        let mut server = WebhookServer::new(config.addr, self);
+        if let Some(secret) = config.secret_token {
+            server = server.secret_token(secret);
+        }
+        server.serve().await
     }
 }

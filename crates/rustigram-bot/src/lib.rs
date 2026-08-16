@@ -75,3 +75,4 @@ pub use error::{BotError, BotResult};
 pub use filter::{Filter, FilterExt};
 pub use handler::{Handler, HandlerFn};
 pub use state::StateStorage;
+pub use update_listener::webhook::WebhookConfig;

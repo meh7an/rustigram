@@ -1316,6 +1316,7 @@ dependencies = [
  "rustigram-types",
  "thiserror",
  "tokio",
+ "tower",
  "tracing",
  "tracing-subscriber",
 ]

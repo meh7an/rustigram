@@ -62,7 +62,7 @@ pub mod prelude {
         filter::{filters, Filter, FilterExt},
         handler::handler_fn,
         state::{DialogueStorage, StateStorage},
-        Bot, BotResult, Context,
+        Bot, BotResult, Context, WebhookConfig,
     };
     pub use rustigram_types::{
         keyboard::{InlineKeyboardButton, InlineKeyboardMarkup, ReplyMarkup},
